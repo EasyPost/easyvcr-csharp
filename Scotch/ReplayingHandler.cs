@@ -1,39 +1,46 @@
-namespace Scotch;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
-public class ReplayingHandler : DelegatingHandler
+namespace Scotch
 {
-    private readonly string _cassettePath;
-
-    public ReplayingHandler(HttpMessageHandler innerHandler, string cassettePath)
+    public class ReplayingHandler : DelegatingHandler
     {
-        InnerHandler = innerHandler;
-        _cassettePath = cassettePath;
-    }
+        private readonly string _cassettePath;
 
-    public ReplayingHandler(string cassettePath)
-    {
-        InnerHandler = new HttpClientHandler();
-        _cassettePath = cassettePath;
-    }
-
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        var interactions = Cassette.ReadCassette(_cassettePath);
-        var receivedRequest = await Helpers.ToRequestAsync(request);
-
-        HttpInteraction matchedInteraction;
-
-        try
+        public ReplayingHandler(HttpMessageHandler innerHandler, string cassettePath)
         {
-            matchedInteraction = interactions.First(i => Helpers.RequestsMatch(receivedRequest, i.Request));
-        }
-        catch (InvalidOperationException)
-        {
-            throw new VCRException($"No interaction found for request {receivedRequest.Method} {receivedRequest.Uri}");
+            InnerHandler = innerHandler;
+            _cassettePath = cassettePath;
         }
 
-        var matchedResponse = matchedInteraction.Response;
-        var responseMessage = matchedResponse.ToHttpResponseMessage(request);
-        return responseMessage;
+        public ReplayingHandler(string cassettePath)
+        {
+            InnerHandler = new HttpClientHandler();
+            _cassettePath = cassettePath;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var interactions = Cassette.ReadCassette(_cassettePath);
+            var receivedRequest = await Helpers.ToRequestAsync(request);
+
+            HttpInteraction matchedInteraction;
+
+            try
+            {
+                matchedInteraction = interactions.First(i => Helpers.RequestsMatch(receivedRequest, i.Request));
+            }
+            catch (InvalidOperationException)
+            {
+                throw new VCRException($"No interaction found for request {receivedRequest.Method} {receivedRequest.Uri}");
+            }
+
+            var matchedResponse = matchedInteraction.Response;
+            var responseMessage = matchedResponse.ToHttpResponseMessage(request);
+            return responseMessage;
+        }
     }
 }

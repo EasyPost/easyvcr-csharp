@@ -44,14 +44,14 @@ namespace Scotch.Tests
             var albumService = new AlbumService(httpClient);
             var album1 = await albumService.GetAsync(4);
             var album2 = await albumService.GetAsync(5);
-            
+
             Assert.AreEqual(4, album1.Id);
             Assert.AreEqual(5, album2.Id);
 
             var postInteractionsInCassette = Cassette.ReadCassette(_testCassettePath);
             Assert.AreEqual(currentCount + 2, postInteractionsInCassette.Count());
         }
-        
+
         public void Dispose()
         {
             File.Delete(_newCassettePath);

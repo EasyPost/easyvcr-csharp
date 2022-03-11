@@ -22,7 +22,7 @@ namespace Scotch.Tests
 
             var albumService = new AlbumService(httpClient);
             var album = await albumService.GetAsync(2);
-            
+
             Assert.AreEqual("Hunky Dory", album.Title);
         }
 
@@ -33,7 +33,7 @@ namespace Scotch.Tests
 
             var url = "https://jsonplaceholder.typicode.com/albums/2";
             var response = await httpClient.GetAsync(url);
-            
+
             Assert.AreEqual("application/json", response.Content.Headers.ContentType.MediaType);
         }
     }

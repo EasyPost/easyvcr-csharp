@@ -1,8 +1,11 @@
-namespace Scotch;
+using System;
 
-public class VCRException : Exception
+namespace Scotch
 {
-    public VCRException(string message) : base(message)
+    internal class VCRException : Exception
     {
+        public VCRException(string message) : base(message)
+        {
+        }
     }
 }

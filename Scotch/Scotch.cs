@@ -1,37 +1,41 @@
-namespace Scotch;
+using System.Collections.Generic;
+using System.Net.Http;
 
-public enum ScotchMode
+namespace Scotch
 {
-    None = 0,
-    Recording = 1,
-    Replaying = 2
-}
-
-public static class HttpClients
-{
-    private static List<string>? DefaultCredentialHeadersToHide => new()
+    public enum ScotchMode
     {
-        {
-            "Authorization"
-        }
-    };
-
-    public static HttpClient NewHttpClient(string cassettePath, ScotchMode mode, bool hideCredentials = false)
-    {
-        return NewHttpClientWithHandler(new HttpClientHandler(), cassettePath, mode, hideCredentials);
+        None = 0,
+        Recording = 1,
+        Replaying = 2
     }
 
-    public static HttpClient NewHttpClientWithHandler(HttpMessageHandler innerHandler, string cassettePath, ScotchMode mode, bool hideCredentials = false)
+    public static class HttpClients
     {
-        switch (mode)
+        private static List<string>? DefaultCredentialHeadersToHide => new()
         {
-            case ScotchMode.Recording:
-                return new HttpClient(new RecordingHandler(innerHandler, cassettePath, hideCredentials ? DefaultCredentialHeadersToHide : null));
-            case ScotchMode.Replaying:
-                return new HttpClient(new ReplayingHandler(innerHandler, cassettePath));
-            case ScotchMode.None:
-            default:
-                return new HttpClient(innerHandler);
+            {
+                "Authorization"
+            }
+        };
+
+        public static HttpClient NewHttpClient(string cassettePath, ScotchMode mode, bool hideCredentials = false)
+        {
+            return NewHttpClientWithHandler(new HttpClientHandler(), cassettePath, mode, hideCredentials);
+        }
+
+        public static HttpClient NewHttpClientWithHandler(HttpMessageHandler innerHandler, string cassettePath, ScotchMode mode, bool hideCredentials = false)
+        {
+            switch (mode)
+            {
+                case ScotchMode.Recording:
+                    return new HttpClient(new RecordingHandler(innerHandler, cassettePath, hideCredentials ? DefaultCredentialHeadersToHide : null));
+                case ScotchMode.Replaying:
+                    return new HttpClient(new ReplayingHandler(innerHandler, cassettePath));
+                case ScotchMode.None:
+                default:
+                    return new HttpClient(innerHandler);
+            }
         }
     }
 }

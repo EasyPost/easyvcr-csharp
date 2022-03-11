@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 
 namespace Scotch.Tests
 {
-
     public class Album
     {
         public int Id { get; }

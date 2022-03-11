@@ -1,43 +1,50 @@
-namespace Scotch;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
-public class RecordingHandler : DelegatingHandler
+namespace Scotch
 {
-    private readonly string _cassettePath;
-
-    private readonly List<string>? _headersToHide;
-
-    public RecordingHandler(HttpMessageHandler innerHandler, string cassettePath, List<string>? headersToHide = null)
+    public class RecordingHandler : DelegatingHandler
     {
-        InnerHandler = innerHandler;
-        _cassettePath = cassettePath;
-        _headersToHide = headersToHide;
-    }
+        private readonly string _cassettePath;
 
-    public RecordingHandler(string cassettePath)
-    {
-        InnerHandler = new HttpClientHandler();
-        _cassettePath = cassettePath;
-        _headersToHide = new List<string>();
-    }
+        private readonly List<string>? _headersToHide;
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        var baseResult = base.SendAsync(request, cancellationToken);
-
-        await Task.Run(async () =>
+        public RecordingHandler(HttpMessageHandler innerHandler, string cassettePath, List<string>? headersToHide = null)
         {
-            var response = await baseResult;
-            var interactionRequest = await Helpers.ToRequestAsync(request, _headersToHide);
-            var interactionResponse = await Helpers.ToResponseAsync(response, _headersToHide);
-            var httpInteraction = new HttpInteraction
-            {
-                Request = interactionRequest,
-                Response = interactionResponse,
-                RecordedAt = DateTimeOffset.Now
-            };
-            Cassette.UpdateInteraction(_cassettePath, httpInteraction);
-        });
+            InnerHandler = innerHandler;
+            _cassettePath = cassettePath;
+            _headersToHide = headersToHide;
+        }
 
-        return baseResult.Result;
+        public RecordingHandler(string cassettePath)
+        {
+            InnerHandler = new HttpClientHandler();
+            _cassettePath = cassettePath;
+            _headersToHide = new List<string>();
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var baseResult = base.SendAsync(request, cancellationToken);
+
+            await Task.Run(async () =>
+            {
+                var response = await baseResult;
+                var interactionRequest = await Helpers.ToRequestAsync(request, _headersToHide);
+                var interactionResponse = await Helpers.ToResponseAsync(response, _headersToHide);
+                var httpInteraction = new HttpInteraction
+                {
+                    Request = interactionRequest,
+                    Response = interactionResponse,
+                    RecordedAt = DateTimeOffset.Now
+                };
+                Cassette.UpdateInteraction(_cassettePath, httpInteraction);
+            });
+
+            return baseResult.Result;
+        }
     }
 }
