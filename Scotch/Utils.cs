@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Scotch
 {
-    internal static class Tools
+    public static class Utils
     {
         public static string GetFilePathInCurrentDirectory(string fileName)
         {
