@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Scotch.Tests
+namespace EasyPost.Scotch.Tests
 {
     public static class TestHelpers
     {

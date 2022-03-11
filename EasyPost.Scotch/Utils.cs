@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Scotch
+namespace EasyPost.Scotch
 {
     public static class Utils
     {

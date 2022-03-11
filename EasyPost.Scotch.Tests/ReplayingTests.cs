@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Scotch.Tests
+namespace EasyPost.Scotch.Tests
 {
     [TestClass]
     public class ReplayingTests

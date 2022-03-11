@@ -1,6 +1,6 @@
 using System;
 
-namespace Scotch
+namespace EasyPost.Scotch
 {
     internal class VCRException : Exception
     {

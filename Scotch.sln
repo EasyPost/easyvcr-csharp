@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scotch", "Scotch\Scotch.csproj", "{548240D7-3DDC-4256-A3EB-86FB249E3375}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyPost.Scotch", "EasyPost.Scotch\EasyPost.Scotch.csproj", "{548240D7-3DDC-4256-A3EB-86FB249E3375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scotch.Tests", "Scotch.Tests\Scotch.Tests.csproj", "{F44D9A65-279B-47B9-8CF0-11CB3ACC4370}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyPost.Scotch.Tests", "EasyPost.Scotch.Tests\EasyPost.Scotch.Tests.csproj", "{F44D9A65-279B-47B9-8CF0-11CB3ACC4370}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

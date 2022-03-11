@@ -4,11 +4,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Scotch
+namespace EasyPost.Scotch
 {
     public static class Cassette
     {
-        public static object locker = new();
+        private static object locker = new();
 
         public static IEnumerable<HttpInteraction> ReadCassette(string cassettePath)
         {
@@ -16,6 +16,7 @@ namespace Scotch
 
             var jsonString = File.ReadAllText(cassettePath);
             var cassetteParseResult = JsonConvert.DeserializeObject<List<HttpInteraction>>(jsonString, new VersionConverter());
+            if (cassetteParseResult == null) throw new VCRException("Could not parse cassette file");
             return cassetteParseResult;
         }
 
@@ -40,7 +41,7 @@ namespace Scotch
             }
         }
 
-        public static void WriteCassette(string cassettePath, IEnumerable<HttpInteraction> httpInteraction)
+        private static void WriteCassette(string cassettePath, IEnumerable<HttpInteraction> httpInteraction)
         {
             var serializedInteraction = JsonConvert.SerializeObject(httpInteraction.ToList(), Formatting.Indented, new VersionConverter());
             File.WriteAllText(cassettePath, serializedInteraction.ToString());

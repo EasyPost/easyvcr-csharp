@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Scotch
+namespace EasyPost.Scotch
 {
     public class RecordingHandler : DelegatingHandler
     {

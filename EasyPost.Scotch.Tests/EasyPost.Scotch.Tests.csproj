@@ -8,9 +8,10 @@
         <OutputType>Library</OutputType>
         <StartupObject />
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <RootNamespace>EasyPost.Scotch.Tests</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Scotch\Scotch.csproj" />
+        <ProjectReference Include="..\EasyPost.Scotch\EasyPost.Scotch.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
