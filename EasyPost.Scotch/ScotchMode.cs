@@ -1,8 +1,9 @@
-namespace EasyPost.Scotch;
-
-public enum ScotchMode
+namespace EasyPost.Scotch
 {
-    None = 0,
-    Recording = 1,
-    Replaying = 2
+    public enum ScotchMode
+    {
+        None = 0,
+        Recording = 1,
+        Replaying = 2
+    }
 }
