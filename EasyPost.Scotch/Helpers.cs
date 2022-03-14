@@ -4,63 +4,64 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace EasyPost.Scotch;
-
-public static class Helpers
+namespace EasyPost.Scotch
 {
-    public static bool RequestsMatch(Request receivedRequest, Request recordedRequest)
+    public static class Helpers
     {
-        return receivedRequest.Method.Equals(recordedRequest.Method, StringComparison.OrdinalIgnoreCase)
-               && receivedRequest.Uri.Equals(recordedRequest.Uri, StringComparison.OrdinalIgnoreCase);
-    }
-
-    public static async Task<Request> ToRequestAsync(HttpRequestMessage request, List<string>? headersToHide = null)
-    {
-        var requestBody = await ToStringAsync(request.Content);
-        return new Request
+        public static bool RequestsMatch(Request receivedRequest, Request recordedRequest)
         {
-            Method = request.Method.ToString(),
-            Uri = request.RequestUri.ToString(),
-            RequestHeaders = ToHeaders(request.Headers, headersToHide),
-            ContentHeaders = ToContentHeaders(request.Content),
-            Body = requestBody
-        };
-    }
+            return receivedRequest.Method.Equals(recordedRequest.Method, StringComparison.OrdinalIgnoreCase)
+                   && receivedRequest.Uri.Equals(recordedRequest.Uri, StringComparison.OrdinalIgnoreCase);
+        }
 
-    public static async Task<Response> ToResponseAsync(HttpResponseMessage response, List<string>? headersToHide = null)
-    {
-        var responseBody = await ToStringAsync(response.Content);
-        return new Response
+        public static async Task<Request> ToRequestAsync(HttpRequestMessage request, List<string>? headersToHide = null)
         {
-            Status = new Status
+            var requestBody = await ToStringAsync(request.Content);
+            return new Request
             {
-                Code = response.StatusCode,
-                Message = response.ReasonPhrase
-            },
-            ResponseHeaders = ToHeaders(response.Headers, headersToHide),
-            ContentHeaders = ToContentHeaders(response.Content),
-            Body = responseBody,
-            HttpVersion = response.Version
-        };
-    }
+                Method = request.Method.ToString(),
+                Uri = request.RequestUri.ToString(),
+                RequestHeaders = ToHeaders(request.Headers, headersToHide),
+                ContentHeaders = ToContentHeaders(request.Content),
+                Body = requestBody
+            };
+        }
 
-    private static IDictionary<string, string> ToContentHeaders(HttpContent? content)
-    {
-        return content == null ? new Dictionary<string, string>() : ToHeaders(content.Headers);
-    }
+        public static async Task<Response> ToResponseAsync(HttpResponseMessage response, List<string>? headersToHide = null)
+        {
+            var responseBody = await ToStringAsync(response.Content);
+            return new Response
+            {
+                Status = new Status
+                {
+                    Code = response.StatusCode,
+                    Message = response.ReasonPhrase
+                },
+                ResponseHeaders = ToHeaders(response.Headers, headersToHide),
+                ContentHeaders = ToContentHeaders(response.Content),
+                Body = responseBody,
+                HttpVersion = response.Version
+            };
+        }
 
-    private static IDictionary<string, string> ToHeaders(HttpHeaders headers, List<string>? headersToHide = null)
-    {
-        headersToHide ??= new List<string>();
+        private static IDictionary<string, string> ToContentHeaders(HttpContent? content)
+        {
+            return content == null ? new Dictionary<string, string>() : ToHeaders(content.Headers);
+        }
 
-        IDictionary<string, string> dict = new Dictionary<string, string>();
-        foreach (var h in headers) dict.Add(h.Key, headersToHide.Contains(h.Key) ? "********" : string.Join(",", h.Value));
+        private static IDictionary<string, string> ToHeaders(HttpHeaders headers, List<string>? headersToHide = null)
+        {
+            headersToHide ??= new List<string>();
 
-        return dict;
-    }
+            IDictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (var h in headers) dict.Add(h.Key, headersToHide.Contains(h.Key) ? "********" : string.Join(",", h.Value));
 
-    private static async Task<string> ToStringAsync(HttpContent? content)
-    {
-        return content == null ? string.Empty : await content.ReadAsStringAsync();
+            return dict;
+        }
+
+        private static async Task<string> ToStringAsync(HttpContent? content)
+        {
+            return content == null ? string.Empty : await content.ReadAsStringAsync();
+        }
     }
 }

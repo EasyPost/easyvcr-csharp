@@ -1,9 +1,10 @@
 using System.Net;
 
-namespace EasyPost.Scotch;
-
-public class Status
+namespace EasyPost.Scotch
 {
-    public HttpStatusCode Code { get; set; }
-    public string? Message { get; set; }
+    public class Status
+    {
+        public HttpStatusCode Code { get; set; }
+        public string? Message { get; set; }
+    }
 }
