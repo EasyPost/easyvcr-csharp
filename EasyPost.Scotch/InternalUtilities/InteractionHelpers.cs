@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using EasyPost.Scotch.RequestElements;
 
-namespace EasyPost.Scotch
+namespace EasyPost.Scotch.InternalUtilities
 {
-    public static class Helpers
+    internal static class InteractionHelpers
     {
-        public static bool RequestsMatch(Request receivedRequest, Request recordedRequest)
+        internal static bool RequestsMatch(Request receivedRequest, Request recordedRequest)
         {
             return receivedRequest.Method.Equals(recordedRequest.Method, StringComparison.OrdinalIgnoreCase)
                    && receivedRequest.Uri.Equals(recordedRequest.Uri, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static async Task<Request> ToRequestAsync(HttpRequestMessage request, List<string>? headersToHide = null)
+        internal static async Task<Request> ToRequestAsync(HttpRequestMessage request, List<string>? headersToHide = null)
         {
             var requestBody = await ToStringAsync(request.Content);
             return new Request
@@ -27,7 +28,7 @@ namespace EasyPost.Scotch
             };
         }
 
-        public static async Task<Response> ToResponseAsync(HttpResponseMessage response, List<string>? headersToHide = null)
+        internal static async Task<Response> ToResponseAsync(HttpResponseMessage response, List<string>? headersToHide = null)
         {
             var responseBody = await ToStringAsync(response.Content);
             return new Response

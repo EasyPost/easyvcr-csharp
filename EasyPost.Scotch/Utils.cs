@@ -6,6 +6,11 @@ namespace EasyPost.Scotch
 {
     public static class Utils
     {
+        public static string GetFilePath(string folderPath, string fileName)
+        {
+            return Path.Combine(folderPath, fileName);
+        }
+
         public static string GetFilePathInCurrentDirectory(string fileName)
         {
             return Path.Combine(GetSourceFileDirectory(), fileName);

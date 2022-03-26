@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-        <LangVersion>latestMajor</LangVersion>
+        <LangVersion>9</LangVersion>
         <RootNamespace>EasyPost.Scotch</RootNamespace>
     </PropertyGroup>
 

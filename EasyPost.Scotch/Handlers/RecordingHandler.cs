@@ -3,27 +3,22 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using EasyPost.Scotch.InternalUtilities;
+using EasyPost.Scotch.RequestElements;
 
-namespace EasyPost.Scotch
+namespace EasyPost.Scotch.Handlers
 {
     public class RecordingHandler : DelegatingHandler
     {
-        private readonly string _cassettePath;
+        private readonly Cassette _cassette;
 
         private readonly List<string>? _headersToHide;
 
-        public RecordingHandler(HttpMessageHandler innerHandler, string cassettePath, List<string>? headersToHide = null)
+        internal RecordingHandler(HttpMessageHandler innerHandler, Cassette cassette, List<string>? headersToHide = null)
         {
             InnerHandler = innerHandler;
-            _cassettePath = cassettePath;
+            _cassette = cassette;
             _headersToHide = headersToHide;
-        }
-
-        public RecordingHandler(string cassettePath)
-        {
-            InnerHandler = new HttpClientHandler();
-            _cassettePath = cassettePath;
-            _headersToHide = new List<string>();
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -33,15 +28,15 @@ namespace EasyPost.Scotch
             await Task.Run(async () =>
             {
                 var response = await baseResult;
-                var interactionRequest = await Helpers.ToRequestAsync(request, _headersToHide);
-                var interactionResponse = await Helpers.ToResponseAsync(response, _headersToHide);
+                var interactionRequest = await InteractionHelpers.ToRequestAsync(request, _headersToHide);
+                var interactionResponse = await InteractionHelpers.ToResponseAsync(response, _headersToHide);
                 var httpInteraction = new HttpInteraction
                 {
                     Request = interactionRequest,
                     Response = interactionResponse,
                     RecordedAt = DateTimeOffset.Now
                 };
-                Cassette.UpdateInteraction(_cassettePath, httpInteraction);
+                _cassette.UpdateInteraction(httpInteraction);
             });
 
             return baseResult.Result;
