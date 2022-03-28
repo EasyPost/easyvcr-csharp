@@ -1,8 +1,8 @@
 using System;
 
-namespace EasyPost.Scotch.InternalUtilities
+namespace EasyPost.Scotch
 {
-    internal class VCRException : Exception
+    public class VCRException : Exception
     {
         internal VCRException(string message) : base(message)
         {

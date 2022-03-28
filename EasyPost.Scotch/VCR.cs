@@ -14,10 +14,18 @@ namespace EasyPost.Scotch
     public class VCR
     {
         public VCRSettings? Settings { get; set; }
-        
+
+        public string? CassetteName
+        {
+            get
+            {
+                return _currentCassette?.Name;
+            }
+        }
+
         private Cassette? _currentCassette;
         
-        private ScotchMode _mode;
+        public ScotchMode Mode { get; private set; }
 
         public HttpClient Client
         {
@@ -27,7 +35,7 @@ namespace EasyPost.Scotch
                 {
                     throw new InvalidOperationException("No cassette is currently loaded.");
                 }
-                return HttpClients.NewHttpClient(_currentCassette, _mode, Settings?.HideCredentials ?? false, Settings?.HeadersToHide);
+                return HttpClients.NewHttpClient(_currentCassette, Mode, Settings?.HideCredentials ?? false, Settings?.HeadersToHide);
             }
         }
 
@@ -48,17 +56,17 @@ namespace EasyPost.Scotch
 
         public void Record()
         {
-            _mode = ScotchMode.Recording;
+            Mode = ScotchMode.Recording;
         }
         
         public void Replay()
         {
-            _mode = ScotchMode.Replaying;
+            Mode = ScotchMode.Replaying;
         }
         
         public void Pause()
         {
-            _mode = ScotchMode.None;
+            Mode = ScotchMode.None;
         }
     }
 }

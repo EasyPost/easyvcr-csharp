@@ -14,7 +14,8 @@ namespace EasyPost.Scotch
     {
         private static object _fileLocker = new();
 
-        public readonly string FilePath;
+        public readonly string Name;
+        private readonly string _filePath;
         private bool _locked;
         private readonly IOrderOption _orderOption;
 
@@ -23,12 +24,13 @@ namespace EasyPost.Scotch
         public Cassette(string folderPath, string cassetteName, IOrderOption? order = null)
         {
             _orderOption = order ?? new CassetteOrder.Alphabetical();
-            FilePath = Utils.GetFilePath(folderPath, $"{cassetteName}.json");
+            Name = cassetteName;
+            _filePath = Utils.GetFilePath(folderPath, $"{cassetteName}.json");
         }
 
         public void Erase()
         {
-            File.Delete(FilePath);
+            File.Delete(_filePath);
         }
 
         public void Lock()
@@ -45,12 +47,12 @@ namespace EasyPost.Scotch
         {
             CheckIfLocked();
 
-            if (!File.Exists(FilePath))
+            if (!File.Exists(_filePath))
             {
                 return Enumerable.Empty<HttpInteraction>();
             }
 
-            var jsonString = File.ReadAllText(FilePath);
+            var jsonString = File.ReadAllText(_filePath);
             var cassetteParseResult = Serialization.ConvertJsonToObject<List<HttpInteraction>>(jsonString, new VersionConverter());
             if (cassetteParseResult == null)
             {
@@ -95,7 +97,7 @@ namespace EasyPost.Scotch
                 throw new VCRException("Could not serialize cassette");
             }
 
-            File.WriteAllText(FilePath, serializedInteraction);
+            File.WriteAllText(_filePath, serializedInteraction);
         }
     }
 }
