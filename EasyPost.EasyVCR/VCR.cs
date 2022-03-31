@@ -3,24 +3,6 @@ using System.Net.Http;
 
 namespace EasyPost.EasyVCR
 {
-    public class VCRSettings
-    {
-        /// <summary>
-        ///     Censors to apply to the requests and responses.
-        /// </summary>
-        public Censors? Censors { get; set; }
-
-        /// <summary>
-        ///     Advanced. Custom converters to use when converting HttpRequestMessage and HttpResponseMessage to Request and
-        ///     Response objects.
-        /// </summary>
-        public IInteractionConverter? InteractionConverter { get; set; }
-        /// <summary>
-        ///     Advanced. Rules to use when matching requests to recorded responses.
-        /// </summary>
-        public MatchRules? MatchRules { get; set; }
-    }
-
     public class VCR
     {
         /// <summary>
@@ -43,7 +25,7 @@ namespace EasyPost.EasyVCR
             {
                 if (_currentCassette == null) throw new InvalidOperationException("No cassette is currently loaded.");
 
-                return HttpClients.NewHttpClient(_currentCassette, Mode, Settings?.Censors, Settings?.MatchRules, Settings?.InteractionConverter);
+                return HttpClients.NewHttpClient(_currentCassette, Mode, AdvancedSettings);
             }
         }
 
@@ -64,19 +46,19 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        ///     Settings for the VCR.
+        ///     Advanced settings for the VCR.
         /// </summary>
-        public VCRSettings? Settings { get; set; }
+        public AdvancedSettings? AdvancedSettings { get; set; }
 
         private Mode _mode { get; set; }
 
         /// <summary>
         ///     Create a new VCR.
         /// </summary>
-        /// <param name="settings">VCRSettings to use.</param>
-        public VCR(VCRSettings? settings = null)
+        /// <param name="advancedSettings">AdvancedSettings to use.</param>
+        public VCR(AdvancedSettings? advancedSettings = null)
         {
-            Settings = settings;
+            AdvancedSettings = advancedSettings;
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace EasyPost.EasyVCR.Tests
 
         public VCRTest()
         {
-            var settings = new VCRSettings
+            var settings = new AdvancedSettings
             {
                 Censors = null
             };

@@ -1,42 +1,18 @@
-#### 0.2.0 - 2018-04-23
-* Update to Netstandard1.6
-
-**NB**: The serialization format of the cassette file has changed slightly. Where headers used to be serialized like this:
-```json
-    "responseHeaders": [
-        {
-            "Connection": "keep-alive"
-        },
-        {
-            "Vary": "Origin"
-        }
-    ],
-    "contentHeaders": [
-        {
-            "Content-Length": "64"
-        },
-        {
-            "Content-Type": "application/json; charset=utf-8"
-        },
-    ]
-```
-
-They are now serialized like this:
-
-```json
-    "responseHeaders": {
-        "Connection": "keep-alive",
-        "Vary": "Origin"
-    },
-    "contentHeaders": {
-        "Content-Length": "64",
-        "Content-Type": "application/json; charset=utf-8"
-    },
-```
-Existing cassette files will need to be re-recorded, or edited to match the new format.
-
-#### 0.1.1 - 2017-09-26
-* Fix for #1 - Fix issue with ContentType header when replaying request
-
-#### 0.1.0 - 2016-05-06
-* Initial version
+### NEXT RELEASE
+- Initial release
+- Support for .NET Core 3.1, .NET 5.0, .NET 6.0 and .NET Standard 2.0
+- Support for Auto mode (replay a request if it exists, otherwise record a new one)
+- Introduce `VCR` as a singleton users can use to track cassettes and mode with unified settings
+  - For users not wanting to use `VCR`, a recording-capable `HttpClient` can be retrieved via the `HttpClients` class
+- Support for Bypass mode (skip cassette process, make a normal HTTP request)
+- Support for storing mode in environment variables as `EASYVCR_MODE`
+  - Bypass mode overrides environment variable
+  - Only available in `VCR`
+- Support for advanced settings via `AdvancedSettings`
+  - Simulate a delay on each pre-recorded request via `SimulateDelay`
+  - Override default rules to hide headers, query parameters and body parameters in cassettes via `Censors`
+  - Override default rules when determining if a request matches an existing record via `MatchRules` (advanced)
+  - Override default conversion of HttpRequestMessage and HttpResponseMessage objects via `IInteractionConverter`(advanced)
+    - This will hopefully allow users to adjust in case System.Net.Http introduces breaking changes in the future, without requiring an update to this package.
+- Support for custom ordering of JSON in cassette files via `CassetteOrder` and `IOrderOption` (advanced)
+  - Cassette elements default to being ordered alphabetically

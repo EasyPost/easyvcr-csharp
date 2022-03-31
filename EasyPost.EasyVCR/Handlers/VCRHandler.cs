@@ -14,19 +14,20 @@ namespace EasyPost.EasyVCR.Handlers
 
         private readonly Censors _censors;
         private readonly IInteractionConverter _interactionConverter;
-
         private readonly MatchRules _matchRules;
-
         private readonly Mode _mode;
+        private readonly TimeSpan? _delay;
 
-        internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, Censors? censors = null, MatchRules? matchRules = null, IInteractionConverter? customInteractionConverter = null)
+        internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
             InnerHandler = innerHandler;
             _cassette = cassette;
             _mode = mode;
-            _censors = censors ?? Censors.Default;
-            _matchRules = matchRules ?? MatchRules.Default;
-            _interactionConverter = customInteractionConverter ?? new DefaultInteractionConverter();
+
+            _censors = advancedSettings?.Censors ?? new Censors();
+            _interactionConverter = advancedSettings?.InteractionConverter ?? new DefaultInteractionConverter();
+            _matchRules = advancedSettings?.MatchRules ?? new MatchRules();
+            _delay = advancedSettings?.Delay;
         }
 
         /// <summary>
@@ -49,15 +50,23 @@ namespace EasyPost.EasyVCR.Handlers
                     // try to get recorded request
                     var replayInteraction = await FindMatchingInteraction(request);
                     if (replayInteraction != null)
+                    {
+                        // simulate delay if configured
+                        await SimulateDelay(cancellationToken);
                         // found a matching interaction, replay response
                         return replayInteraction.Response.ToHttpResponseMessage(request);
+                    }
                     throw new VCRException($"No interaction found for request {request.Method} {request.RequestUri}");
                 case Mode.Auto:
                     // try to get recorded request
                     var autoInteraction = await FindMatchingInteraction(request);
                     if (autoInteraction != null)
+                    {
+                        // simulate delay if configured
+                        await SimulateDelay(cancellationToken);
                         // found a matching interaction, replay response
                         return autoInteraction.Response.ToHttpResponseMessage(request);
+                    }
                     //  no matching interaction, make real request, record response
                     var autoResponse = await base.SendAsync(request, cancellationToken);
                     await RecordRequestAndResponse(request, autoResponse);
@@ -109,6 +118,14 @@ namespace EasyPost.EasyVCR.Handlers
                 // always overrides an existing interaction
                 _cassette.UpdateInteraction(httpInteraction, _matchRules);
             });
+        }
+
+        private async Task SimulateDelay(CancellationToken cancellationToken)
+        {
+            if (_delay.HasValue)
+            {
+                await Task.Delay(_delay.Value, cancellationToken);
+            }
         }
     }
 }

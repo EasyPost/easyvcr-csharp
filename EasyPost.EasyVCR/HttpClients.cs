@@ -11,17 +11,11 @@ namespace EasyPost.EasyVCR
         /// <param name="cassetteFolder">Folder where cassettes will be stored.</param>
         /// <param name="cassetteName">Name of the cassette to use.</param>
         /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
-        /// <param name="censors">Censors to use when building requests and responses.</param>
-        /// <param name="matchRules">Advanced. Override rules used when evaluating recordings.</param>
-        /// <param name="customInteractionConverter">
-        ///     Advanced. Override how HttpRequestMessage and HttpResponseMessage objects are converted to Request and Response
-        ///     objects.
-        ///     Not recommended to use unless System.Net.Http has introduced breaking changes.
-        /// </param>
+        /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
-        public static HttpClient NewHttpClient(string cassetteFolder, string cassetteName, Mode mode, Censors? censors = null, MatchRules? matchRules = null, IInteractionConverter? customInteractionConverter = null)
+        public static HttpClient NewHttpClient(string cassetteFolder, string cassetteName, Mode mode, AdvancedSettings? advancedSettings = null)
         {
-            return NewHttpClientWithHandler(null, cassetteFolder, cassetteName, mode, censors, matchRules, customInteractionConverter);
+            return NewHttpClientWithHandler(null, cassetteFolder, cassetteName, mode, advancedSettings);
         }
 
         /// <summary>
@@ -29,17 +23,11 @@ namespace EasyPost.EasyVCR
         /// </summary>
         /// <param name="cassette">Cassette object to use.</param>
         /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
-        /// <param name="censors">Censors to use when building requests and responses.</param>
-        /// <param name="matchRules">Advanced. Override rules used when evaluating recordings.</param>
-        /// <param name="customInteractionConverter">
-        ///     Advanced. Override how HttpRequestMessage and HttpResponseMessage objects are converted to Request and Response
-        ///     objects.
-        ///     Not recommended to use unless System.Net.Http has introduced breaking changes.
-        /// </param>
+        /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
-        public static HttpClient NewHttpClient(Cassette cassette, Mode mode, Censors? censors = null, MatchRules? matchRules = null, IInteractionConverter? customInteractionConverter = null)
+        public static HttpClient NewHttpClient(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
-            return NewHttpClientWithHandler(null, cassette, mode, censors, matchRules, customInteractionConverter);
+            return NewHttpClientWithHandler(null, cassette, mode, advancedSettings);
         }
 
         /// <summary>
@@ -49,17 +37,11 @@ namespace EasyPost.EasyVCR
         /// <param name="cassetteFolder">Folder where cassettes will be stored.</param>
         /// <param name="cassetteName">Name of the cassette to use.</param>
         /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
-        /// <param name="censors">Censors to use when building requests and responses.</param>
-        /// <param name="matchRules">Advanced. Override rules used when evaluating recordings.</param>
-        /// <param name="customInteractionConverter">
-        ///     Advanced. Override how HttpRequestMessage and HttpResponseMessage objects are converted to Request and Response
-        ///     objects.
-        ///     Not recommended to use unless System.Net.Http has introduced breaking changes.
-        /// </param>
+        /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
-        public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, string cassetteFolder, string cassetteName, Mode mode, Censors? censors = null, MatchRules? matchRules = null, IInteractionConverter? customInteractionConverter = null)
+        public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, string cassetteFolder, string cassetteName, Mode mode, AdvancedSettings? advancedSettings = null)
         {
-            return NewHttpClientWithHandler(innerHandler, new Cassette(cassetteFolder, cassetteName), mode, censors, matchRules, customInteractionConverter);
+            return NewHttpClientWithHandler(innerHandler, new Cassette(cassetteFolder, cassetteName), mode, advancedSettings);
         }
 
         /// <summary>
@@ -68,18 +50,12 @@ namespace EasyPost.EasyVCR
         /// <param name="innerHandler">Custom inner handler to execute as part of HTTP requests.</param>
         /// <param name="cassette">Cassette object to use.</param>
         /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
-        /// <param name="censors">Censors to use when building requests and responses.</param>
-        /// <param name="matchRules">Advanced. Override rules used when evaluating recordings.</param>
-        /// <param name="customInteractionConverter">
-        ///     Advanced. Override how HttpRequestMessage and HttpResponseMessage objects are converted to Request and Response
-        ///     objects.
-        ///     Not recommended to use unless System.Net.Http has introduced breaking changes.
-        /// </param>
+        /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
-        public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, Cassette cassette, Mode mode, Censors? censors = null, MatchRules? matchRules = null, IInteractionConverter? customInteractionConverter = null)
+        public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
             innerHandler ??= new HttpClientHandler();
-            return new HttpClient(new VCRHandler(innerHandler, cassette, mode, censors, matchRules, customInteractionConverter));
+            return new HttpClient(new VCRHandler(innerHandler, cassette, mode, advancedSettings));
         }
     }
 }
