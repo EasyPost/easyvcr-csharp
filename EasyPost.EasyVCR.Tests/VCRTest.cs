@@ -40,10 +40,10 @@ namespace EasyPost.EasyVCR.Tests
             _vcr.Insert(cassette);
 
             // test that we can still control the VCR even after it's been handed off to the service using it
-            var albumService = new AlbumService(_vcr);
-            Assert.IsNotNull(albumService.Client); // Client should come from VCR, which has a client because it has a cassette.
+            var fakeDataService = new FakeDataService(_vcr);
+            Assert.IsNotNull(fakeDataService.Client); // Client should come from VCR, which has a client because it has a cassette.
             _vcr.Eject();
-            Assert.ThrowsException<InvalidOperationException>(() => albumService.Client); // Client should be null because the VCR's cassette has been ejected.
+            Assert.ThrowsException<InvalidOperationException>(() => fakeDataService.Client); // Client should be null because the VCR's cassette has been ejected.
         }
 
         [TestMethod]
@@ -88,13 +88,13 @@ namespace EasyPost.EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_vcr_record");
             _vcr.Insert(cassette);
-            var albumService = new AlbumService(_vcr);
+            var fakeDataService = new FakeDataService(_vcr);
 
             _vcr.Record();
 
-            var album = await albumService.GetAllAsync();
-            Assert.IsNotNull(album);
-            Assert.AreEqual(album.Count, 100);
+            var posts = await fakeDataService.GetPosts();
+            Assert.IsNotNull(posts);
+            Assert.AreEqual(posts.Count, 100);
         }
 
         [TestMethod]
@@ -103,13 +103,13 @@ namespace EasyPost.EasyVCR.Tests
             // make a new cassette with the same filename to reuse existing records
             var cassette = TestUtils.GetCassette("test_vcr_record");
             _vcr.Insert(cassette);
-            var albumService = new AlbumService(_vcr);
+            var fakeDataService = new FakeDataService(_vcr);
 
             _vcr.Replay();
 
-            var albums = await albumService.GetAllAsync();
-            Assert.IsNotNull(albums);
-            Assert.AreEqual(albums.Count, 100);
+            var posts = await fakeDataService.GetPosts();
+            Assert.IsNotNull(posts);
+            Assert.AreEqual(posts.Count, 100);
         }
 
         // test different match rules

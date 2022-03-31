@@ -7,13 +7,13 @@ namespace EasyPost.EasyVCR.Tests
     public class ClientTest
     {
         [TestMethod]
-        public void TestAlbumServiceClient()
+        public void TestFakeDataServiceClient()
         {
-            var cassette = TestUtils.GetCassette("test_album_service_client");
+            var cassette = TestUtils.GetCassette("test_fake_data_service_client");
             var client = HttpClients.NewHttpClient(cassette, Mode.Bypass);
 
-            var albumService = new AlbumService(client);
-            Assert.IsNotNull(albumService.Client);
+            var fakeDataService = new FakeDataService(client);
+            Assert.IsNotNull(fakeDataService.Client);
         }
 
         [TestMethod]
@@ -34,9 +34,9 @@ namespace EasyPost.EasyVCR.Tests
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Replay);
 
-            var albumService = new AlbumService(client);
+            var fakeDataService = new FakeDataService(client);
 
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await albumService.GetAllAsync());
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetPosts());
         }
 
         [TestMethod]
@@ -48,11 +48,11 @@ namespace EasyPost.EasyVCR.Tests
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
 
-            var albumService = new AlbumService(client);
+            var fakeDataService = new FakeDataService(client);
 
-            var albums = await albumService.GetAllAsync();
-            Assert.IsNotNull(albums);
-            Assert.AreEqual(albums.Count, 100);
+            var posts = await fakeDataService.GetPosts();
+            Assert.IsNotNull(posts);
+            Assert.AreEqual(posts.Count, 100);
 
             Assert.IsTrue(cassette.Count > 0); // Make sure cassette is not empty
         }
