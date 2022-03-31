@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -11,14 +10,14 @@ namespace EasyPost.EasyVCR.Handlers
 {
     public class AutoHandler : RecordingHandler
     {
-        internal AutoHandler(HttpMessageHandler innerHandler, Cassette cassette, List<string>? headersToHide = null, bool strictMatching = false) : base(innerHandler, cassette, headersToHide, strictMatching)
+        internal AutoHandler(HttpMessageHandler innerHandler, Cassette cassette, Censors? censors = null, MatchRules? matchRules = null) : base(innerHandler, cassette, censors, matchRules)
         {
         }
 
         /// <summary>
-        /// Override to alter the request-response behavior.
-        /// Use replay of request-response if it exists.
-        /// Otherwise, record the request and response to the cassette.
+        ///     Override to alter the request-response behavior.
+        ///     Use replay of request-response if it exists.
+        ///     Otherwise, record the request and response to the cassette.
         /// </summary>
         /// <param name="request">HttpRequestMessage object.</param>
         /// <param name="cancellationToken">CancellationToken object.</param>
@@ -27,10 +26,7 @@ namespace EasyPost.EasyVCR.Handlers
         {
             // use replay if available, otherwise record
             var existingInteraction = await FindMatchingInteraction(request);
-            if (existingInteraction == null)
-            {
-                return await RecordNewInteraction(request, cancellationToken); // need to record a new interaction
-            }
+            if (existingInteraction == null) return await RecordNewInteraction(request, cancellationToken); // need to record a new interaction
 
             // existing interaction found
             var matchedResponse = existingInteraction.Response;
@@ -39,18 +35,18 @@ namespace EasyPost.EasyVCR.Handlers
         }
 
         /// <summary>
-        /// Search for an existing interaction that matches the request.
+        ///     Search for an existing interaction that matches the request.
         /// </summary>
         /// <param name="request">HttpRequestMessage request.</param>
         /// <returns>Matching HttpInteraction or null if not found.</returns>
         private async Task<HttpInteraction?> FindMatchingInteraction(HttpRequestMessage request)
         {
             var interactions = Cassette.Read();
-            var receivedRequest = await InteractionHelpers.ToRequestAsync(request);
+            var receivedRequest = await InteractionHelpers.ToRequestAsync(request, Censors);
 
             try
             {
-                return interactions.First(i => InteractionHelpers.RequestsMatch(receivedRequest, i.Request));
+                return interactions.First(i => MatchRules.RequestsMatch(receivedRequest, i.Request));
             }
             catch (InvalidOperationException)
             {
@@ -59,7 +55,7 @@ namespace EasyPost.EasyVCR.Handlers
         }
 
         /// <summary>
-        /// Make a new HTTP request and record the request-response to the cassette.
+        ///     Make a new HTTP request and record the request-response to the cassette.
         /// </summary>
         /// <param name="request">HttpRequestMessage object.</param>
         /// <param name="cancellationToken">CancellationToken object.</param>
@@ -71,15 +67,15 @@ namespace EasyPost.EasyVCR.Handlers
             await Task.Run(async () =>
             {
                 var response = await baseResult;
-                var interactionRequest = await InteractionHelpers.ToRequestAsync(request, HeadersToHide);
-                var interactionResponse = await InteractionHelpers.ToResponseAsync(response, HeadersToHide);
+                var interactionRequest = await InteractionHelpers.ToRequestAsync(request, Censors);
+                var interactionResponse = await InteractionHelpers.ToResponseAsync(response, Censors);
                 var httpInteraction = new HttpInteraction
                 {
                     Request = interactionRequest,
                     Response = interactionResponse,
                     RecordedAt = DateTimeOffset.Now
                 };
-                Cassette.UpdateInteraction(httpInteraction, StrictMatching);
+                Cassette.UpdateInteraction(httpInteraction, MatchRules);
             });
 
             return baseResult.Result;

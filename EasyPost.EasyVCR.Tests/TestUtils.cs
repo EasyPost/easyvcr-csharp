@@ -8,19 +8,19 @@ namespace EasyPost.EasyVCR.Tests
     {
         internal static Cassette GetCassette(string cassetteName)
         {
-            return new Cassette(TestUtils.GetDirectoryInCurrentDirectory("cassettes"), cassetteName);
+            return new Cassette(GetDirectoryInCurrentDirectory("cassettes"), cassetteName);
         }
-        
-        internal static string GetDirectoryInCurrentDirectory(string directoryPath)
-        {
-            return Path.Combine(GetCurrentDirectory(), directoryPath);
-        }
-        
+
         internal static string GetCurrentDirectory()
         {
             return _GetCurrentDirectory();
         }
-        
+
+        internal static string GetDirectoryInCurrentDirectory(string directoryPath)
+        {
+            return Path.Combine(GetCurrentDirectory(), directoryPath);
+        }
+
         private static string _GetCurrentDirectory([CallerFilePath] string sourceFilePath = "")
         {
             if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentNullException(nameof(sourceFilePath));

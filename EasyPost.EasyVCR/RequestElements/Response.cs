@@ -20,7 +20,7 @@ namespace EasyPost.EasyVCR.RequestElements
         internal Status Status { get; set; }
 
         /// <summary>
-        /// Build an HttpResponseMessage out of an HttpRequestMessage object
+        ///     Build an HttpResponseMessage out of an HttpRequestMessage object
         /// </summary>
         /// <param name="requestMessage">HttpRequestMessage object to use to build the HttpResponseMessage object.</param>
         /// <returns>An HttpResponseMessage object</returns>
@@ -29,20 +29,23 @@ namespace EasyPost.EasyVCR.RequestElements
             var result = new HttpResponseMessage(Status.Code);
             result.ReasonPhrase = Status.Message;
             result.Version = HttpVersion;
-            foreach (var h in ResponseHeaders ?? new Dictionary<string, string>())
-            {
-                result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
-            }
+            foreach (var h in ResponseHeaders ?? new Dictionary<string, string>()) result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             var content = new ByteArrayContent(Encoding.UTF8.GetBytes(Body ?? string.Empty));
-            foreach (var h in ContentHeaders ?? new Dictionary<string, string>())
-            {
-                content.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
-            }
+            foreach (var h in ContentHeaders ?? new Dictionary<string, string>()) content.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             result.Content = content;
             result.RequestMessage = requestMessage;
             return result;
+        }
+
+        /// <summary>
+        ///     Serialize this Response object to a JSON string
+        /// </summary>
+        /// <returns>JSON string representation of this Response object.</returns>
+        internal string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

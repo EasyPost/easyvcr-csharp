@@ -16,11 +16,11 @@ namespace EasyPost.EasyVCR
 
         public readonly string Name;
         private readonly string _filePath;
-        private bool _locked;
         private readonly IOrderOption _orderOption;
+        private bool _locked;
 
         /// <summary>
-        /// Get how many interactions are recorded on this cassette.
+        ///     Get how many interactions are recorded on this cassette.
         /// </summary>
         public int Count => Read().ToList().Count;
 
@@ -32,7 +32,7 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        /// Erase this cassette by deleting the file
+        ///     Erase this cassette by deleting the file
         /// </summary>
         public void Erase()
         {
@@ -40,7 +40,7 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        /// Lock this cassette (prevent reading or writing)
+        ///     Lock this cassette (prevent reading or writing)
         /// </summary>
         public void Lock()
         {
@@ -48,7 +48,7 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        /// Unlock this cassette (allow the cassette to be used)
+        ///     Unlock this cassette (allow the cassette to be used)
         /// </summary>
         public void Unlock()
         {
@@ -56,16 +56,7 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        /// Check if this cassette's file exists
-        /// </summary>
-        /// <returns>True if cassette file exists, false otherwise</returns>
-        private bool FileExists()
-        {
-            return File.Exists(_filePath);
-        }
-
-        /// <summary>
-        /// Read all the interactions recorded on this cassette
+        ///     Read all the interactions recorded on this cassette
         /// </summary>
         /// <returns>List of HttpInteraction objects.</returns>
         /// <exception cref="VCRException">Unable to parse the cassette file.</exception>
@@ -73,32 +64,26 @@ namespace EasyPost.EasyVCR
         {
             CheckIfLocked();
 
-            if (!FileExists())
-            {
-                return Enumerable.Empty<HttpInteraction>();
-            }
+            if (!FileExists()) return Enumerable.Empty<HttpInteraction>();
 
             var jsonString = File.ReadAllText(_filePath);
             var cassetteParseResult = Serialization.ConvertJsonToObject<List<HttpInteraction>>(jsonString, new VersionConverter());
-            if (cassetteParseResult == null)
-            {
-                throw new VCRException("Could not parse cassette file");
-            }
+            if (cassetteParseResult == null) throw new VCRException("Could not parse cassette file");
 
             return cassetteParseResult;
         }
 
         /// <summary>
-        /// Overwrite an existing interaction on this cassette, or add a new one if it doesn't exist
+        ///     Overwrite an existing interaction on this cassette, or add a new one if it doesn't exist
         /// </summary>
         /// <param name="httpInteraction">HttpInteraction to write to the cassette.</param>
-        /// <param name="strictMatching">If true, be more strict about matching the request and response. If false, be less strict.</param>
-        internal void UpdateInteraction(HttpInteraction httpInteraction, bool strictMatching = false)
+        /// <param name="matchRules">Set of rules to follow when evaluating if a pair of interactions match.</param>
+        internal void UpdateInteraction(HttpInteraction httpInteraction, MatchRules matchRules)
         {
             lock (_fileLocker)
             {
                 var existingInteractions = Read().ToList();
-                var matchingIndex = existingInteractions.FindIndex(i => InteractionHelpers.RequestsMatch(httpInteraction.Request, i.Request, strictMatching));
+                var matchingIndex = existingInteractions.FindIndex(i => matchRules.RequestsMatch(httpInteraction.Request, i.Request));
                 List<HttpInteraction> newInteractions;
                 if (matchingIndex < 0)
                 {
@@ -115,19 +100,25 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        /// Check if this cassette is locked
+        ///     Check if this cassette is locked
         /// </summary>
         /// <exception cref="VCRException">Cassette is locked.</exception>
         private void CheckIfLocked()
         {
-            if (_locked)
-            {
-                throw new VCRException("Cassette is locked");
-            }
+            if (_locked) throw new VCRException("Cassette is locked");
         }
 
         /// <summary>
-        /// Write a list of interactions to this cassette
+        ///     Check if this cassette's file exists
+        /// </summary>
+        /// <returns>True if cassette file exists, false otherwise</returns>
+        private bool FileExists()
+        {
+            return File.Exists(_filePath);
+        }
+
+        /// <summary>
+        ///     Write a list of interactions to this cassette
         /// </summary>
         /// <param name="httpInteractions">A list of HttpInteraction objects to write to the cassette.</param>
         /// <exception cref="VCRException">Could not write to cassette.</exception>
@@ -136,10 +127,7 @@ namespace EasyPost.EasyVCR
             CheckIfLocked();
 
             var serializedInteraction = Serialization.ConvertObjectToJson(httpInteractions.ToList(), _orderOption, Formatting.Indented, new VersionConverter());
-            if (serializedInteraction == null)
-            {
-                throw new VCRException("Could not serialize cassette");
-            }
+            if (serializedInteraction == null) throw new VCRException("Could not serialize cassette");
 
             File.WriteAllText(_filePath, serializedInteraction);
         }

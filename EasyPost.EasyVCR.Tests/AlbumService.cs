@@ -8,9 +8,9 @@ namespace EasyPost.EasyVCR.Tests
 {
     public class Album
     {
-        internal int UserId { get; }
         internal int Id { get; }
         internal string Title { get; }
+        internal int UserId { get; }
 
         public Album(int userId, int id, string title)
         {
@@ -22,23 +22,16 @@ namespace EasyPost.EasyVCR.Tests
 
     public class AlbumService
     {
-        private readonly VCR? _vcr;
-
         private readonly HttpClient? _client;
+        private readonly VCR? _vcr;
 
         public HttpClient Client
         {
             get
             {
-                if (_client != null)
-                {
-                    return _client;
-                }
+                if (_client != null) return _client;
 
-                if (_vcr != null)
-                {
-                    return _vcr.Client;
-                }
+                if (_vcr != null) return _vcr.Client;
 
                 throw new InvalidOperationException("No VCR or HttpClient has been set.");
             }

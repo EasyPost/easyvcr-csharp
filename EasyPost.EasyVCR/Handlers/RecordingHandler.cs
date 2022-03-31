@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,21 +11,21 @@ namespace EasyPost.EasyVCR.Handlers
     {
         protected readonly Cassette Cassette;
 
-        protected readonly List<string>? HeadersToHide;
-        
-        protected readonly bool StrictMatching;
+        protected readonly Censors Censors;
 
-        internal RecordingHandler(HttpMessageHandler innerHandler, Cassette cassette, List<string>? headersToHide = null, bool strictMatching = false)
+        protected readonly MatchRules MatchRules;
+
+        internal RecordingHandler(HttpMessageHandler innerHandler, Cassette cassette, Censors? censors = null, MatchRules? matchRules = null)
         {
             InnerHandler = innerHandler;
             Cassette = cassette;
-            HeadersToHide = headersToHide;
-            StrictMatching = strictMatching;
+            Censors = censors ?? Censors.Default;
+            MatchRules = matchRules ?? MatchRules.Default;
         }
 
         /// <summary>
-        /// Override to alter the request-response behavior.
-        /// Record the request and response to the cassette.
+        ///     Override to alter the request-response behavior.
+        ///     Record the request and response to the cassette.
         /// </summary>
         /// <param name="request">HttpRequestMessage object.</param>
         /// <param name="cancellationToken">CancellationToken object.</param>
@@ -38,15 +37,15 @@ namespace EasyPost.EasyVCR.Handlers
             await Task.Run(async () =>
             {
                 var response = await baseResult;
-                var interactionRequest = await InteractionHelpers.ToRequestAsync(request, HeadersToHide);
-                var interactionResponse = await InteractionHelpers.ToResponseAsync(response, HeadersToHide);
+                var interactionRequest = await InteractionHelpers.ToRequestAsync(request, Censors);
+                var interactionResponse = await InteractionHelpers.ToResponseAsync(response, Censors);
                 var httpInteraction = new HttpInteraction
                 {
                     Request = interactionRequest,
                     Response = interactionResponse,
                     RecordedAt = DateTimeOffset.Now
                 };
-                Cassette.UpdateInteraction(httpInteraction, StrictMatching);
+                Cassette.UpdateInteraction(httpInteraction, MatchRules);
             });
 
             return baseResult.Result;
