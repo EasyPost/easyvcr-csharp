@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.InternalUtilities.JSON;
 using EasyPost.EasyVCR.InternalUtilities.JSON.Orders;
 using EasyPost.EasyVCR.RequestElements;
+using EasyPost.EasyVCR.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -28,7 +28,7 @@ namespace EasyPost.EasyVCR
         {
             _orderOption = order ?? new CassetteOrder.Alphabetical();
             Name = cassetteName;
-            _filePath = Utils.GetFilePath(folderPath, $"{cassetteName}.json");
+            _filePath = Tools.GetFilePath(folderPath, $"{cassetteName}.json");
         }
 
         /// <summary>

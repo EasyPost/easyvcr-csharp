@@ -3,11 +3,11 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
-    internal class Status
+    public class Status : HttpElement
     {
         [JsonProperty("Code")]
-        internal HttpStatusCode Code { get; set; }
+        public HttpStatusCode Code { get; set; }
         [JsonProperty("Message")]
-        internal string? Message { get; set; }
+        public string? Message { get; set; }
     }
 }

@@ -6,25 +6,25 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
-    internal class Response
+    public class Response : HttpElement
     {
         [JsonProperty("Body")]
-        internal string? Body { get; set; }
+        public string? Body { get; set; }
         [JsonProperty("ContentHeaders")]
-        internal IDictionary<string, string>? ContentHeaders { get; set; }
+        public IDictionary<string, string>? ContentHeaders { get; set; }
         [JsonProperty("HttpVersion")]
-        internal Version HttpVersion { get; set; }
+        public Version HttpVersion { get; set; }
         [JsonProperty("ResponseHeaders")]
-        internal IDictionary<string, string>? ResponseHeaders { get; set; }
+        public IDictionary<string, string>? ResponseHeaders { get; set; }
         [JsonProperty("Status")]
-        internal Status Status { get; set; }
+        public Status Status { get; set; }
 
         /// <summary>
         ///     Build an HttpResponseMessage out of an HttpRequestMessage object
         /// </summary>
         /// <param name="requestMessage">HttpRequestMessage object to use to build the HttpResponseMessage object.</param>
         /// <returns>An HttpResponseMessage object</returns>
-        internal HttpResponseMessage ToHttpResponseMessage(HttpRequestMessage requestMessage)
+        public HttpResponseMessage ToHttpResponseMessage(HttpRequestMessage requestMessage)
         {
             var result = new HttpResponseMessage(Status.Code);
             result.ReasonPhrase = Status.Message;
@@ -37,15 +37,6 @@ namespace EasyPost.EasyVCR.RequestElements
             result.Content = content;
             result.RequestMessage = requestMessage;
             return result;
-        }
-
-        /// <summary>
-        ///     Serialize this Response object to a JSON string
-        /// </summary>
-        /// <returns>JSON string representation of this Response object.</returns>
-        internal string ToJson()
-        {
-            return JsonConvert.SerializeObject(this);
         }
     }
 }

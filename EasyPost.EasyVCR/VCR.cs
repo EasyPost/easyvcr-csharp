@@ -6,14 +6,19 @@ namespace EasyPost.EasyVCR
     public class VCRSettings
     {
         /// <summary>
-        ///     Rules to use when matching requests to recorded responses.
-        /// </summary>
-        public MatchRules? MatchRules { get; set; }
-
-        /// <summary>
-        ///    Censors to apply to the requests and responses.
+        ///     Censors to apply to the requests and responses.
         /// </summary>
         public Censors? Censors { get; set; }
+
+        /// <summary>
+        ///     Advanced. Custom converters to use when converting HttpRequestMessage and HttpResponseMessage to Request and
+        ///     Response objects.
+        /// </summary>
+        public IInteractionConverter? InteractionConverter { get; set; }
+        /// <summary>
+        ///     Advanced. Rules to use when matching requests to recorded responses.
+        /// </summary>
+        public MatchRules? MatchRules { get; set; }
     }
 
     public class VCR
@@ -38,19 +43,32 @@ namespace EasyPost.EasyVCR
             {
                 if (_currentCassette == null) throw new InvalidOperationException("No cassette is currently loaded.");
 
-                return HttpClients.NewHttpClient(_currentCassette, Mode, Settings?.Censors, Settings?.MatchRules);
+                return HttpClients.NewHttpClient(_currentCassette, Mode, Settings?.Censors, Settings?.MatchRules, Settings?.InteractionConverter);
             }
         }
 
         /// <summary>
         ///     The operating mode of the VCR.
         /// </summary>
-        public Mode Mode { get; private set; }
+        public Mode Mode
+        {
+            get
+            {
+                // bypass mode overrides all other modes
+                if (_mode == Mode.Bypass) return Mode.Bypass;
+
+                var environmentMode = GetModeFromEnvironment();
+                return environmentMode ?? _mode;
+            }
+            private set => _mode = value;
+        }
 
         /// <summary>
         ///     Settings for the VCR.
         /// </summary>
         public VCRSettings? Settings { get; set; }
+
+        private Mode _mode { get; set; }
 
         /// <summary>
         ///     Create a new VCR.
@@ -108,6 +126,15 @@ namespace EasyPost.EasyVCR
         public void Replay()
         {
             Mode = Mode.Replay;
+        }
+
+        private Mode? GetModeFromEnvironment()
+        {
+            const string keyName = "EASYVCR_MODE";
+            var keyValue = Environment.GetEnvironmentVariable(keyName);
+            if (keyValue == null) return null;
+            if (Enum.TryParse(keyValue, out Mode mode)) return mode;
+            return null;
         }
     }
 }

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.RequestElements;
+using EasyPost.EasyVCR.Utilities;
 
 namespace EasyPost.EasyVCR
 {
@@ -40,7 +40,7 @@ namespace EasyPost.EasyVCR
         {
             By((received, recorded) =>
             {
-                var receivedUri = new Uri(received.Uri).GetLeftPart(UriPartial.Path); 
+                var receivedUri = new Uri(received.Uri).GetLeftPart(UriPartial.Path);
                 var recordedUri = new Uri(recorded.Uri).GetLeftPart(UriPartial.Path);
                 return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
             });
@@ -64,8 +64,8 @@ namespace EasyPost.EasyVCR
                     return false;
 
                 // convert body to base64string to assist comparison by removing special characters
-                var receivedBody = Utils.ToBase64String(received.Body);
-                var recordedBody = Utils.ToBase64String(recorded.Body);
+                var receivedBody = Tools.ToBase64String(received.Body);
+                var recordedBody = Tools.ToBase64String(recorded.Body);
                 return receivedBody.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -81,8 +81,8 @@ namespace EasyPost.EasyVCR
         {
             By((received, recorded) =>
             {
-                var receivedRequest = Utils.ToBase64String(received.ToJson());
-                var recordedRequest = Utils.ToBase64String(recorded.ToJson());
+                var receivedRequest = Tools.ToBase64String(received.ToJson());
+                var recordedRequest = Tools.ToBase64String(recorded.ToJson());
                 return receivedRequest.Equals(recordedRequest, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -102,8 +102,8 @@ namespace EasyPost.EasyVCR
             {
                 By((received, recorded) =>
                 {
-                    var receivedUri = Utils.ToBase64String(received.Uri);
-                    var recordedUri = Utils.ToBase64String(recorded.Uri);
+                    var receivedUri = Tools.ToBase64String(received.Uri);
+                    var recordedUri = Tools.ToBase64String(recorded.Uri);
                     return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
                 });
             }

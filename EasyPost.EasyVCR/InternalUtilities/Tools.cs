@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace EasyPost.EasyVCR.InternalUtilities
+namespace EasyPost.EasyVCR.Utilities
 {
-    internal static class Utils
+    internal static class Tools
     {
         /// <summary>
         ///     Combine a folder and a file name to create a path.

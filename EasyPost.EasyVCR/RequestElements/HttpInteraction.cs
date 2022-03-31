@@ -3,22 +3,13 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
-    internal class HttpInteraction
+    public class HttpInteraction : HttpElement
     {
         [JsonProperty("RecordedAt")]
-        internal DateTimeOffset RecordedAt { get; set; }
+        public DateTimeOffset RecordedAt { get; set; }
         [JsonProperty("Request")]
-        internal Request Request { get; set; }
+        public Request Request { get; set; }
         [JsonProperty("Response")]
-        internal Response Response { get; set; }
-
-        /// <summary>
-        ///     Serialize this HttpInteraction object to a JSON string
-        /// </summary>
-        /// <returns>JSON string representation of this HttpInteraction object.</returns>
-        internal string ToJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
+        public Response Response { get; set; }
     }
 }

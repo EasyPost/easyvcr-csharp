@@ -9,16 +9,16 @@ namespace EasyPost.EasyVCR
 {
     public sealed class Censors
     {
-        private readonly List<string> _queryParamsToCensor;
         private readonly List<string> _bodyParamsToCensor;
-        private readonly List<string> _headersToCensor;
 
         private readonly string _censorText = "*****";
+        private readonly List<string> _headersToCensor;
+        private readonly List<string> _queryParamsToCensor;
 
         /// <summary>
         ///     Default censors is to not censor anything.
-        /// </summary> 
-        public static Censors Default => new Censors();
+        /// </summary>
+        public static Censors Default => new();
 
         /// <summary>
         ///     Default sensitive censors is to censor common private information (i.e. API keys, auth tokens, etc.)
@@ -28,10 +28,7 @@ namespace EasyPost.EasyVCR
             get
             {
                 var censors = new Censors();
-                foreach (var key in Statics.DefaultCredentialHeadersToHide)
-                {
-                    censors.HideHeader(key);
-                }
+                foreach (var key in Statics.DefaultCredentialHeadersToHide) censors.HideHeader(key);
 
                 foreach (var key in Statics.DefaultCredentialParametersToHide)
                 {
@@ -56,29 +53,6 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
-        ///    Add a rule to censor a specified query parameter.
-        /// </summary>
-        /// <param name="parameterKey">Key of query parameter to censor.</param>
-        /// <returns>The current Censor object.</returns>
-        public Censors HideQueryParameter(string parameterKey)
-        {
-            _queryParamsToCensor.Add(parameterKey);
-            return this;
-        }
-
-        /// <summary>
-        ///    Add a rule to censor a specified header key.
-        ///    Note: This will censor the header key in both the request and response.
-        /// </summary>
-        /// <param name="headerKey">Key of header to censor.</param>
-        /// <returns>The current Censor object.</returns>
-        public Censors HideHeader(string headerKey)
-        {
-            _headersToCensor.Add(headerKey);
-            return this;
-        }
-
-        /// <summary>
         ///     Add a rule to censor a specified body parameter.
         ///     Note: Only top-level pairs can be censored.
         /// </summary>
@@ -91,6 +65,62 @@ namespace EasyPost.EasyVCR
         }
 
         /// <summary>
+        ///     Add a rule to censor a specified header key.
+        ///     Note: This will censor the header key in both the request and response.
+        /// </summary>
+        /// <param name="headerKey">Key of header to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors HideHeader(string headerKey)
+        {
+            _headersToCensor.Add(headerKey);
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a rule to censor a specified query parameter.
+        /// </summary>
+        /// <param name="parameterKey">Key of query parameter to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors HideQueryParameter(string parameterKey)
+        {
+            _queryParamsToCensor.Add(parameterKey);
+            return this;
+        }
+
+        /// <summary>
+        ///     Censor the appropriate body parameters.
+        /// </summary>
+        /// <param name="body">String representation of request body to apply censors to.</param>
+        /// <returns>Censored string representation of request body.</returns>
+        internal string CensorBodyParameters(string body)
+        {
+            if (string.IsNullOrWhiteSpace(body))
+                // short circuit if body is null or empty
+                return body;
+
+            Dictionary<string, string> bodyDictionary;
+            try
+            {
+                bodyDictionary = Serialization.ConvertJsonToObject<Dictionary<string, string>>(body);
+            }
+            catch (JsonSerializationException)
+            {
+                // short circuit if body is not a JSON dictionary
+                return body;
+            }
+
+            if (bodyDictionary.Count == 0)
+                // short circuit if there are no body parameters
+                return body;
+
+            foreach (var key in _bodyParamsToCensor)
+                if (bodyDictionary.ContainsKey(key))
+                    bodyDictionary[key] = _censorText;
+
+            return Serialization.ConvertObjectToJson(bodyDictionary);
+        }
+
+        /// <summary>
         ///     Censor the appropriate headers.
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply censors to.</param>
@@ -98,18 +128,12 @@ namespace EasyPost.EasyVCR
         internal IDictionary<string, string> CensorHeaders(IDictionary<string, string> headers)
         {
             if (headers.Count == 0)
-            {
                 // short circuit if there are no headers to censor
                 return headers;
-            }
 
             foreach (var key in _headersToCensor)
-            {
                 if (headers.ContainsKey(key))
-                {
                     headers[key] = _censorText;
-                }
-            }
 
             return headers;
         }
@@ -122,68 +146,20 @@ namespace EasyPost.EasyVCR
         internal string? CensorQueryParameters(string? url)
         {
             if (url == null)
-            {
                 // short circuit if url is null
                 return url;
-            }
             var uri = new Uri(url);
             var queryParameters = HttpUtility.ParseQueryString(uri.Query);
 
             if (queryParameters.Count == 0)
-            {
                 // short circuit if there are no query parameters
                 return url;
-            }
 
             foreach (var key in _queryParamsToCensor)
-            {
                 if (queryParameters.AllKeys.Contains(key))
-                {
                     queryParameters[key] = _censorText;
-                }
-            }
 
             return $"{uri.GetLeftPart(UriPartial.Path)}?{queryParameters}";
-        }
-
-        /// <summary>
-        ///     Censor the appropriate body parameters.
-        /// </summary>
-        /// <param name="body">String representation of request body to apply censors to.</param>
-        /// <returns>Censored string representation of request body.</returns>
-        internal string CensorBodyParameters(string body)
-        {
-            if (string.IsNullOrWhiteSpace(body))
-            {
-                // short circuit if body is null or empty
-                return body;
-            }
-
-            Dictionary<string, string> bodyDictionary;
-            try
-            {
-                bodyDictionary = Serialization.ConvertJsonToObject<Dictionary<string, string>>(body);
-            } catch (JsonSerializationException)
-            {
-                // short circuit if body is not a JSON dictionary
-                return body;
-            }
-
-            if (bodyDictionary.Count == 0)
-            {
-                // short circuit if there are no body parameters
-                return body;
-            }
-
-            foreach (var key in _bodyParamsToCensor)
-            {
-                if (bodyDictionary.ContainsKey(key))
-                {
-                    bodyDictionary[key] = _censorText;
-                }
-            }
-
-            return Serialization.ConvertObjectToJson(bodyDictionary);
         }
     }
 }
