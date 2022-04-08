@@ -22,7 +22,7 @@ namespace EasyPost.EasyVCR
         public IInteractionConverter? InteractionConverter = new DefaultInteractionConverter();
 
         /// <summary>
-        ///     Simulate the original request's duration.
+        ///     Simulate the original request's duration. Overrides <see cref="ManualDelay"/> if set.
         /// </summary>
         public bool SimulateDelay = false;
 
