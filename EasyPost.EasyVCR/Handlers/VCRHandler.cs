@@ -16,6 +16,7 @@ namespace EasyPost.EasyVCR.Handlers
         private readonly IInteractionConverter _interactionConverter;
         private readonly MatchRules _matchRules;
         private readonly Mode _mode;
+        private readonly bool _useOriginalDelay;
         private readonly TimeSpan? _delay;
 
         internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
@@ -27,7 +28,8 @@ namespace EasyPost.EasyVCR.Handlers
             _censors = advancedSettings?.Censors ?? new Censors();
             _interactionConverter = advancedSettings?.InteractionConverter ?? new DefaultInteractionConverter();
             _matchRules = advancedSettings?.MatchRules ?? new MatchRules();
-            _delay = advancedSettings?.Delay;
+            _useOriginalDelay = advancedSettings?.SimulateDelay ?? false;
+            _delay = advancedSettings?.ManualDelayTimeSpan ?? TimeSpan.Zero;
         }
 
         /// <summary>
@@ -39,12 +41,15 @@ namespace EasyPost.EasyVCR.Handlers
         /// <returns>HttpResponseMessage object.</returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            var stopwatch = new System.Diagnostics.Stopwatch();
             switch (_mode)
             {
                 case Mode.Record:
                     // make real request, record response
+                    stopwatch.Start();
                     var recordResponse = await base.SendAsync(request, cancellationToken);
-                    await RecordRequestAndResponse(request, recordResponse);
+                    stopwatch.Stop();
+                    await RecordRequestAndResponse(request, recordResponse, stopwatch.Elapsed);
                     return recordResponse;
                 case Mode.Replay:
                     // try to get recorded request
@@ -52,7 +57,7 @@ namespace EasyPost.EasyVCR.Handlers
                     if (replayInteraction != null)
                     {
                         // simulate delay if configured
-                        await SimulateDelay(cancellationToken);
+                        await SimulateDelay(replayInteraction, cancellationToken);
                         // found a matching interaction, replay response
                         return replayInteraction.Response.ToHttpResponseMessage(request);
                     }
@@ -63,13 +68,15 @@ namespace EasyPost.EasyVCR.Handlers
                     if (autoInteraction != null)
                     {
                         // simulate delay if configured
-                        await SimulateDelay(cancellationToken);
+                        await SimulateDelay(autoInteraction, cancellationToken);
                         // found a matching interaction, replay response
                         return autoInteraction.Response.ToHttpResponseMessage(request);
                     }
                     //  no matching interaction, make real request, record response
+                    stopwatch.Start();
                     var autoResponse = await base.SendAsync(request, cancellationToken);
-                    await RecordRequestAndResponse(request, autoResponse);
+                    stopwatch.Stop();
+                    await RecordRequestAndResponse(request, autoResponse, stopwatch.Elapsed);
                     return autoResponse;
                 case Mode.Bypass:
                 default:
@@ -103,7 +110,9 @@ namespace EasyPost.EasyVCR.Handlers
         /// </summary>
         /// <param name="request">Request to record to cassette.</param>
         /// <param name="response">Response to record to cassette.</param>
-        private async Task RecordRequestAndResponse(HttpRequestMessage request, HttpResponseMessage response)
+        /// <param name="requestDuration">TimeSpan of original real request</param>
+        /// <param name="bypassSearch">Bypass search for existing interaction. Useful if already known that one does not exist.</param>
+        private async Task RecordRequestAndResponse(HttpRequestMessage request, HttpResponseMessage response, TimeSpan requestDuration, bool bypassSearch = false)
         {
             await Task.Run(async () =>
             {
@@ -113,16 +122,21 @@ namespace EasyPost.EasyVCR.Handlers
                 {
                     Request = interactionRequest,
                     Response = interactionResponse,
-                    RecordedAt = DateTimeOffset.Now
+                    RecordedAt = DateTimeOffset.Now,
+                    Duration = requestDuration.Milliseconds
                 };
                 // always overrides an existing interaction
-                _cassette.UpdateInteraction(httpInteraction, _matchRules);
+                _cassette.UpdateInteraction(httpInteraction, _matchRules, bypassSearch);
             });
         }
 
-        private async Task SimulateDelay(CancellationToken cancellationToken)
+        private async Task SimulateDelay(HttpInteraction interaction, CancellationToken cancellationToken)
         {
-            if (_delay.HasValue)
+            if (_useOriginalDelay)
+            {
+                await Task.Delay(interaction.Duration, cancellationToken);
+            }
+            else if (_delay.HasValue)
             {
                 await Task.Delay(_delay.Value, cancellationToken);
             }

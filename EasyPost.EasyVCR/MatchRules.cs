@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.RequestElements;
-using EasyPost.EasyVCR.Utilities;
 
 namespace EasyPost.EasyVCR
 {
@@ -73,8 +73,8 @@ namespace EasyPost.EasyVCR
 
         /// <summary>
         ///     Add a rule to compare the entire requests.
-        ///     Note, this rule is very strict, and will fail if the requests are not identical. It is recommended to use the other
-        ///     rules to compare the requests.
+        ///     Note, this rule is very strict, and will fail if the requests are not identical (including duration).
+        ///     It is highly recommended to use the other rules to compare the requests.
         /// </summary>
         /// <returns>The same MatchRules object.</returns>
         public MatchRules ByEverything()

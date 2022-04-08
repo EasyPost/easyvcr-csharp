@@ -22,10 +22,18 @@ namespace EasyPost.EasyVCR
         public IInteractionConverter? InteractionConverter = new DefaultInteractionConverter();
 
         /// <summary>
-        ///     Simulate a delay in milliseconds on a pre-recorded request.
+        ///     Simulate the original request's duration.
         /// </summary>
-        public int SimulateDelay = 0;
+        public bool SimulateDelay = false;
 
-        internal TimeSpan? Delay => SimulateDelay > 0 ? TimeSpan.FromMilliseconds(SimulateDelay) : null;
+        /// <summary>
+        ///     Simulate a delay in milliseconds for the request.
+        /// </summary>
+        public int ManualDelay = 0;
+
+        /// <summary>
+        ///     Retrieve the manual delay as a TimeSpan.
+        /// </summary>
+        internal TimeSpan? ManualDelayTimeSpan => ManualDelay >= 0 ? TimeSpan.FromMilliseconds(ManualDelay) : TimeSpan.Zero;
     }
 }

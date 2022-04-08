@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.InternalUtilities.JSON;
 using EasyPost.EasyVCR.InternalUtilities.JSON.Orders;
 using EasyPost.EasyVCR.RequestElements;
-using EasyPost.EasyVCR.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -30,7 +30,7 @@ namespace EasyPost.EasyVCR
             Name = cassetteName;
             _filePath = Tools.GetFilePath(folderPath, $"{cassetteName}.json");
         }
-
+        
         /// <summary>
         ///     Erase this cassette by deleting the file
         /// </summary>
@@ -78,12 +78,17 @@ namespace EasyPost.EasyVCR
         /// </summary>
         /// <param name="httpInteraction">HttpInteraction to write to the cassette.</param>
         /// <param name="matchRules">Set of rules to follow when evaluating if a pair of interactions match.</param>
-        internal void UpdateInteraction(HttpInteraction httpInteraction, MatchRules matchRules)
+        /// <param name="bypassSearch">Bypass search for existing interaction. Useful if already known that one does not exist.</param>
+        internal void UpdateInteraction(HttpInteraction httpInteraction, MatchRules matchRules, bool bypassSearch = false)
         {
             lock (_fileLocker)
             {
                 var existingInteractions = Read().ToList();
-                var matchingIndex = existingInteractions.FindIndex(i => matchRules.RequestsMatch(httpInteraction.Request, i.Request));
+                var matchingIndex = -1;
+                if (!bypassSearch)
+                {
+                    matchingIndex = existingInteractions.FindIndex(i => matchRules.RequestsMatch(httpInteraction.Request, i.Request));
+                }
                 List<HttpInteraction> newInteractions;
                 if (matchingIndex < 0)
                 {

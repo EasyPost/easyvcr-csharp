@@ -11,5 +11,9 @@ namespace EasyPost.EasyVCR.RequestElements
         public Request Request { get; set; }
         [JsonProperty("Response")]
         public Response Response { get; set; }
+        
+        [JsonProperty("Duration")]
+        // request duration in milliseconds
+        public int Duration { get; set; }
     }
 }

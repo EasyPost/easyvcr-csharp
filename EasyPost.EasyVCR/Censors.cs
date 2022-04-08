@@ -10,7 +10,6 @@ namespace EasyPost.EasyVCR
     public sealed class Censors
     {
         private readonly List<string> _bodyParamsToCensor;
-
         private readonly string _censorText = "*****";
         private readonly List<string> _headersToCensor;
         private readonly List<string> _queryParamsToCensor;
