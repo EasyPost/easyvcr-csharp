@@ -131,15 +131,32 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 ```
 
 ## VCR
-`EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
+`EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
 
-- Prevent sensitive headers from being recorded to cassette:
 ```csharp
-using EasyPost.Scotch;
+using EasyPost.EasyVCR;
 
-// Censor default sensitive headers (i.e. `Authorization`)
-var vcrHttpClient = HttpClients.NewHttpClient(pathToCassetteFile, ScotchMode.Recording, hideCredentials: true);
+var advancedSettings = new AdvancedSettings
+{
+    Censors = new Censors().HideQueryParameter("api_key") // hide the api_key query parameter
+};
 
-// Indicate specific headers to censor
-var vcrHttpClient = HttpClients.NewHttpClient(pathToCassetteFile, ScotchMode.Recording, hideCredentials: true, headersToHide: new string[] { "MyCustomHeader" });
+// Create a VCR with the advanced settings applied
+var vcr = new VCR(advancedSettings);
+
+// Create a cassette and add it to the VCR
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+vcr.Insert(cassette);
+       
+// Set the VCR to record mode     
+vcr.Record();
+            
+// Get an HttpClient using the VCR
+var httpClient = vcr.Client;
+            
+// Use the HttpClient as you would normally.
+var response = await httpClient.GetAsync("https://google.com");
+
+// Remove the cassette from the VCR            
+vcr.Eject();
 ```

@@ -31,7 +31,7 @@ namespace EasyPost.EasyVCR.Tests
             var advancedSettings = new AdvancedSettings
             {
                 MatchRules = new MatchRules().ByBody().ByHeader("X-My-Header"), // Match recorded requests by body and a specific header
-                Censors = new Censors("redacted").HideHeader("Header-To-Hide"), // Redact a specific header 
+                Censors = new Censors("redacted").HideHeader("Header-To-Hide").HideQueryParameter("api_key"), // Redact a specific header and query parameter 
                 ManualDelay = 1000, // Simulate a delay of 1 second
             };
             var order = new CassetteOrder.None(); // elements of each request in a cassette will not be ordered any particular way
