@@ -4,7 +4,10 @@ using System.Text;
 
 namespace EasyPost.EasyVCR.InternalUtilities
 {
-    public static class Tools
+    /// <summary>
+    ///     Internal tools for EasyVCR.
+    /// </summary>
+    internal static class Tools
     {
         /// <summary>
         ///     Combine a folder and a file name to create a path.

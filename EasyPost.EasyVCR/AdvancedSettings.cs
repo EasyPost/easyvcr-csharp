@@ -1,8 +1,12 @@
 using System;
+using EasyPost.EasyVCR.Interfaces;
 using EasyPost.EasyVCR.InternalUtilities;
 
 namespace EasyPost.EasyVCR
 {
+    /// <summary>
+    ///     Advanced settings for EasyVCR.
+    /// </summary>
     public class AdvancedSettings
     {
         /// <summary>

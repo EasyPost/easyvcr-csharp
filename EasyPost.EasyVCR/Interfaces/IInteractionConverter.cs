@@ -4,8 +4,11 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EasyPost.EasyVCR.RequestElements;
 
-namespace EasyPost.EasyVCR
+namespace EasyPost.EasyVCR.Interfaces
 {
+    /// <summary>
+    ///     Interface for custom interaction converters to convert HttpClient requests/responses to/from EasyVCR requests/responses.
+    /// </summary>
     public interface IInteractionConverter
     {
         /// <summary>

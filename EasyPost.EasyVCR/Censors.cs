@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR
 {
+    /// <summary>
+    ///     Censoring capabilities for EasyVCR.
+    /// </summary>
     public sealed class Censors
     {
         private readonly List<string> _bodyParamsToCensor;

@@ -3,6 +3,9 @@ using EasyPost.EasyVCR.Handlers;
 
 namespace EasyPost.EasyVCR
 {
+    /// <summary>
+    ///     HttpClient singleton for EasyVCR.
+    /// </summary>
     public static class HttpClients
     {
         /// <summary>

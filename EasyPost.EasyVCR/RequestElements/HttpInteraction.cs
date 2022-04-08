@@ -3,17 +3,32 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
-    public class HttpInteraction : HttpElement
+    /// <summary>
+    ///     Represents an HTTP request-response pair tracked by EasyVCR.
+    /// </summary>
+    internal class HttpInteraction : HttpElement
     {
+        /// <summary>
+        ///     Timestamp of when the interaction was recorded.
+        /// </summary>
         [JsonProperty("RecordedAt")]
-        public DateTimeOffset RecordedAt { get; set; }
+        internal DateTimeOffset RecordedAt { get; set; }
+        /// <summary>
+        ///     The HTTP request.
+        /// </summary>
         [JsonProperty("Request")]
-        public Request Request { get; set; }
+        internal Request Request { get; set; }
+        /// <summary>
+        ///     The HTTP response.
+        /// </summary>
         [JsonProperty("Response")]
-        public Response Response { get; set; }
+        internal Response Response { get; set; }
         
+        /// <summary>
+        ///     The duration of the request.
+        /// </summary>
         [JsonProperty("Duration")]
         // request duration in milliseconds
-        public int Duration { get; set; }
+        internal int Duration { get; set; }
     }
 }

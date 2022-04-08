@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
 
-namespace EasyPost.EasyVCR.InternalUtilities.JSON.Orders
+namespace EasyPost.EasyVCR.Interfaces
 {
+    /// <summary>
+    ///     Interface for a custom JSON element order option
+    /// </summary>
     public interface IOrderOption
     {
         /// <summary>

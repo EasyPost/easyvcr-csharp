@@ -3,17 +3,35 @@ using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
+    /// <summary>
+    ///     Represents an HTTP request tracked by EasyVCR.
+    /// </summary>
     public class Request : HttpElement
     {
+        /// <summary>
+        ///     The body of the request.
+        /// </summary>
         [JsonProperty("Body")]
-        public string? Body { get; set; }
+        internal string? Body { get; set; }
+        /// <summary>
+        ///     The content headers of the request.
+        /// </summary>
         [JsonProperty("ContentHeaders")]
-        public IDictionary<string, string>? ContentHeaders { get; set; }
+        internal IDictionary<string, string>? ContentHeaders { get; set; }
+        /// <summary>
+        ///     The method of the request.
+        /// </summary>
         [JsonProperty("Method")]
-        public string Method { get; set; }
+        internal string Method { get; set; }
+        /// <summary>
+        ///     The request headers of the request.
+        /// </summary>
         [JsonProperty("RequestHeaders")]
-        public IDictionary<string, string> RequestHeaders { get; set; }
+        internal IDictionary<string, string> RequestHeaders { get; set; }
+        /// <summary>
+        ///    The URL of the request.
+        /// </summary>
         [JsonProperty("Uri")]
-        public string? Uri { get; set; }
+        internal string? Uri { get; set; }
     }
 }

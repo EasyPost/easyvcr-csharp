@@ -2,10 +2,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using EasyPost.EasyVCR.Interfaces;
 using EasyPost.EasyVCR.RequestElements;
 
 namespace EasyPost.EasyVCR.InternalUtilities
 {
+    /// <summary>
+    ///     The default interaction converter to convert HttpClient requests/responses to/from EasyVCR requests/responses.
+    /// </summary>
     internal class DefaultInteractionConverter : IInteractionConverter
     {
         /// <summary>

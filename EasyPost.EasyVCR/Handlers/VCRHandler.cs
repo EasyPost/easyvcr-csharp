@@ -3,12 +3,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using EasyPost.EasyVCR.Interfaces;
 using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.RequestElements;
 
 namespace EasyPost.EasyVCR.Handlers
 {
-    public class VCRHandler : DelegatingHandler
+    /// <summary>
+    ///     A handler that records and replays HTTP requests and responses.
+    /// </summary>
+    internal class VCRHandler : DelegatingHandler
     {
         private readonly Cassette _cassette;
 
@@ -19,6 +23,13 @@ namespace EasyPost.EasyVCR.Handlers
         private readonly bool _useOriginalDelay;
         private readonly TimeSpan? _delay;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="VCRHandler" /> class.
+        /// </summary>
+        /// <param name="innerHandler">Inner handler to also execute on requests.</param>
+        /// <param name="cassette">Cassette to use to record/replay requests.</param>
+        /// <param name="mode">Mode to operate in.</param>
+        /// <param name="advancedSettings">Advanced settings to use during recording/replaying, optional</param>
         internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
             InnerHandler = innerHandler;

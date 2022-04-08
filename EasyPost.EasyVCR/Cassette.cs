@@ -1,22 +1,37 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EasyPost.EasyVCR.Interfaces;
 using EasyPost.EasyVCR.InternalUtilities;
 using EasyPost.EasyVCR.InternalUtilities.JSON;
-using EasyPost.EasyVCR.InternalUtilities.JSON.Orders;
 using EasyPost.EasyVCR.RequestElements;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace EasyPost.EasyVCR
 {
+    /// <summary>
+    ///     Cassette used to store and retrieve requests and responses for EasyVCR.
+    /// </summary>
     public class Cassette
     {
         private static object _fileLocker = new();
 
+        /// <summary>
+        ///     The name of the cassette.
+        /// </summary>
         public readonly string Name;
+        /// <summary>
+        ///     The path to the cassette file.
+        /// </summary>
         private readonly string _filePath;
+        /// <summary>
+        ///    The order of JSON elements to use when writing cassette files.
+        /// </summary>
         private readonly IOrderOption _orderOption;
+        /// <summary>
+        ///     Boolean indicating if cassette is locked.
+        /// </summary>
         private bool _locked;
 
         /// <summary>
@@ -24,6 +39,12 @@ namespace EasyPost.EasyVCR
         /// </summary>
         public int Count => Read().ToList().Count;
 
+        /// <summary>
+        ///     Create a cassette.
+        /// </summary>
+        /// <param name="folderPath">Path to folder containing cassette files.</param>
+        /// <param name="cassetteName">Name of the cassette</param>
+        /// <param name="order">Order used when writing cassette files, optional</param>
         public Cassette(string folderPath, string cassetteName, IOrderOption? order = null)
         {
             _orderOption = order ?? new CassetteOrder.Alphabetical();

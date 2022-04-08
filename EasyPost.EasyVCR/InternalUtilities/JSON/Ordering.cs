@@ -1,18 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyPost.EasyVCR.InternalUtilities.JSON.Orders;
+using EasyPost.EasyVCR.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace EasyPost.EasyVCR.InternalUtilities.JSON
 {
-    internal static class Orderer
+    /// <summary>
+    ///     Wrapper for custom Newtonsoft.Json contract resolvers
+    /// </summary>
+    internal static class Ordering
     {
+        /// <summary>
+        ///     Custom Newtonsoft.Json contract resolver with custom sorting functionality.
+        /// </summary>
         internal class OrderedContractResolver : DefaultContractResolver
         {
             private readonly Func<IList<JsonProperty>, IEnumerable<JsonProperty>>? _orderFunc;
 
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="OrderedContractResolver" /> class.
+            /// </summary>
+            /// <param name="orderOption">Order to use when sorting JsonProperty elements.</param>
             internal OrderedContractResolver(IOrderOption orderOption)
             {
                 _orderFunc = orderOption.OrderFunction;

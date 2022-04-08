@@ -1,6 +1,6 @@
 using System;
 using System.Dynamic;
-using EasyPost.EasyVCR.InternalUtilities.JSON.Orders;
+using EasyPost.EasyVCR.Interfaces;
 using Newtonsoft.Json;
 
 namespace EasyPost.EasyVCR.InternalUtilities.JSON
@@ -64,7 +64,7 @@ namespace EasyPost.EasyVCR.InternalUtilities.JSON
             // modify settings so elements will be ordered
             var settings = new JsonSerializerSettings
             {
-                ContractResolver = new Orderer.OrderedContractResolver(orderOption),
+                ContractResolver = new Ordering.OrderedContractResolver(orderOption),
                 Converters = converters
             };
 

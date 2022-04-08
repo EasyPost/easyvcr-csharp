@@ -3,6 +3,9 @@ using System.Net.Http;
 
 namespace EasyPost.EasyVCR
 {
+    /// <summary>
+    ///     Built-in VCR tool for EasyVCR.
+    /// </summary>
     public class VCR
     {
         /// <summary>

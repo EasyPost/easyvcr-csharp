@@ -2,6 +2,9 @@ using EasyPost.EasyVCR.InternalUtilities.JSON;
 
 namespace EasyPost.EasyVCR.RequestElements
 {
+    /// <summary>
+    ///     Base class for all EasyVCR request/response objects.
+    /// </summary>
     public class HttpElement
     {
         /// <summary>
