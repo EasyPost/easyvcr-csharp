@@ -7,7 +7,7 @@ namespace EasyPost.EasyVCR.InternalUtilities
     /// <summary>
     ///     Internal tools for EasyVCR.
     /// </summary>
-    internal static class Tools
+    internal static class Utilities
     {
         /// <summary>
         ///     Combine a folder and a file name to create a path.

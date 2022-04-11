@@ -1,15 +1,13 @@
 # EasyVCR
 
-#### Disclaimer
-This is a distant fork of the original [Scotch by Martin Leech](https://github.com/mleech/scotch), completely rewritten in C# and enhanced with several new features and performance improvements.
-
-## What is EasyVCR?
 EasyVCR is a library for recording and replaying HTTP interactions in your test suite.
 
 This can be useful for speeding up your test suite, or for running your tests on a CI server which doesn't have connectivity to the HTTP endpoints you need to interact with.
 
 ## How to use EasyVCR
+
 #### Step 1.
+
 Run your test suite locally against a real HTTP endpoint in recording mode
 
 ```csharp
@@ -31,6 +29,7 @@ var response = await recordingHttpClient.GetAsync("https://api.example.com/v1/us
 Real HTTP calls will be made and recorded to the cassette file.
 
 #### Step 2.
+
 Switch to replay mode:
 ```csharp
 using EasyPost.EasyVCR;
@@ -44,15 +43,18 @@ var replayingHttpClient = HttpClients.NewHttpClient(cassette, Mode.Replay);
 Now when tests are run, no real HTTP calls will be made. Instead, the HTTP responses will be replayed from the cassette file.
 
 ### Available modes
+
+- `Mode.Auto`:  Play back a request if it has been recorded before, or record a new one if not. (default mode for `VCR`)
 - `Mode.Record`: Record a request, including overwriting any existing matching recording.
 - `Mode.Replay`: Replay a request. Throws an exception if no matching recording is found.
-- `Mode.Auto`:  Play back a request if it has been recorded before, or record a new one if not.
 - `Mode.Bypass`:  Do not record or replay any requests (client will behave like a normal HttpClient).
 
 ## Features
+
 `EasyVCR` comes with a number of features, many of which can be customized via the `AdvancedOptions` class.
 
 ### Censoring
+
 Censor sensitive data in the request and response bodies and headers, such as API keys and auth tokens.
 
 **Default**: *Disabled*
@@ -67,7 +69,9 @@ var advancedOptions = new AdvancedOptions()
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
 ```
+
 ### Delay
+
 Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
 
 **Default**: *No delay*
@@ -83,7 +87,9 @@ var advancedOptions = new AdvancedOptions()
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
 ```
+
 ### Matching
+
 Customize how a recorded request is determined to be a match to the current request.
 
 **Default**: *Method and full URL must match*
@@ -100,6 +106,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 ```
 
 ### Ordering
+
 Customize how elements of a recorded request are organized in the cassette file. 
 Helpful to avoid unnecessary git differences between cassette file versions. 
 
@@ -116,6 +123,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 ```
 
 ### HttpClient Conversion
+
 Override how HttpClient request and response objects are converted into `EasyVCR` request and response objects, and vice versa.
 Useful if `HttpClient` suffers breaking changes in future .NET versions.
 ```csharp
@@ -131,7 +139,8 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 ```
 
 ## VCR
-`EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
+
+In addition to individual recordable HttpClient instances, `EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
 
 ```csharp
 using EasyPost.EasyVCR;
@@ -160,3 +169,7 @@ var response = await httpClient.GetAsync("https://google.com");
 // Remove the cassette from the VCR            
 vcr.Eject();
 ```
+
+#### Credit
+
+- [Scotch by Martin Leech](https://github.com/mleech/scotch), whose core functionality on which this is based.

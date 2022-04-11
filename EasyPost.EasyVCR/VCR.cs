@@ -62,6 +62,7 @@ namespace EasyPost.EasyVCR
         public VCR(AdvancedSettings? advancedSettings = null)
         {
             AdvancedSettings = advancedSettings;
+            Mode = Mode.Auto;
         }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace EasyPost.EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_erase_and_playback");
             cassette.Erase(); // Erase cassette before recording
-            Assert.IsTrue(cassette.Count == 0); // Make sure cassette is empty
+            Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is empty
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Replay);
 
@@ -44,7 +44,7 @@ namespace EasyPost.EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_erase_and_record");
             cassette.Erase(); // Erase cassette before recording
-            Assert.IsTrue(cassette.Count == 0); // Make sure cassette is empty
+            Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is empty
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
 
@@ -54,7 +54,7 @@ namespace EasyPost.EasyVCR.Tests
             Assert.IsNotNull(posts);
             Assert.AreEqual(posts.Count, 100);
 
-            Assert.IsTrue(cassette.Count > 0); // Make sure cassette is not empty
+            Assert.IsTrue(cassette.NumInteractions > 0); // Make sure cassette is not empty
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace EasyPost.EasyVCR
     /// </summary>
     public class Cassette
     {
-        private static object _fileLocker = new();
+        private static object _fileLocker = new object();
 
         /// <summary>
         ///     The name of the cassette.
@@ -37,7 +38,7 @@ namespace EasyPost.EasyVCR
         /// <summary>
         ///     Get how many interactions are recorded on this cassette.
         /// </summary>
-        public int Count => Read().ToList().Count;
+        public int NumInteractions => Read().ToList().Count;
 
         /// <summary>
         ///     Create a cassette.
@@ -49,7 +50,7 @@ namespace EasyPost.EasyVCR
         {
             _orderOption = order ?? new CassetteOrder.Alphabetical();
             Name = cassetteName;
-            _filePath = Tools.GetFilePath(folderPath, $"{cassetteName}.json");
+            _filePath = Utilities.GetFilePath(folderPath, $"{cassetteName}.json");
         }
         
         /// <summary>
@@ -156,6 +157,7 @@ namespace EasyPost.EasyVCR
             if (serializedInteraction == null) throw new VCRException("Could not serialize cassette");
 
             File.WriteAllText(_filePath, serializedInteraction);
+            File.AppendAllText(_filePath, Environment.NewLine);
         }
     }
 }

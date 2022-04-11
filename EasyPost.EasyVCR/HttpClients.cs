@@ -13,7 +13,7 @@ namespace EasyPost.EasyVCR
         /// </summary>
         /// <param name="cassetteFolder">Folder where cassettes will be stored.</param>
         /// <param name="cassetteName">Name of the cassette to use.</param>
-        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
+        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto, Bypass).</param>
         /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
         public static HttpClient NewHttpClient(string cassetteFolder, string cassetteName, Mode mode, AdvancedSettings? advancedSettings = null)
@@ -25,7 +25,7 @@ namespace EasyPost.EasyVCR
         ///     Get a new HttpClient configured to use cassettes.
         /// </summary>
         /// <param name="cassette">Cassette object to use.</param>
-        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
+        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto, Bypass).</param>
         /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
         public static HttpClient NewHttpClient(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
@@ -39,7 +39,7 @@ namespace EasyPost.EasyVCR
         /// <param name="innerHandler">Custom inner handler to execute as part of HTTP requests.</param>
         /// <param name="cassetteFolder">Folder where cassettes will be stored.</param>
         /// <param name="cassetteName">Name of the cassette to use.</param>
-        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
+        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto, Bypass).</param>
         /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
         public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, string cassetteFolder, string cassetteName, Mode mode, AdvancedSettings? advancedSettings = null)
@@ -52,7 +52,7 @@ namespace EasyPost.EasyVCR
         /// </summary>
         /// <param name="innerHandler">Custom inner handler to execute as part of HTTP requests.</param>
         /// <param name="cassette">Cassette object to use.</param>
-        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto).</param>
+        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto, Bypass).</param>
         /// <param name="advancedSettings">AdvancedSettings object to use.</param>
         /// <returns>An HttpClient object.</returns>
         public static HttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)

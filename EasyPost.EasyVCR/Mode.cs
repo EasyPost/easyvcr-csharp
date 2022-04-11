@@ -6,13 +6,13 @@ namespace EasyPost.EasyVCR
     public enum Mode
     {
         /// <summary>
-        ///     No recording or playback. Make HTTP requests as normal.
-        /// </summary>
-        Bypass,
-        /// <summary>
         ///     Replay existing recordings if they exist, otherwise record new ones.
         /// </summary>
         Auto,
+        /// <summary>
+        ///     No recording or playback. Make HTTP requests as normal.
+        /// </summary>
+        Bypass,
         /// <summary>
         ///     Always record new HTTP requests, including overwriting existing recordings.
         /// </summary>

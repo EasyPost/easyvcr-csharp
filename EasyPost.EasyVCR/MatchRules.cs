@@ -64,8 +64,8 @@ namespace EasyPost.EasyVCR
                     return false;
 
                 // convert body to base64string to assist comparison by removing special characters
-                var receivedBody = Tools.ToBase64String(received.Body);
-                var recordedBody = Tools.ToBase64String(recorded.Body);
+                var receivedBody = Utilities.ToBase64String(received.Body);
+                var recordedBody = Utilities.ToBase64String(recorded.Body);
                 return receivedBody.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -81,8 +81,8 @@ namespace EasyPost.EasyVCR
         {
             By((received, recorded) =>
             {
-                var receivedRequest = Tools.ToBase64String(received.ToJson());
-                var recordedRequest = Tools.ToBase64String(recorded.ToJson());
+                var receivedRequest = Utilities.ToBase64String(received.ToJson());
+                var recordedRequest = Utilities.ToBase64String(recorded.ToJson());
                 return receivedRequest.Equals(recordedRequest, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -102,8 +102,8 @@ namespace EasyPost.EasyVCR
             {
                 By((received, recorded) =>
                 {
-                    var receivedUri = Tools.ToBase64String(received.Uri);
-                    var recordedUri = Tools.ToBase64String(recorded.Uri);
+                    var receivedUri = Utilities.ToBase64String(received.Uri);
+                    var recordedUri = Utilities.ToBase64String(recorded.Uri);
                     return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
                 });
             }

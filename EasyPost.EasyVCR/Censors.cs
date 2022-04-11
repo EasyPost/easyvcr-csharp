@@ -13,6 +13,7 @@ namespace EasyPost.EasyVCR
     public sealed class Censors
     {
         private readonly List<string> _bodyParamsToCensor;
+        private readonly bool _caseSensitive;
         private readonly string _censorText = "*****";
         private readonly List<string> _headersToCensor;
         private readonly List<string> _queryParamsToCensor;
@@ -20,7 +21,7 @@ namespace EasyPost.EasyVCR
         /// <summary>
         ///     Default censors is to not censor anything.
         /// </summary>
-        public static Censors Default => new();
+        public static Censors Default => new Censors();
 
         /// <summary>
         ///     Default sensitive censors is to censor common private information (i.e. API keys, auth tokens, etc.)
@@ -30,9 +31,9 @@ namespace EasyPost.EasyVCR
             get
             {
                 var censors = new Censors();
-                foreach (var key in Statics.DefaultCredentialHeadersToHide) censors.HideHeader(key);
+                foreach (var key in Defaults.CredentialHeadersToHide) censors.HideHeader(key);
 
-                foreach (var key in Statics.DefaultCredentialParametersToHide)
+                foreach (var key in Defaults.CredentialParametersToHide)
                 {
                     censors.HideQueryParameter(key);
                     censors.HideBodyParameter(key);
@@ -46,12 +47,14 @@ namespace EasyPost.EasyVCR
         ///     Initialize a new instance of the <see cref="Censors" /> factory.
         /// </summary>
         /// <param name="censorString">String to replace censored values with.</param>
-        public Censors(string? censorString = null)
+        /// <param name="caseSensitive">Whether to enforce case when finding keys to censor</param>
+        public Censors(string? censorString = null, bool caseSensitive = false)
         {
             _queryParamsToCensor = new List<string>();
             _bodyParamsToCensor = new List<string>();
             _headersToCensor = new List<string>();
             _censorText = censorString ?? _censorText;
+            _caseSensitive = caseSensitive;
         }
 
         /// <summary>
@@ -62,7 +65,7 @@ namespace EasyPost.EasyVCR
         /// <returns></returns>
         public Censors HideBodyParameter(string parameterKey)
         {
-            _bodyParamsToCensor.Add(parameterKey);
+            _bodyParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
             return this;
         }
 
@@ -74,7 +77,7 @@ namespace EasyPost.EasyVCR
         /// <returns>The current Censor object.</returns>
         public Censors HideHeader(string headerKey)
         {
-            _headersToCensor.Add(headerKey);
+            _headersToCensor.Add(_caseSensitive ? headerKey : headerKey.ToLowerInvariant());
             return this;
         }
 
@@ -85,7 +88,7 @@ namespace EasyPost.EasyVCR
         /// <returns>The current Censor object.</returns>
         public Censors HideQueryParameter(string parameterKey)
         {
-            _queryParamsToCensor.Add(parameterKey);
+            _queryParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
             return this;
         }
 
@@ -115,9 +118,10 @@ namespace EasyPost.EasyVCR
                 // short circuit if there are no body parameters
                 return body;
 
-            foreach (var key in _bodyParamsToCensor)
-                if (bodyDictionary.ContainsKey(key))
-                    bodyDictionary[key] = _censorText;
+            var casedKeys = bodyDictionary.Keys.Select(key => _caseSensitive ? key : key.ToLowerInvariant()).ToList();
+
+            foreach (var key in _bodyParamsToCensor.Where(key => casedKeys.Contains(key)))
+                bodyDictionary[key] = _censorText;
 
             return Serialization.ConvertObjectToJson(bodyDictionary);
         }
@@ -133,9 +137,10 @@ namespace EasyPost.EasyVCR
                 // short circuit if there are no headers to censor
                 return headers;
 
-            foreach (var key in _headersToCensor)
-                if (headers.ContainsKey(key))
-                    headers[key] = _censorText;
+            var casedKeys = headers.Keys.Select(key => _caseSensitive ? key : key.ToLowerInvariant()).ToList();
+
+            foreach (var key in _headersToCensor.Where(key => casedKeys.Contains(key)))
+                headers[key] = _censorText;
 
             return headers;
         }
@@ -157,9 +162,10 @@ namespace EasyPost.EasyVCR
                 // short circuit if there are no query parameters
                 return url;
 
-            foreach (var key in _queryParamsToCensor)
-                if (queryParameters.AllKeys.Contains(key))
-                    queryParameters[key] = _censorText;
+            var casedKeys = queryParameters.AllKeys.Select(key => _caseSensitive ? key : key.ToLowerInvariant()).ToList();
+
+            foreach (var key in _queryParamsToCensor.Where(key => casedKeys.Contains(key)))
+                queryParameters[key] = _censorText;
 
             return $"{uri.GetLeftPart(UriPartial.Path)}?{queryParameters}";
         }
