@@ -1,0 +1,18 @@
+### NEXT RELEASE
+- Initial release
+- Support for .NET Core 3.1, .NET 5.0, .NET 6.0 and .NET Standard 2.0
+- Support for Auto mode (replay a request if it exists, otherwise record a new one)
+- Introduce `VCR` as a singleton users can use to track cassettes and mode with unified settings
+  - For users not wanting to use `VCR`, a recording-capable `HttpClient` can be retrieved via the `HttpClients` class
+- Support for Bypass mode (skip cassette process, make a normal HTTP request)
+- Support for storing mode in environment variables as `EASYVCR_MODE`
+  - Bypass mode overrides environment variable
+  - Only available in `VCR`
+- Support for advanced settings via `AdvancedSettings`
+  - Simulate a delay on each pre-recorded request via `SimulateDelay`
+  - Override default rules to hide headers, query parameters and body parameters in cassettes via `Censors`
+  - Override default rules when determining if a request matches an existing record via `MatchRules` (advanced)
+  - Override default conversion of HttpRequestMessage and HttpResponseMessage objects via `IInteractionConverter`(advanced)
+    - This will hopefully allow users to adjust in case System.Net.Http introduces breaking changes in the future, without requiring an update to this package.
+- Support for custom ordering of JSON in cassette files via `CassetteOrder` and `IOrderOption` (advanced)
+  - Cassette elements default to being ordered alphabetically
