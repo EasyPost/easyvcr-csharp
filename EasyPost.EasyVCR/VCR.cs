@@ -114,6 +114,14 @@ namespace EasyPost.EasyVCR
             Mode = Mode.Replay;
         }
 
+        /// <summary>
+        ///     Enable auto mode on the VCR (record if needed, replay otherwise).
+        /// </summary>
+        public void RecordIfNeeded()
+        {
+            Mode = Mode.Auto;
+        }
+
         private Mode? GetModeFromEnvironment()
         {
             const string keyName = "EASYVCR_MODE";

@@ -39,5 +39,27 @@ namespace EasyPost.EasyVCR.Tests
             var cassette = GetCassette(cassetteName);
             return HttpClients.NewHttpClient(cassette, mode);
         }
+
+        internal static VCR GetSimpleVCR(Mode mode)
+        {
+            var vcr = new VCR();
+            switch (mode)
+            {
+                case Mode.Record:
+                    vcr.Record();
+                    break;
+                case Mode.Replay:
+                    vcr.Replay();
+                    break;
+                case Mode.Bypass:
+                    vcr.Pause();
+                    break;
+                case Mode.Auto:
+                    vcr.RecordIfNeeded();
+                    break;
+            }
+
+            return vcr;
+        }
     }
 }
