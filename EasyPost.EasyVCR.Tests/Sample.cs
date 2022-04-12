@@ -15,13 +15,13 @@ namespace EasyPost.EasyVCR.Tests
             vcr.Record();
 
             var httpClient = vcr.Client;
-            
+
             // Use the httpClient as you would normally.
             var response = await httpClient.GetAsync("https://google.com");
-            
+
             vcr.Eject();
         }
-        
+
         /// <summary>
         ///     Set global advanced options for VCR, applied to all requests made by the VCR.
         ///     Set specific order options when creating a cassette.
@@ -39,12 +39,12 @@ namespace EasyPost.EasyVCR.Tests
             var cassette = new Cassette("path/to/cassettes", "my_cassette", order);
             vcr.Insert(cassette);
             vcr.Record();
-            
+
             var httpClient = vcr.Client;
-            
+
             // Use the httpClient as you would normally.
             var response = await httpClient.GetAsync("https://google.com");
-            
+
             vcr.Eject();
         }
 
@@ -56,10 +56,10 @@ namespace EasyPost.EasyVCR.Tests
             var cassette = new Cassette("path/to/cassettes", "my_cassette");
 
             var httpClient = HttpClients.NewHttpClient(cassette, Mode.Auto);
-            
+
             // Use the httpClient as you would normally.
             var response = await httpClient.GetAsync("https://google.com");
-            
+
             cassette.Lock();
         }
 
@@ -77,11 +77,11 @@ namespace EasyPost.EasyVCR.Tests
                 // InteractionConverter = new MyInteractionConverter(), // use a custom interaction converter by implementing IInteractionConverter
             };
             var order = new CassetteOrder.Alphabetical(); // elements of each request in a cassette will be ordered alphabetically
-            
+
             var cassette = new Cassette("path/to/cassettes", "my_cassette", order);
-            
+
             var httpClient = HttpClients.NewHttpClient(cassette, Mode.Auto, advancedSettings);
-            
+
             // Use the httpClient as you would normally.
             var response = await httpClient.GetAsync("https://google.com");
 
