@@ -64,6 +64,25 @@ namespace EasyPost.EasyVCR.Tests
         }
 
         [TestMethod]
+        public async Task TestErase()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_eject_cassette");
+            cassette.Erase(); // make sure the cassette is empty
+            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
+            vcr.Insert(cassette);
+
+            // record a request to a cassette
+            var fakeDataService = new FakeDataService(vcr);
+            var posts = await fakeDataService.GetPosts();
+            Assert.IsNotNull(posts);
+            Assert.IsTrue(cassette.NumInteractions > 0);
+
+            // erase the cassette
+            vcr.Erase();
+            Assert.IsTrue(cassette.NumInteractions == 0);
+        }
+
+        [TestMethod]
         public void TestMode()
         {
             var cassette = TestUtils.GetCassette("test_vcr_mode");
@@ -125,7 +144,6 @@ namespace EasyPost.EasyVCR.Tests
 
             // double check by erasing the cassette and trying to replay
             vcr.Erase();
-            Assert.IsTrue(cassette.NumInteractions == 0); // make sure we erased the cassette successfully
             // should throw an exception because there's no matching interaction now
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetPosts());
         }
@@ -145,6 +163,10 @@ namespace EasyPost.EasyVCR.Tests
         [TestMethod]
         public async Task TestAdvancedSettings()
         {
+            // we can assume that, if one test of advanced settings works for the VCR,
+            // that the advanced settings are being properly passed to the cassette
+            // refer to ClientTest.cs for individual per-settings tests
+
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {

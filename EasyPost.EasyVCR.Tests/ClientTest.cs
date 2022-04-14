@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,12 +35,24 @@ namespace EasyPost.EasyVCR.Tests
             Assert.IsNotNull(fakeDataService.Client);
         }
 
+        public async Task TestErase()
+        {
+            var cassette = TestUtils.GetCassette("test_erase");
+
+            // record something to the cassette
+            var _ = await GetPostsRequest(cassette, Mode.Record);
+            Assert.IsTrue(cassette.NumInteractions > 0);
+
+            // erase the cassette
+            cassette.Erase();
+            Assert.IsTrue(cassette.NumInteractions == 0);
+        }
+
         [TestMethod]
         public async Task TestEraseAndRecord()
         {
             var cassette = TestUtils.GetCassette("test_erase_and_record");
             cassette.Erase(); // Erase cassette before recording
-            Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is empty
 
             var posts = await GetPostsRequest(cassette, Mode.Record);
 
@@ -53,7 +66,6 @@ namespace EasyPost.EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_erase_and_record");
             cassette.Erase(); // Erase cassette before recording
-            Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is empty
 
             // cassette is empty, so replaying should throw an exception
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetPostsRequest(cassette, Mode.Replay));
@@ -64,7 +76,6 @@ namespace EasyPost.EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_auto_mode");
             cassette.Erase(); // Erase cassette before recording
-            Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is empty
 
             // in replay mode, if cassette is empty, should throw an exception
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetPostsRequest(cassette, Mode.Replay));
@@ -95,14 +106,15 @@ namespace EasyPost.EasyVCR.Tests
         [TestMethod]
         public async Task TestCensors()
         {
+            var cassette = TestUtils.GetCassette("test_censors");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).HideHeader("Date")
             };
-
-            var cassette = TestUtils.GetCassette("test_censors");
-            cassette.Erase(); // Erase cassette before recording
 
             // record cassette with advanced settings first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
@@ -146,9 +158,52 @@ namespace EasyPost.EasyVCR.Tests
                 MatchRules = new MatchRules().ByEverything()
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value"); // add custom header to request, causing a match failure
+            client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value"); // add custom header to request, causing a match failure when matching by everything
             fakeDataService = new FakeDataService(client);
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetPostsRawResponse());
+        }
+
+        [TestMethod]
+        public async Task TestDelay()
+        {
+            var cassette = TestUtils.GetCassette("test_delay");
+            cassette.Erase(); // Erase cassette before recording
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetPostsRawResponse();
+
+            // baseline - how much time does it take to replay the cassette?
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay);
+            fakeDataService = new FakeDataService(client);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var response = await fakeDataService.GetPostsRawResponse();
+            stopwatch.Stop();
+
+            // confirm the normal replay worked, note time
+            Assert.IsNotNull(response);
+            var normalReplayTime = (int)stopwatch.ElapsedMilliseconds;
+
+            // set up advanced settings
+            var delay = normalReplayTime + 3000; // add 3 seconds to the normal replay time, for good measure
+            var advancedSettings = new AdvancedSettings
+            {
+                ManualDelay = delay
+            };
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+
+            // time replay request
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
+            response = await fakeDataService.GetPostsRawResponse();
+            stopwatch.Stop();
+
+            // check that the delay was respected
+            Assert.IsNotNull(response);
+            Assert.IsTrue((int)stopwatch.ElapsedMilliseconds >= delay);
         }
     }
 }
