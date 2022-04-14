@@ -52,7 +52,7 @@ namespace EasyPost.EasyVCR
             Name = cassetteName;
             _filePath = Utilities.GetFilePath(folderPath, $"{cassetteName}.json");
         }
-        
+
         /// <summary>
         ///     Erase this cassette by deleting the file
         /// </summary>

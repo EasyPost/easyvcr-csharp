@@ -55,14 +55,24 @@ namespace EasyPost.EasyVCR.Tests
 
         public async Task<List<Post>?> GetPosts()
         {
-            var response = await Client.GetAsync("https://jsonplaceholder.typicode.com/posts");
+            var response = await GetPostsRawResponse();
             return JsonConvert.DeserializeObject<List<Post>>(await response.Content.ReadAsStringAsync());
         }
 
         public async Task<Post?> GetPost(int id)
         {
-            var response = await Client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{id}");
+            var response = await GetPostRawResponse(id);
             return JsonConvert.DeserializeObject<Post>(await response.Content.ReadAsStringAsync());
+        }
+
+        public async Task<HttpResponseMessage> GetPostsRawResponse()
+        {
+            return await Client.GetAsync("https://jsonplaceholder.typicode.com/posts");
+        }
+
+        public async Task<HttpResponseMessage> GetPostRawResponse(int id)
+        {
+            return await Client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{id}");
         }
     }
 }

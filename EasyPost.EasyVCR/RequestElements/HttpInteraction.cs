@@ -23,7 +23,6 @@ namespace EasyPost.EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Response")]
         internal Response Response { get; set; }
-        
         /// <summary>
         ///     The duration of the request.
         /// </summary>
