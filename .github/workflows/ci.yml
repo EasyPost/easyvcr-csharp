@@ -19,15 +19,11 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        platform: [ 'NetFramework461', 'NetStandard20', 'NetCore31', 'Net50', 'Net60' ]
+        framework: [ 'net462', 'netcoreapp3.1', 'net5.0', 'net6.0' ]
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-        # Set the project name, based on platform version currently selected
-      - name: Set up variables
-        id: test_project
-        run: echo "::set-output name=test_file::EasyPost.EasyVCR.Tests"
         # install MSBuild, used to build the test project
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
@@ -40,9 +36,9 @@ jobs:
         # Restore required NuGet packages
       - name: Restore NuGet Packages
         run: nuget restore EasyVCR.sln
-        # Build the test project
+        # Build the framework-specific test project
       - name: Build Solution
-        run: msbuild ${{ steps.test_project.outputs.test_file }}\${{ steps.test_project.outputs.test_file }}.csproj /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
-        # Run the tests
+        run: msbuild EasyPost.EasyVCR.Tests\EasyPost.EasyVCR.Tests.csproj /p:platform="Any CPU" /p:configuration="Debug" /p:target="Rebuild" /p:TargetFramework="${{ matrix.framework }}" /p:outputPath="bin/GitHubCI/${{ matrix.framework }}" -restore
+        # Run the framework-specific tests
       - name: Run Tests
-        run: vstest.console.exe ${{ steps.test_project.outputs.test_file }}\bin\Test\${{ steps.test_project.outputs.test_file }}.dll
+        run: vstest.console.exe "EasyPost.EasyVCR.Tests\bin\GitHubCI\${{ matrix.framework }}\EasyPost.EasyVCR.Tests.dll"

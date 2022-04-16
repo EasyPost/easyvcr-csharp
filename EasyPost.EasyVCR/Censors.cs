@@ -93,17 +93,6 @@ namespace EasyPost.EasyVCR
             return this;
         }
 
-        internal bool KeyShouldBeCensored(string foundKey, List<string> keysToCensor)
-        {
-            // keysToCensor are already cased as needed
-            if (!_caseSensitive)
-            {
-                foundKey = foundKey.ToLowerInvariant();
-            }
-
-            return keysToCensor.Contains(foundKey);
-        }
-
         /// <summary>
         ///     Censor the appropriate body parameters.
         /// </summary>
@@ -115,10 +104,10 @@ namespace EasyPost.EasyVCR
                 // short circuit if body is null or empty
                 return body;
 
-            Dictionary<string, string> bodyDictionary;
+            Dictionary<string, object> bodyDictionary;
             try
             {
-                bodyDictionary = Serialization.ConvertJsonToObject<Dictionary<string, string>>(body);
+                bodyDictionary = Serialization.ConvertJsonToObject<Dictionary<string, object>>(body);
             }
             catch (JsonSerializationException)
             {
@@ -130,7 +119,7 @@ namespace EasyPost.EasyVCR
                 // short circuit if there are no body parameters
                 return body;
 
-            var censoredBodyDictionary = new Dictionary<string, string>();
+            var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in bodyDictionary.Keys)
             {
                 censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : bodyDictionary[key]);
@@ -182,7 +171,23 @@ namespace EasyPost.EasyVCR
                 censoredQueryParameters.Add(key, KeyShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
             }
 
-            return $"{uri.GetLeftPart(UriPartial.Path)}?{censoredQueryParameters}";
+            return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
+        }
+
+        private bool KeyShouldBeCensored(string foundKey, List<string> keysToCensor)
+        {
+            // keysToCensor are already cased as needed
+            if (!_caseSensitive)
+            {
+                foundKey = foundKey.ToLowerInvariant();
+            }
+
+            return keysToCensor.Contains(foundKey);
+        }
+
+        private static string ToQueryString(NameValueCollection collection)
+        {
+            return string.Join("&", collection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(collection.Get(key))}").ToArray());
         }
     }
 }
