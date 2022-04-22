@@ -38,7 +38,7 @@ jobs:
         run: nuget restore EasyVCR.sln
         # Build the framework-specific test project
       - name: Build Solution
-        run: msbuild EasyPost.EasyVCR.Tests\EasyPost.EasyVCR.Tests.csproj /p:platform="Any CPU" /p:configuration="Debug" /p:target="Rebuild" /p:TargetFramework="${{ matrix.framework }}" /p:outputPath="bin/GitHubCI/${{ matrix.framework }}" -restore
+        run: msbuild EasyVCR.Tests\EasyVCR.Tests.csproj /p:platform="Any CPU" /p:configuration="Debug" /p:target="Rebuild" /p:TargetFramework="${{ matrix.framework }}" /p:outputPath="bin/GitHubCI/${{ matrix.framework }}" -restore
         # Run the framework-specific tests
       - name: Run Tests
-        run: vstest.console.exe "EasyPost.EasyVCR.Tests\bin\GitHubCI\${{ matrix.framework }}\EasyPost.EasyVCR.Tests.dll"
+        run: vstest.console.exe "EasyVCR.Tests\bin\GitHubCI\${{ matrix.framework }}\EasyVCR.Tests.dll"

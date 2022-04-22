@@ -233,3 +233,8 @@ packages/
 
 # output of paket pack
 nuget/
+
+# output of build
+/lib/*
+**/bin/*
+**/obj/*
