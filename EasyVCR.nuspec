@@ -4,9 +4,9 @@
         <id>EasyVCR</id>
         <title>EasyVCR</title>
         <version>0.1.0</version>
-        <authors>EasyVCR</authors>
-        <owners>EasyVCR</owners>
-        <projectUrl>https://github.com/EasyPost/easyvcr</projectUrl>
+        <authors>EasyPost</authors>
+        <owners>EasyPost</owners>
+        <projectUrl>https://github.com/EasyPost/easyvcr-csharp</projectUrl>
         <license type="expression">MIT</license>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A powerful library for recording and replaying HTTP requests</description>

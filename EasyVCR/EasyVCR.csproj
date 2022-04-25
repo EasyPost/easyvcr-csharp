@@ -41,12 +41,10 @@
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
     
-    <!--
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>..\EasyPost.pfx</AssemblyOriginatorKeyFile>
     </PropertyGroup>
-    -->
     
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
