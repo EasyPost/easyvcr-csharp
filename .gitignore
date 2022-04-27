@@ -176,6 +176,7 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
+*.snk
 *.publishsettings
 node_modules/
 orleans.codegen.cs
@@ -233,3 +234,8 @@ packages/
 
 # output of paket pack
 nuget/
+
+# output of build
+/lib/*
+**/bin/*
+**/obj/*

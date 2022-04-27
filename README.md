@@ -11,7 +11,7 @@ This can be useful for speeding up your test suite, or for running your tests on
 Run your test suite locally against a real HTTP endpoint in recording mode
 
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 // Create a cassette to handle HTTP interactions
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
@@ -32,7 +32,7 @@ Real HTTP calls will be made and recorded to the cassette file.
 
 Switch to replay mode:
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 // Create a cassette to handle HTTP interactions
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
@@ -59,7 +59,7 @@ Censor sensitive data in the request and response bodies and headers, such as AP
 
 **Default**: *Disabled*
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 var advancedOptions = new AdvancedOptions()
@@ -76,7 +76,7 @@ Simulate a delay when replaying a recorded request, either using a specified del
 
 **Default**: *No delay*
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 var advancedOptions = new AdvancedOptions()
@@ -94,7 +94,7 @@ Customize how a recorded request is determined to be a match to the current requ
 
 **Default**: *Method and full URL must match*
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 var advancedOptions = new AdvancedOptions()
@@ -114,7 +114,7 @@ Helpful to avoid unnecessary git differences between cassette file versions.
 
 **NOTE:** This setting must be used when creating the cassette.
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var order = new CassetteOrder.None(); // elements of each request in a cassette won't be ordered in any particular way
 var cassette = new Cassette("path/to/cassettes", "my_cassette", order);
@@ -127,7 +127,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 Override how HttpClient request and response objects are converted into `EasyVCR` request and response objects, and vice versa.
 Useful if `HttpClient` suffers breaking changes in future .NET versions.
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 var advancedOptions = new AdvancedOptions()
@@ -143,7 +143,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 In addition to individual recordable HttpClient instances, `EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
 
 ```csharp
-using EasyPost.EasyVCR;
+using EasyVCR;
 
 var advancedSettings = new AdvancedSettings
 {
