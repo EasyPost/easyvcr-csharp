@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -6,29 +6,32 @@ using Newtonsoft.Json;
 
 namespace EasyVCR.Tests
 {
-    public class Post
+    public class ExchangeRates
     {
-        [JsonProperty("user_id")]
-        internal int UserId { get; }
-        [JsonProperty("id")]
-        internal int Id { get; }
-        [JsonProperty("title")]
-        internal string Title { get; }
-        [JsonProperty("body")]
-        internal string Body { get; }
-
-        public Post(int userId, int id, string title, string body)
-        {
-            UserId = userId;
-            Id = id;
-            Title = title;
-            Body = body;
-        }
+        [JsonProperty("code")]
+        internal string Code { get; set; }
+        [JsonProperty("currency")]
+        internal string Currency { get; set; }
+        [JsonProperty("rates")]
+        internal List<Rate> Rates { get; set; }
+        [JsonProperty("table")]
+        internal string Table { get; set; }
     }
 
-    public class FakeDataService
+    public class Rate
+    {
+        [JsonProperty("effectiveDate")]
+        internal string EffectiveDate { get; set; }
+        [JsonProperty("mid")]
+        internal float Mid { get; set; }
+        [JsonProperty("no")]
+        internal string No { get; set; }
+    }
+
+    public abstract class FakeDataService
     {
         private readonly HttpClient? _client;
+        private readonly string? _format;
         private readonly VCR? _vcr;
 
         public HttpClient Client
@@ -43,36 +46,29 @@ namespace EasyVCR.Tests
             }
         }
 
-        public FakeDataService(VCR vcr)
+        public FakeDataService(string format, VCR vcr)
         {
+            _format = format;
             _vcr = vcr;
         }
 
-        public FakeDataService(HttpClient client)
+        public FakeDataService(string format, HttpClient client)
         {
+            _format = format;
             _client = client;
         }
 
-        public async Task<List<Post>?> GetPosts()
+        public async Task<ExchangeRates?> GetExchangeRates()
         {
-            var response = await GetPostsRawResponse();
-            return JsonConvert.DeserializeObject<List<Post>>(await response.Content.ReadAsStringAsync());
+            var response = await GetExchangeRatesRawResponse();
+            return Convert(await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<Post?> GetPost(int id)
+        public async Task<HttpResponseMessage> GetExchangeRatesRawResponse()
         {
-            var response = await GetPostRawResponse(id);
-            return JsonConvert.DeserializeObject<Post>(await response.Content.ReadAsStringAsync());
+            return await Client.GetAsync("http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=" + _format);
         }
 
-        public async Task<HttpResponseMessage> GetPostsRawResponse()
-        {
-            return await Client.GetAsync("https://jsonplaceholder.typicode.com/posts");
-        }
-
-        public async Task<HttpResponseMessage> GetPostRawResponse(int id)
-        {
-            return await Client.GetAsync($"https://jsonplaceholder.typicode.com/posts/{id}");
-        }
+        protected abstract ExchangeRates Convert(string responseBody);
     }
 }

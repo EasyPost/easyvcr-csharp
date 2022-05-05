@@ -9,158 +9,6 @@ namespace EasyVCR.Tests
     public class VCRTest
     {
         [TestMethod]
-        public void TestClient()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_client");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-
-            Assert.IsNotNull(vcr.Client);
-        }
-
-        [TestMethod]
-        public void TestClientHandOff()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_mode_hand_off");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-
-            // test that we can still control the VCR even after it's been handed off to the service using it
-            var fakeDataService = new FakeDataService(vcr);
-            // Client should come from VCR, which has a client because it has a cassette.
-            Assert.IsNotNull(fakeDataService.Client);
-
-            vcr.Eject();
-            // Client should be null because the VCR's cassette has been ejected.
-            Assert.ThrowsException<InvalidOperationException>(() => fakeDataService.Client);
-        }
-
-        [TestMethod]
-        public void TestClientNoCassette()
-        {
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            // Client should be null because the VCR has no cassette.
-            Assert.ThrowsException<InvalidOperationException>(() => vcr.Client);
-        }
-
-        [TestMethod]
-        public void TestInsertCassette()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_insert_cassette");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-            Assert.AreEqual(cassette.Name, vcr.CassetteName);
-        }
-
-        [TestMethod]
-        public void TestEjectCassette()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_eject_cassette");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-            Assert.IsNotNull(vcr.CassetteName);
-            vcr.Eject();
-            Assert.IsNull(vcr.CassetteName);
-        }
-
-        [TestMethod]
-        public async Task TestErase()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_eject_cassette");
-            cassette.Erase(); // make sure the cassette is empty
-            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
-            vcr.Insert(cassette);
-
-            // record a request to a cassette
-            var fakeDataService = new FakeDataService(vcr);
-            var posts = await fakeDataService.GetPosts();
-            Assert.IsNotNull(posts);
-            Assert.IsTrue(cassette.NumInteractions > 0);
-
-            // erase the cassette
-            vcr.Erase();
-            Assert.IsTrue(cassette.NumInteractions == 0);
-        }
-
-        [TestMethod]
-        public void TestMode()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_mode");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            Assert.AreEqual(Mode.Bypass, vcr.Mode);
-            vcr.Record();
-            Assert.AreEqual(vcr.Mode, Mode.Record);
-            vcr.Replay();
-            Assert.AreEqual(vcr.Mode, Mode.Replay);
-            vcr.Pause();
-            Assert.AreEqual(vcr.Mode, Mode.Bypass);
-            vcr.RecordIfNeeded();
-            Assert.AreEqual(vcr.Mode, Mode.Auto);
-        }
-
-        [TestMethod]
-        public async Task TestRequest()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_record");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-            var fakeDataService = new FakeDataService(vcr);
-
-            var posts = await fakeDataService.GetPosts();
-            Assert.IsNotNull(posts);
-            Assert.AreEqual(posts.Count, 100);
-        }
-
-        [TestMethod]
-        public async Task TestRecord()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_record");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
-            vcr.Insert(cassette);
-            var fakeDataService = new FakeDataService(vcr);
-
-            var posts = await fakeDataService.GetPosts();
-            Assert.IsNotNull(posts);
-            Assert.AreEqual(posts.Count, 100);
-            Assert.IsTrue(cassette.NumInteractions > 0);
-        }
-
-        [TestMethod]
-        public async Task TestReplay()
-        {
-            var cassette = TestUtils.GetCassette("test_vcr_replay");
-            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
-            vcr.Insert(cassette);
-            var fakeDataService = new FakeDataService(vcr);
-
-            // record first
-            var _ = await fakeDataService.GetPosts();
-            Assert.IsTrue(cassette.NumInteractions > 0); // make sure we recorded something
-
-            // now replay
-            vcr.Replay();
-            var posts = await fakeDataService.GetPosts();
-            Assert.IsNotNull(posts);
-
-            // double check by erasing the cassette and trying to replay
-            vcr.Erase();
-            // should throw an exception because there's no matching interaction now
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetPosts());
-        }
-
-        [TestMethod]
-        public async Task TestCassetteName()
-        {
-            const string cassetteName = "test_vcr_cassette_name";
-            var cassette = TestUtils.GetCassette(cassetteName);
-            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
-            vcr.Insert(cassette);
-
-            // make sure the cassette name is set correctly
-            Assert.AreEqual(cassetteName, vcr.CassetteName);
-        }
-
-        [TestMethod]
         public async Task TestAdvancedSettings()
         {
             // we can assume that, if one test of advanced settings works for the VCR,
@@ -186,21 +34,33 @@ namespace EasyVCR.Tests
             // record first
             vcr.Record();
             var client = vcr.Client;
-            var fakeDataService = new FakeDataService(client);
-            var _ = await fakeDataService.GetPosts();
+            var fakeDataService = new FakeJsonDataService(client);
+            var _ = await fakeDataService.GetExchangeRates();
 
             // now replay and confirm that the censor is applied
             vcr.Replay();
             // changing the VCR settings won't affect a client after it's been grabbed from the VCR
             // so, we need to re-grab the VCR client and re-create the FakeDataService
             client = vcr.Client;
-            fakeDataService = new FakeDataService(client);
-            var response = await fakeDataService.GetPostsRawResponse();
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetExchangeRatesRawResponse();
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Headers.Contains("Date"));
             var censoredHeader = response.Headers.GetValues("Date").FirstOrDefault();
             Assert.IsNotNull(censoredHeader);
             Assert.AreEqual(censoredHeader, censorString);
+        }
+
+        [TestMethod]
+        public async Task TestCassetteName()
+        {
+            const string cassetteName = "test_vcr_cassette_name";
+            var cassette = TestUtils.GetCassette(cassetteName);
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+
+            // make sure the cassette name is set correctly
+            Assert.AreEqual(cassetteName, vcr.CassetteName);
         }
 
         [TestMethod]
@@ -221,6 +81,146 @@ namespace EasyVCR.Tests
             cassette = TestUtils.GetCassette(cassette2Name);
             vcr.Insert(cassette);
             Assert.AreEqual(cassette2Name, vcr.CassetteName);
+        }
+
+        [TestMethod]
+        public void TestClient()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_client");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+
+            Assert.IsNotNull(vcr.Client);
+        }
+
+        [TestMethod]
+        public void TestClientHandOff()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_mode_hand_off");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+
+            // test that we can still control the VCR even after it's been handed off to the service using it
+            var fakeDataService = new FakeJsonDataService(vcr);
+            // Client should come from VCR, which has a client because it has a cassette.
+            Assert.IsNotNull(fakeDataService.Client);
+
+            vcr.Eject();
+            // Client should be null because the VCR's cassette has been ejected.
+            Assert.ThrowsException<InvalidOperationException>(() => fakeDataService.Client);
+        }
+
+        [TestMethod]
+        public void TestClientNoCassette()
+        {
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            // Client should be null because the VCR has no cassette.
+            Assert.ThrowsException<InvalidOperationException>(() => vcr.Client);
+        }
+
+        [TestMethod]
+        public void TestEjectCassette()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_eject_cassette");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+            Assert.IsNotNull(vcr.CassetteName);
+            vcr.Eject();
+            Assert.IsNull(vcr.CassetteName);
+        }
+
+        [TestMethod]
+        public async Task TestErase()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_eject_cassette");
+            cassette.Erase(); // make sure the cassette is empty
+            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
+            vcr.Insert(cassette);
+
+            // record a request to a cassette
+            var fakeDataService = new FakeJsonDataService(vcr);
+            var summary = await fakeDataService.GetExchangeRates();
+            Assert.IsNotNull(summary);
+            Assert.IsTrue(cassette.NumInteractions > 0);
+
+            // erase the cassette
+            vcr.Erase();
+            Assert.IsTrue(cassette.NumInteractions == 0);
+        }
+
+        [TestMethod]
+        public void TestInsertCassette()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_insert_cassette");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+            Assert.AreEqual(cassette.Name, vcr.CassetteName);
+        }
+
+        [TestMethod]
+        public void TestMode()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_mode");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            Assert.AreEqual(Mode.Bypass, vcr.Mode);
+            vcr.Record();
+            Assert.AreEqual(vcr.Mode, Mode.Record);
+            vcr.Replay();
+            Assert.AreEqual(vcr.Mode, Mode.Replay);
+            vcr.Pause();
+            Assert.AreEqual(vcr.Mode, Mode.Bypass);
+            vcr.RecordIfNeeded();
+            Assert.AreEqual(vcr.Mode, Mode.Auto);
+        }
+
+        [TestMethod]
+        public async Task TestRecord()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_record");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
+            vcr.Insert(cassette);
+            var fakeDataService = new FakeJsonDataService(vcr);
+
+            var summary = await fakeDataService.GetExchangeRates();
+            Assert.IsNotNull(summary);
+            Assert.IsNotNull(summary.Rates);
+            Assert.IsTrue(cassette.NumInteractions > 0);
+        }
+
+        [TestMethod]
+        public async Task TestReplay()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_replay");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Record);
+            vcr.Insert(cassette);
+            var fakeDataService = new FakeJsonDataService(vcr);
+
+            // record first
+            var _ = await fakeDataService.GetExchangeRates();
+            Assert.IsTrue(cassette.NumInteractions > 0); // make sure we recorded something
+
+            // now replay
+            vcr.Replay();
+            var summary = await fakeDataService.GetExchangeRates();
+            Assert.IsNotNull(summary);
+
+            // double check by erasing the cassette and trying to replay
+            vcr.Erase();
+            // should throw an exception because there's no matching interaction now
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetExchangeRates());
+        }
+
+        [TestMethod]
+        public async Task TestRequest()
+        {
+            var cassette = TestUtils.GetCassette("test_vcr_record");
+            var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
+            vcr.Insert(cassette);
+            var fakeDataService = new FakeJsonDataService(vcr);
+
+            var summary = await fakeDataService.GetExchangeRates();
+            Assert.IsNotNull(summary);
+            Assert.IsNotNull(summary.Rates);
         }
     }
 }

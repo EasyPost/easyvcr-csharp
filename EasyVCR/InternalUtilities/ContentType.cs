@@ -1,0 +1,90 @@
+using System;
+using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
+using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
+
+namespace EasyVCR.InternalUtilities
+{
+    internal enum ContentType
+    {
+        Json,
+        Xml,
+        Html,
+        Text
+    }
+
+
+    internal static class ContentTypeExtensions
+    {
+        public static ContentType DetermineContentType(string content)
+        {
+            if (IsJson(content))
+            {
+                return ContentType.Json;
+            }
+
+            if (IsXml(content))
+            {
+                return ContentType.Xml;
+            }
+
+            if (IsHtml(content))
+            {
+                return ContentType.Html;
+            }
+
+            return ContentType.Text;
+        }
+
+        public static ContentType? FromString(string? contentType)
+        {
+            if (contentType == null) return null;
+            switch (contentType.ToLower())
+            {
+                case "json":
+                    return ContentType.Json;
+                case "xml":
+                    return ContentType.Xml;
+                case "html":
+                    return ContentType.Html;
+                case "text":
+                default:
+                    return ContentType.Text;
+            }
+        }
+
+        private static bool IsHtml(string content)
+        {
+            return content.ToLower().Contains("<html");
+        }
+
+        private static bool IsJson(string content)
+        {
+            try
+            {
+                // try to serialize the string as JSON to an object
+                JsonSerialization.ConvertJsonToObject<object>(content);
+                return true;
+            }
+            catch (Exception)
+            {
+                // if it fails, it's not JSON
+                return false;
+            }
+        }
+
+        private static bool IsXml(string content)
+        {
+            try
+            {
+                // try to serialize the string as XML to an object
+                XmlSerialization.ConvertXmlToObject<object>(content);
+                return true;
+            }
+            catch (Exception)
+            {
+                // if it fails, it's not XML
+                return false;
+            }
+        }
+    }
+}

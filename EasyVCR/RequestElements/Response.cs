@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using EasyVCR.InternalUtilities;
 using Newtonsoft.Json;
 
 namespace EasyVCR.RequestElements
@@ -16,6 +17,17 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Body")]
         internal string? Body { get; set; }
+
+        /// <summary>
+        ///     The content type of the body of the response.
+        /// </summary>
+        [JsonIgnore]
+        internal ContentType? BodyContentType
+        {
+            get { return ContentTypeExtensions.FromString(BodyContentTypeString); }
+            set { BodyContentTypeString = value?.ToString(); }
+        }
+
         /// <summary>
         ///     The content headers of the response.
         /// </summary>
@@ -36,6 +48,11 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Status")]
         internal Status Status { get; set; }
+        /// <summary>
+        ///     The content type of the body of the response (string).
+        /// </summary>
+        [JsonProperty("BodyContentType")]
+        private string? BodyContentTypeString { get; set; }
 
         /// <summary>
         ///     Build an HttpResponseMessage out of an HttpRequestMessage object
@@ -48,6 +65,9 @@ namespace EasyVCR.RequestElements
             result.ReasonPhrase = Status.Message;
             result.Version = HttpVersion;
             foreach (var h in ResponseHeaders ?? new Dictionary<string, string>()) result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
+
+            // add default replay headers
+            foreach (var h in Defaults.ReplayHeaders) result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             var content = new ByteArrayContent(Encoding.UTF8.GetBytes(Body ?? string.Empty));
             foreach (var h in ContentHeaders ?? new Dictionary<string, string>()) content.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());

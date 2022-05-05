@@ -24,16 +24,6 @@ namespace EasyVCR.Tests
             return Path.Combine(GetCurrentDirectory(), directoryPath);
         }
 
-        private static string _GetCurrentDirectory([CallerFilePath] string sourceFilePath = "")
-        {
-            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentNullException(nameof(sourceFilePath));
-
-            var path = Path.GetDirectoryName(sourceFilePath);
-            if (string.IsNullOrEmpty(path)) throw new ArgumentException("Could not get directory from source file path");
-
-            return path;
-        }
-
         internal static HttpClient GetSimpleClient(string cassetteName, Mode mode)
         {
             var cassette = GetCassette(cassetteName);
@@ -42,7 +32,10 @@ namespace EasyVCR.Tests
 
         internal static VCR GetSimpleVCR(Mode mode)
         {
-            var vcr = new VCR();
+            var vcr = new VCR(new AdvancedSettings
+            {
+                MatchRules = MatchRules.DefaultStrict
+            });
             switch (mode)
             {
                 case Mode.Record:
@@ -60,6 +53,16 @@ namespace EasyVCR.Tests
             }
 
             return vcr;
+        }
+
+        private static string _GetCurrentDirectory([CallerFilePath] string sourceFilePath = "")
+        {
+            if (string.IsNullOrEmpty(sourceFilePath)) throw new ArgumentNullException(nameof(sourceFilePath));
+
+            var path = Path.GetDirectoryName(sourceFilePath);
+            if (string.IsNullOrEmpty(path)) throw new ArgumentException("Could not get directory from source file path");
+
+            return path;
         }
     }
 }

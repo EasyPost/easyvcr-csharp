@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EasyVCR.InternalUtilities;
 using Newtonsoft.Json;
 
 namespace EasyVCR.RequestElements
@@ -13,6 +14,17 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Body")]
         internal string? Body { get; set; }
+
+        /// <summary>
+        ///     The content type of the body of the response.
+        /// </summary>
+        [JsonIgnore]
+        internal ContentType? BodyContentType
+        {
+            get { return ContentTypeExtensions.FromString(BodyContentTypeString); }
+            set { BodyContentTypeString = value?.ToString(); }
+        }
+
         /// <summary>
         ///     The content headers of the request.
         /// </summary>
@@ -33,5 +45,11 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Uri")]
         internal string? Uri { get; set; }
+
+        /// <summary>
+        ///     The content type of the body of the response (string).
+        /// </summary>
+        [JsonProperty("BodyContentType")]
+        private string? BodyContentTypeString { get; set; }
     }
 }
