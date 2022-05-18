@@ -1,4 +1,14 @@
-### NEXT RELEASE
+# CHANGELOG
+
+## v0.2.0 (2022-05-18)
+
+- Fix match-by-body functionality by normalizing the body before comparing it.
+- Account for non-JSON response bodies.
+- Recorded requests now tagged with custom headers, utility to check if a response came from a recorded request or a
+  live request.
+
+## v0.1.0 (2022-04-25)
+
 - Initial release
 - Support for .NET Core 3.1, .NET 5.0, .NET 6.0 and .NET Standard 2.0
 - Support for Auto mode (replay a request if it exists, otherwise record a new one)
