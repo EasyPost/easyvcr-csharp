@@ -58,7 +58,15 @@ namespace EasyVCR
         /// </summary>
         public void Erase()
         {
-            File.Delete(_filePath);
+            try
+            {
+                File.Delete(_filePath);
+            }
+            catch (Exception e)
+            {
+                // ignore if no file exists
+            }
+
         }
 
         /// <summary>

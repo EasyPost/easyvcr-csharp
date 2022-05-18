@@ -7,6 +7,16 @@ namespace EasyVCR
     /// </summary>
     internal static class Defaults
     {
+        internal const string ViaRecordingHeaderKey = "X-Via-EasyVCR-Recording";
+
+        /// <summary>
+        ///     Default headers to add to replayed requests.
+        /// </summary>
+        internal static readonly Dictionary<string, object> ReplayHeaders = new Dictionary<string, object>
+        {
+            { ViaRecordingHeaderKey, "true" },
+        };
+
         /// <summary>
         ///     Default list of headers to censor in the cassettes.
         /// </summary>

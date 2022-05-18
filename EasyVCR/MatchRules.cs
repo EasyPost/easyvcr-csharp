@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using EasyVCR.InternalUtilities;
 using EasyVCR.RequestElements;
+using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
+using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
 namespace EasyVCR
 {
@@ -63,9 +64,13 @@ namespace EasyVCR
                     // one has a null body, so they don't match
                     return false;
 
-                // convert body to base64string to assist comparison by removing special characters
-                var receivedBody = Utilities.ToBase64String(received.Body);
-                var recordedBody = Utilities.ToBase64String(recorded.Body);
+                string? receivedBody = JsonSerialization.NormalizeJson(received.Body);
+                string? recordedBody = JsonSerialization.NormalizeJson(recorded.Body);
+
+                if (receivedBody == null && recordedBody == null)
+                    // both have empty string bodies, so they match
+                    return true;
+
                 return receivedBody.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -81,8 +86,8 @@ namespace EasyVCR
         {
             By((received, recorded) =>
             {
-                var receivedRequest = Utilities.ToBase64String(received.ToJson());
-                var recordedRequest = Utilities.ToBase64String(recorded.ToJson());
+                var receivedRequest = received.ToJson();
+                var recordedRequest = recorded.ToJson();
                 return receivedRequest.Equals(recordedRequest, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -102,9 +107,18 @@ namespace EasyVCR
             {
                 By((received, recorded) =>
                 {
-                    var receivedUri = Utilities.ToBase64String(received.Uri);
-                    var recordedUri = Utilities.ToBase64String(recorded.Uri);
-                    return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
+                    if (received.Uri == null && recorded.Uri == null)
+                    {
+                        // how did you get here?
+                        return true;
+                    }
+
+                    if (received.Uri == null || recorded.Uri == null)
+                    {
+                        return false;
+                    }
+
+                    return received.Uri.Equals(recorded.Uri, StringComparison.OrdinalIgnoreCase);
                 });
             }
             else

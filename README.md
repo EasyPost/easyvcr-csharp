@@ -57,6 +57,8 @@ Now when tests are run, no real HTTP calls will be made. Instead, the HTTP respo
 
 Censor sensitive data in the request and response bodies and headers, such as API keys and auth tokens.
 
+NOTE: This feature currently only works on JSON response bodies, and can only censor root-level properties.
+
 **Default**: *Disabled*
 ```csharp
 using EasyVCR;

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
-using EasyVCR.InternalUtilities.JSON;
-using Newtonsoft.Json;
+using EasyVCR.InternalUtilities;
+using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
+using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
 namespace EasyVCR
 {
@@ -97,35 +98,37 @@ namespace EasyVCR
         ///     Censor the appropriate body parameters.
         /// </summary>
         /// <param name="body">String representation of request body to apply censors to.</param>
+        /// <param name="contentType">ContentType enum indicating what type of content body is.</param>
         /// <returns>Censored string representation of request body.</returns>
-        internal string CensorBodyParameters(string body)
+        /// <exception cref="SerializeException">Could not serialize data to apply censors.</exception>
+        internal string CensorBodyParameters(string body, ContentType? contentType)
         {
+            if (contentType == null) throw new VCRException("Cannot determine content type of response body, unable to apply censors.");
+
             if (string.IsNullOrWhiteSpace(body))
                 // short circuit if body is null or empty
                 return body;
 
-            Dictionary<string, object> bodyDictionary;
             try
             {
-                bodyDictionary = Serialization.ConvertJsonToObject<Dictionary<string, object>>(body);
+                switch (contentType)
+                {
+                    case ContentType.Text:
+                    case ContentType.Html:
+                        return body; // We can't censor plaintext bodies or HTML bodies.
+                    case ContentType.Xml:
+                        return body; // XML parsing is not supported yet, so we can't censor XML bodies.
+                    case ContentType.Json:
+                        return CensorJsonBodyParameters(body);
+                    default:
+                        throw new VCRException("Unrecognized content type: " + contentType);
+                }
             }
-            catch (JsonSerializationException)
+            catch (SerializeException)
             {
-                // short circuit if body is not a JSON dictionary
-                return body;
+                // short circuit if body is not a valid serializable type
+                throw new VCRException("Body is not valid serializable type");
             }
-
-            if (bodyDictionary.Count == 0)
-                // short circuit if there are no body parameters
-                return body;
-
-            var censoredBodyDictionary = new Dictionary<string, object>();
-            foreach (var key in bodyDictionary.Keys)
-            {
-                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : bodyDictionary[key]);
-            }
-
-            return Serialization.ConvertObjectToJson(censoredBodyDictionary);
         }
 
         /// <summary>
@@ -172,6 +175,57 @@ namespace EasyVCR
             }
 
             return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
+        }
+
+        private Dictionary<string, object>? ApplyBodyCensors(Dictionary<string, object> dictionary)
+        {
+            if (dictionary.Count == 0)
+                // short circuit if there are no body parameters
+                return null;
+
+            var censoredBodyDictionary = new Dictionary<string, object>();
+            foreach (var key in dictionary.Keys)
+            {
+                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : dictionary[key]);
+            }
+
+            return censoredBodyDictionary;
+        }
+
+        private string CensorJsonBodyParameters(string body)
+        {
+            Dictionary<string, object> bodyDictionary;
+            try
+            {
+                bodyDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(body);
+            }
+            catch (Exception)
+            {
+                // short circuit if body is not a JSON dictionary
+                // TODO: Eventually handle multi-level JSON dictionaries
+                return body;
+            }
+
+            var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
+            return censoredBodyDictionary == null ? body : JsonSerialization.ConvertObjectToJson(censoredBodyDictionary);
+        }
+
+        private string CensorXmlBodyParameters(string body)
+        {
+            Dictionary<string, object> bodyDictionary;
+            try
+            {
+                bodyDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(body);
+            }
+            catch (Exception)
+            {
+                // short circuit if body is not an XML dictionary
+                // TODO: Eventually handle multi-level XML dictionaries
+                return body;
+            }
+
+            var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
+            return censoredBodyDictionary == null ? body : XmlSerialization.ConvertObjectToXml(censoredBodyDictionary);
         }
 
         private bool KeyShouldBeCensored(string foundKey, List<string> keysToCensor)

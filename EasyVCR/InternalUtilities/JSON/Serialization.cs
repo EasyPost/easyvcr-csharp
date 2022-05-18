@@ -1,5 +1,6 @@
 using System;
 using System.Dynamic;
+using System.Xml.Linq;
 using EasyVCR.Interfaces;
 using Newtonsoft.Json;
 
@@ -17,12 +18,18 @@ namespace EasyVCR.InternalUtilities.JSON
         /// <param name="converters">JsonConverters to use during deserialization.</param>
         /// <typeparam name="T">Type of object to deserialize to.</typeparam>
         /// <returns>A T-type object.</returns>
-        /// <exception cref="Exception">No JSON data to deserialize.</exception>
+        /// <exception cref="Exception">Deserialization failed.</exception>
         internal static T ConvertJsonToObject<T>(string? data, params JsonConverter[] converters)
         {
             if (data == null || string.IsNullOrWhiteSpace(data)) throw new Exception("No data to deserialize");
-
-            return JsonConvert.DeserializeObject<T>(data, converters) ?? throw new Exception("Deserialization failed");
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(data, converters) ?? throw new Exception("Deserialization failed");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Deserialization failed", e);
+            }
         }
 
         /// <summary>
@@ -37,13 +44,29 @@ namespace EasyVCR.InternalUtilities.JSON
         }
 
         /// <summary>
+        ///     Convert a JSON string to an XML string
+        /// </summary>
+        /// <param name="json">JSON string to convert to XML.</param>
+        /// <returns>An XML string.</returns>
+        internal static string? ConvertJsonToXml(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            XNode? node = JsonConvert.DeserializeXNode(json);
+            return node?.ToString();
+        }
+
+        /// <summary>
         ///     Convert an object to a JSON string
         /// </summary>
         /// <param name="obj">Object to serialize.</param>
         /// <param name="formatting">Formatting setting to use in final JSON string.</param>
         /// <param name="converters">JsonConverters to use during serialization.</param>
         /// <returns>JSON string of object.</returns>
-        internal static string ConvertObjectToJson(object obj, Formatting formatting = Formatting.Indented, params JsonConverter[] converters)
+        internal static string ConvertObjectToJson(object obj, Formatting formatting = Formatting.None, params JsonConverter[] converters)
         {
             return ConvertObjectToJson(obj, new CassetteOrder.None(), formatting, converters);
         }
@@ -57,7 +80,7 @@ namespace EasyVCR.InternalUtilities.JSON
         /// <param name="converters">JsonConverters to use during serialization.</param>
         /// <returns>JSON string of object.</returns>
         /// <exception cref="Exception">No object to serialize.</exception>
-        internal static string ConvertObjectToJson(object obj, IOrderOption orderOption, Formatting formatting = Formatting.Indented, params JsonConverter[] converters)
+        internal static string ConvertObjectToJson(object obj, IOrderOption orderOption, Formatting formatting = Formatting.None, params JsonConverter[] converters)
         {
             if (obj == null) throw new Exception("No object to serialize");
 
@@ -69,6 +92,33 @@ namespace EasyVCR.InternalUtilities.JSON
             };
 
             return JsonConvert.SerializeObject(obj, formatting, settings);
+        }
+
+        /// <summary>
+        ///     Convert an XML string to a JSON string
+        /// </summary>
+        /// <param name="xml">XML string to convert to JSON.</param>
+        /// <returns>A JSON string.</returns>
+        internal static string? ConvertXmlToJson(string xml)
+        {
+            var doc = XDocument.Parse(xml); //or XDocument.Load(path)
+            return JsonConvert.SerializeXNode(doc);
+        }
+
+        /// <summary>
+        ///     Normalize a JSON string to remove CRLF and other whitespace.
+        /// </summary>
+        /// <param name="json">JSON string to normalize.</param>
+        /// <returns>Normalized JSON string.</returns>
+        internal static string? NormalizeJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            object obj = ConvertJsonToObject(json);
+            return ConvertObjectToJson(obj);
         }
     }
 }

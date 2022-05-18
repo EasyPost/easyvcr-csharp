@@ -1,0 +1,35 @@
+[
+  {
+    "Duration": 315,
+    "RecordedAt": "2022-05-12T16:01:52.886667-06:00",
+    "Request": {
+      "Body": "",
+      "BodyContentType": "Text",
+      "ContentHeaders": {},
+      "Method": "GET",
+      "RequestHeaders": {},
+      "Uri": "http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=xml"
+    },
+    "Response": {
+      "Body": "<ExchangeRatesSeries xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <Table>A</Table>\n  <Currency>funt szterling</Currency>\n  <Code>GBP</Code>\n  <Rates>\n    <Rate>\n      <No>082/A/NBP/2022</No>\n      <EffectiveDate>2022-04-28</EffectiveDate>\n      <Mid>5.5924</Mid>\n    </Rate>\n    <Rate>\n      <No>083/A/NBP/2022</No>\n      <EffectiveDate>2022-04-29</EffectiveDate>\n      <Mid>5.5320</Mid>\n    </Rate>\n    <Rate>\n      <No>084/A/NBP/2022</No>\n      <EffectiveDate>2022-05-02</EffectiveDate>\n      <Mid>5.5894</Mid>\n    </Rate>\n    <Rate>\n      <No>085/A/NBP/2022</No>\n      <EffectiveDate>2022-05-04</EffectiveDate>\n      <Mid>5.5631</Mid>\n    </Rate>\n    <Rate>\n      <No>086/A/NBP/2022</No>\n      <EffectiveDate>2022-05-05</EffectiveDate>\n      <Mid>5.5223</Mid>\n    </Rate>\n    <Rate>\n      <No>087/A/NBP/2022</No>\n      <EffectiveDate>2022-05-06</EffectiveDate>\n      <Mid>5.4914</Mid>\n    </Rate>\n    <Rate>\n      <No>088/A/NBP/2022</No>\n      <EffectiveDate>2022-05-09</EffectiveDate>\n      <Mid>5.4956</Mid>\n    </Rate>\n    <Rate>\n      <No>089/A/NBP/2022</No>\n      <EffectiveDate>2022-05-10</EffectiveDate>\n      <Mid>5.4564</Mid>\n    </Rate>\n    <Rate>\n      <No>090/A/NBP/2022</No>\n      <EffectiveDate>2022-05-11</EffectiveDate>\n      <Mid>5.4677</Mid>\n    </Rate>\n    <Rate>\n      <No>091/A/NBP/2022</No>\n      <EffectiveDate>2022-05-12</EffectiveDate>\n      <Mid>5.4644</Mid>\n    </Rate>\n  </Rates>\n</ExchangeRatesSeries>",
+      "BodyContentType": "Xml",
+      "ContentHeaders": {
+        "Content-Length": "1202",
+        "Content-Type": "application/xml; charset=utf-8",
+        "Expires": "-1"
+      },
+      "HttpVersion": "1.1",
+      "ResponseHeaders": {
+        "Date": "Thu, 12 May 2022 22:01:52 GMT",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "ETag": "\"ZdQMUo+XOLdiM09sRlO6ttxtJX/5Q0KyWYI5mIWV4ig=\"",
+        "Set-Cookie": "ee3la5eizeiY4Eix=iePaevi0; path=/"
+      },
+      "Status": {
+        "Code": 200,
+        "Message": "OK"
+      }
+    }
+  }
+]
