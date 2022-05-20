@@ -157,6 +157,12 @@ namespace EasyVCR
                 // short circuit if body is null or empty
                 return body;
 
+            if (_bodyParamsToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return body;
+            }
+
             try
             {
                 switch (contentType)
@@ -190,6 +196,12 @@ namespace EasyVCR
                 // short circuit if there are no headers to censor
                 return headers;
 
+            if (_headersToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return headers;
+            }
+
             var censoredHeaders = new Dictionary<string, string>();
             foreach (var header in headers)
             {
@@ -206,6 +218,12 @@ namespace EasyVCR
         /// <returns>Censored URL string.</returns>
         internal string? CensorQueryParameters(string? url)
         {
+            if (_queryParamsToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return url;
+            }
+
             if (url == null)
                 // short circuit if url is null
                 return url;
