@@ -213,17 +213,40 @@ namespace EasyVCR
             var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in dictionary.Keys)
             {
-                var value = dictionary[key];
-                if (Utilities.IsJsonDictionary(value))
+                if (KeyShouldBeCensored(key, _bodyParamsToCensor))
                 {
-                    var valueDict = ((JObject)dictionary[key]).ToObject<Dictionary<string, object>>();
-                    if (valueDict != null)
+                    var value = dictionary[key];
+                    if (Utilities.IsJsonDictionary(value))
                     {
-                        value = ApplyBodyCensors(valueDict)!;
+                        // replace with empty dictionary
+                        censoredBodyDictionary.Add(key, new Dictionary<string, object>());
+                    }
+                    else if (Utilities.IsJsonArray(value))
+                    {
+                        // replace with empty array
+                        censoredBodyDictionary.Add(key, new List<object>());
+                    }
+                    else
+                    {
+                        // replace with censor text
+                        censoredBodyDictionary.Add(key, _censorText);
                     }
                 }
+                else
+                {
+                    var value = dictionary[key];
 
-                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : value);
+                    if (Utilities.IsJsonDictionary(value))
+                    {
+                        var valueDict = ((JObject)dictionary[key]).ToObject<Dictionary<string, object>>();
+                        if (valueDict != null)
+                        {
+                            value = ApplyBodyCensors(valueDict)!;
+                        }
+                    }
+
+                    censoredBodyDictionary.Add(key, value);
+                }
             }
 
             return censoredBodyDictionary;

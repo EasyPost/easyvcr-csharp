@@ -244,8 +244,7 @@ namespace EasyVCR.Tests
             // set up advanced settings
             const string censorString = "censored-by-test";
             var censors = new Censors(censorString);
-            censors.HideBodyParameters(new List<string> { "nested_dict_1_1_1" });
-            censors.HideBodyParameters(new List<string> { "nested_dict_2_2" });
+            censors.HideBodyParameters(new List<string> { "nested_dict_1_1_1", "nested_dict_2_2", "nested_array" });
             var advancedSettings = new AdvancedSettings
             {
                 Censors = censors

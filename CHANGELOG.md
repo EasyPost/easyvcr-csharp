@@ -3,6 +3,8 @@
 ## NEXT RELEASE
 
 - Body censors apply to nested JSON body keys, not just top-level keys
+  - Lists replaced with empty lists, dictionaries replaced with empty dictionaries, primitives replaced with censor text
+- Censor declaration functions expect lists of multiple keys
 
 ## v0.2.0 (2022-05-18)
 

@@ -32,6 +32,11 @@ namespace EasyVCR
             return response.Headers.Contains(Defaults.ViaRecordingHeaderKey);
         }
 
+        internal static bool IsJsonArray(object? obj)
+        {
+            return obj is JArray;
+        }
+
         internal static bool IsJsonDictionary(object? obj)
         {
             return obj is JObject;
