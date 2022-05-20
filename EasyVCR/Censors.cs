@@ -34,13 +34,9 @@ namespace EasyVCR
             get
             {
                 var censors = new Censors();
-                foreach (var key in Defaults.CredentialHeadersToHide) censors.HideHeader(key);
-
-                foreach (var key in Defaults.CredentialParametersToHide)
-                {
-                    censors.HideQueryParameter(key);
-                    censors.HideBodyParameter(key);
-                }
+                censors.HideHeaders(Defaults.CredentialHeadersToHide);
+                censors.HideQueryParameters(Defaults.CredentialParametersToHide);
+                censors.HideBodyParameters(Defaults.CredentialParametersToHide);
 
                 return censors;
             }
@@ -61,18 +57,6 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to censor a specified body parameter.
-        ///     Note: Only top-level pairs can be censored.
-        /// </summary>
-        /// <param name="parameterKey">Key of body parameter to censor.</param>
-        /// <returns></returns>
-        public Censors HideBodyParameter(string parameterKey)
-        {
-            _bodyParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
-            return this;
-        }
-
-        /// <summary>
         ///     Add a rule to censor specified body parameters.
         ///     Note: Only top-level pairs can be censored.
         /// </summary>
@@ -82,21 +66,9 @@ namespace EasyVCR
         {
             foreach (var key in parameterKeys)
             {
-                HideBodyParameter(key);
+                _bodyParamsToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
             }
 
-            return this;
-        }
-
-        /// <summary>
-        ///     Add a rule to censor a specified header key.
-        ///     Note: This will censor the header key in both the request and response.
-        /// </summary>
-        /// <param name="headerKey">Key of header to censor.</param>
-        /// <returns>The current Censor object.</returns>
-        public Censors HideHeader(string headerKey)
-        {
-            _headersToCensor.Add(_caseSensitive ? headerKey : headerKey.ToLowerInvariant());
             return this;
         }
 
@@ -110,20 +82,9 @@ namespace EasyVCR
         {
             foreach (var key in headerKeys)
             {
-                HideHeader(key);
+                _headersToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
             }
 
-            return this;
-        }
-
-        /// <summary>
-        ///     Add a rule to censor a specified query parameter.
-        /// </summary>
-        /// <param name="parameterKey">Key of query parameter to censor.</param>
-        /// <returns>The current Censor object.</returns>
-        public Censors HideQueryParameter(string parameterKey)
-        {
-            _queryParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
             return this;
         }
 
@@ -136,7 +97,7 @@ namespace EasyVCR
         {
             foreach (var key in parameterKeys)
             {
-                HideQueryParameter(key);
+                _queryParamsToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
             }
 
             return this;

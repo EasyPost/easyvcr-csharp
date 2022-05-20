@@ -37,7 +37,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideHeader("Date")
+                Censors = new Censors(censorString).HideHeaders(new List<string> { "Date" })
             };
 
             // record cassette with advanced settings first
@@ -244,8 +244,8 @@ namespace EasyVCR.Tests
             // set up advanced settings
             const string censorString = "censored-by-test";
             var censors = new Censors(censorString);
-            censors.HideBodyParameter("nested_dict_1_1_1");
-            censors.HideBodyParameter("nested_dict_2_2");
+            censors.HideBodyParameters(new List<string> { "nested_dict_1_1_1" });
+            censors.HideBodyParameters(new List<string> { "nested_dict_2_2" });
             var advancedSettings = new AdvancedSettings
             {
                 Censors = censors
@@ -302,7 +302,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideBodyParameter("Table")
+                Censors = new Censors(censorString).HideBodyParameters(new List<string> { "Table" })
             };
 
             // record cassette with advanced settings first
