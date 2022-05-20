@@ -1,5 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace EasyVCR
 {
@@ -27,6 +30,11 @@ namespace EasyVCR
         public static bool ResponseCameFromRecording(HttpResponseMessage response)
         {
             return response.Headers.Contains(Defaults.ViaRecordingHeaderKey);
+        }
+
+        internal static bool IsJsonDictionary(object? obj)
+        {
+            return obj is JObject;
         }
     }
 }

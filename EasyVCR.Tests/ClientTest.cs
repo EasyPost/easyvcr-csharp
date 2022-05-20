@@ -233,6 +233,32 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
+        public async Task TestNestedCensoring()
+        {
+            var cassette = TestUtils.GetCassette("test_nested_censoring");
+            cassette.Erase(); // Erase cassette before recording
+
+            var postUrl = "https://google.com";
+            var postBody = new StringContent("{\r\n  \"array\": [\r\n    \"array_1\",\r\n    \"array_2\",\r\n    \"array_3\"\r\n  ],\r\n  \"dict\": {\r\n    \"nested_array\": [\r\n      \"nested_array_1\",\r\n      \"nested_array_2\",\r\n      \"nested_array_3\"\r\n    ],\r\n    \"nested_dict\": {\r\n      \"nested_dict_1\": {\r\n        \"nested_dict_1_1\": {\r\n          \"nested_dict_1_1_1\": \"nested_dict_1_1_1_value\"\r\n        }\r\n      },\r\n      \"nested_dict_2\": {\r\n        \"nested_dict_2_1\": \"nested_dict_2_1_value\",\r\n        \"nested_dict_2_2\": \"nested_dict_2_2_value\"\r\n      }\r\n    },\r\n    \"dict_1\": \"dict_1_value\"\r\n  }\r\n}");
+
+            // set up advanced settings
+            const string censorString = "censored-by-test";
+            var censors = new Censors(censorString);
+            censors.HideBodyParameter("nested_dict_1_1_1");
+            censors.HideBodyParameter("nested_dict_2_2");
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = censors
+            };
+
+            // record cassette
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var response = await client.PostAsync(postUrl, postBody);
+
+            // NOTE: Have to manually check the cassette
+        }
+
+        [TestMethod]
         public async Task TestStrictRequestMatching()
         {
             // test that match by method, url and body works

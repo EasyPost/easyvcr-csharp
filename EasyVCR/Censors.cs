@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
 using EasyVCR.InternalUtilities;
+using Newtonsoft.Json.Linq;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
@@ -72,6 +73,22 @@ namespace EasyVCR
         }
 
         /// <summary>
+        ///     Add a rule to censor specified body parameters.
+        ///     Note: Only top-level pairs can be censored.
+        /// </summary>
+        /// <param name="parameterKeys">List of keys of body parameter to censor.</param>
+        /// <returns></returns>
+        public Censors HideBodyParameters(List<string> parameterKeys)
+        {
+            foreach (var key in parameterKeys)
+            {
+                HideBodyParameter(key);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///     Add a rule to censor a specified header key.
         ///     Note: This will censor the header key in both the request and response.
         /// </summary>
@@ -84,6 +101,22 @@ namespace EasyVCR
         }
 
         /// <summary>
+        ///     Add a rule to censor specified header keys.
+        ///     Note: This will censor the header keys in both the request and response.
+        /// </summary>
+        /// <param name="headerKeys">List of keys of header to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors HideHeaders(List<string> headerKeys)
+        {
+            foreach (var key in headerKeys)
+            {
+                HideHeader(key);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         ///     Add a rule to censor a specified query parameter.
         /// </summary>
         /// <param name="parameterKey">Key of query parameter to censor.</param>
@@ -91,6 +124,21 @@ namespace EasyVCR
         public Censors HideQueryParameter(string parameterKey)
         {
             _queryParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a rule to censor specified query parameters.
+        /// </summary>
+        /// <param name="parameterKeys">List of keys of query parameter to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors HideQueryParameters(List<string> parameterKeys)
+        {
+            foreach (var key in parameterKeys)
+            {
+                HideQueryParameter(key);
+            }
+
             return this;
         }
 
@@ -186,7 +234,17 @@ namespace EasyVCR
             var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in dictionary.Keys)
             {
-                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : dictionary[key]);
+                var value = dictionary[key];
+                if (Utilities.IsJsonDictionary(value))
+                {
+                    var valueDict = ((JObject)dictionary[key]).ToObject<Dictionary<string, object>>();
+                    if (valueDict != null)
+                    {
+                        value = ApplyBodyCensors(valueDict)!;
+                    }
+                }
+
+                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : value);
             }
 
             return censoredBodyDictionary;
@@ -202,7 +260,6 @@ namespace EasyVCR
             catch (Exception)
             {
                 // short circuit if body is not a JSON dictionary
-                // TODO: Eventually handle multi-level JSON dictionaries
                 return body;
             }
 
@@ -220,7 +277,6 @@ namespace EasyVCR
             catch (Exception)
             {
                 // short circuit if body is not an XML dictionary
-                // TODO: Eventually handle multi-level XML dictionaries
                 return body;
             }
 

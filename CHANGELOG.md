@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## NEXT RELEASE
+
+- Body censors apply to nested JSON body keys, not just top-level keys
+
 ## v0.2.0 (2022-05-18)
 
 - Fix match-by-body functionality by normalizing the body before comparing it.
