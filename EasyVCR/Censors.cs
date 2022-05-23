@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
 using EasyVCR.InternalUtilities;
+using Newtonsoft.Json.Linq;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
@@ -33,13 +34,9 @@ namespace EasyVCR
             get
             {
                 var censors = new Censors();
-                foreach (var key in Defaults.CredentialHeadersToHide) censors.HideHeader(key);
-
-                foreach (var key in Defaults.CredentialParametersToHide)
-                {
-                    censors.HideQueryParameter(key);
-                    censors.HideBodyParameter(key);
-                }
+                censors.HideHeaders(Defaults.CredentialHeadersToHide);
+                censors.HideQueryParameters(Defaults.CredentialParametersToHide);
+                censors.HideBodyParameters(Defaults.CredentialParametersToHide);
 
                 return censors;
             }
@@ -60,37 +57,49 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to censor a specified body parameter.
+        ///     Add a rule to censor specified body parameters.
         ///     Note: Only top-level pairs can be censored.
         /// </summary>
-        /// <param name="parameterKey">Key of body parameter to censor.</param>
+        /// <param name="parameterKeys">List of keys of body parameter to censor.</param>
         /// <returns></returns>
-        public Censors HideBodyParameter(string parameterKey)
+        public Censors HideBodyParameters(List<string> parameterKeys)
         {
-            _bodyParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
+            foreach (var key in parameterKeys)
+            {
+                _bodyParamsToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
+            }
+
             return this;
         }
 
         /// <summary>
-        ///     Add a rule to censor a specified header key.
-        ///     Note: This will censor the header key in both the request and response.
+        ///     Add a rule to censor specified header keys.
+        ///     Note: This will censor the header keys in both the request and response.
         /// </summary>
-        /// <param name="headerKey">Key of header to censor.</param>
+        /// <param name="headerKeys">List of keys of header to censor.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideHeader(string headerKey)
+        public Censors HideHeaders(List<string> headerKeys)
         {
-            _headersToCensor.Add(_caseSensitive ? headerKey : headerKey.ToLowerInvariant());
+            foreach (var key in headerKeys)
+            {
+                _headersToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
+            }
+
             return this;
         }
 
         /// <summary>
-        ///     Add a rule to censor a specified query parameter.
+        ///     Add a rule to censor specified query parameters.
         /// </summary>
-        /// <param name="parameterKey">Key of query parameter to censor.</param>
+        /// <param name="parameterKeys">List of keys of query parameter to censor.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideQueryParameter(string parameterKey)
+        public Censors HideQueryParameters(List<string> parameterKeys)
         {
-            _queryParamsToCensor.Add(_caseSensitive ? parameterKey : parameterKey.ToLowerInvariant());
+            foreach (var key in parameterKeys)
+            {
+                _queryParamsToCensor.Add(_caseSensitive ? key : key.ToLowerInvariant());
+            }
+
             return this;
         }
 
@@ -108,6 +117,12 @@ namespace EasyVCR
             if (string.IsNullOrWhiteSpace(body))
                 // short circuit if body is null or empty
                 return body;
+
+            if (_bodyParamsToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return body;
+            }
 
             try
             {
@@ -142,6 +157,12 @@ namespace EasyVCR
                 // short circuit if there are no headers to censor
                 return headers;
 
+            if (_headersToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return headers;
+            }
+
             var censoredHeaders = new Dictionary<string, string>();
             foreach (var header in headers)
             {
@@ -158,6 +179,12 @@ namespace EasyVCR
         /// <returns>Censored URL string.</returns>
         internal string? CensorQueryParameters(string? url)
         {
+            if (_queryParamsToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return url;
+            }
+
             if (url == null)
                 // short circuit if url is null
                 return url;
@@ -186,7 +213,40 @@ namespace EasyVCR
             var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in dictionary.Keys)
             {
-                censoredBodyDictionary.Add(key, KeyShouldBeCensored(key, _bodyParamsToCensor) ? _censorText : dictionary[key]);
+                if (KeyShouldBeCensored(key, _bodyParamsToCensor))
+                {
+                    var value = dictionary[key];
+                    if (Utilities.IsJsonDictionary(value))
+                    {
+                        // replace with empty dictionary
+                        censoredBodyDictionary.Add(key, new Dictionary<string, object>());
+                    }
+                    else if (Utilities.IsJsonArray(value))
+                    {
+                        // replace with empty array
+                        censoredBodyDictionary.Add(key, new List<object>());
+                    }
+                    else
+                    {
+                        // replace with censor text
+                        censoredBodyDictionary.Add(key, _censorText);
+                    }
+                }
+                else
+                {
+                    var value = dictionary[key];
+
+                    if (Utilities.IsJsonDictionary(value))
+                    {
+                        var valueDict = ((JObject)dictionary[key]).ToObject<Dictionary<string, object>>();
+                        if (valueDict != null)
+                        {
+                            value = ApplyBodyCensors(valueDict)!;
+                        }
+                    }
+
+                    censoredBodyDictionary.Add(key, value);
+                }
             }
 
             return censoredBodyDictionary;
@@ -202,7 +262,6 @@ namespace EasyVCR
             catch (Exception)
             {
                 // short circuit if body is not a JSON dictionary
-                // TODO: Eventually handle multi-level JSON dictionaries
                 return body;
             }
 
@@ -220,7 +279,6 @@ namespace EasyVCR
             catch (Exception)
             {
                 // short circuit if body is not an XML dictionary
-                // TODO: Eventually handle multi-level XML dictionaries
                 return body;
             }
 

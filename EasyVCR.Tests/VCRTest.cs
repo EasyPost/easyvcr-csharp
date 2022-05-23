@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,7 +19,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideHeader("Date"),
+                Censors = new Censors(censorString).HideHeaders(new List<string> { "Date" }),
             };
 
             var vcr = new VCR(advancedSettings);

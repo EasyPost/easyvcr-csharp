@@ -2,7 +2,8 @@
 
 EasyVCR is a library for recording and replaying HTTP interactions in your test suite.
 
-This can be useful for speeding up your test suite, or for running your tests on a CI server which doesn't have connectivity to the HTTP endpoints you need to interact with.
+This can be useful for speeding up your test suite, or for running your tests on a CI server which doesn't have
+connectivity to the HTTP endpoints you need to interact with.
 
 ## How to use EasyVCR
 
@@ -26,11 +27,13 @@ RestClient restClient = new RestClient(recordingHttpClient, new RestClientOption
 // Or make HTTP calls directly
 var response = await recordingHttpClient.GetAsync("https://api.example.com/v1/users");
 ```
+
 Real HTTP calls will be made and recorded to the cassette file.
 
 #### Step 2.
 
 Switch to replay mode:
+
 ```csharp
 using EasyVCR;
 
@@ -40,7 +43,9 @@ var cassette = new Cassette("path/to/cassettes", "my_cassette");
 // create an HttpClient using the cassette
 var replayingHttpClient = HttpClients.NewHttpClient(cassette, Mode.Replay);
 ```
-Now when tests are run, no real HTTP calls will be made. Instead, the HTTP responses will be replayed from the cassette file.
+
+Now when tests are run, no real HTTP calls will be made. Instead, the HTTP responses will be replayed from the cassette
+file.
 
 ### Available modes
 
@@ -60,13 +65,14 @@ Censor sensitive data in the request and response bodies and headers, such as AP
 NOTE: This feature currently only works on JSON response bodies, and can only censor root-level properties.
 
 **Default**: *Disabled*
+
 ```csharp
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 var advancedOptions = new AdvancedOptions()
 {
-    Censors = new Censors().HideHeader("Authorization") // Hide the Authorization header
+    Censors = new Censors().HideHeaders(new List<string> { "Authorization" }) // Hide the Authorization header
 };
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
@@ -77,6 +83,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettin
 Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
 
 **Default**: *No delay*
+
 ```csharp
 using EasyVCR;
 
@@ -95,6 +102,7 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 Customize how a recorded request is determined to be a match to the current request.
 
 **Default**: *Method and full URL must match*
+
 ```csharp
 using EasyVCR;
 
@@ -109,12 +117,13 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 
 ### Ordering
 
-Customize how elements of a recorded request are organized in the cassette file. 
-Helpful to avoid unnecessary git differences between cassette file versions. 
+Customize how elements of a recorded request are organized in the cassette file.
+Helpful to avoid unnecessary git differences between cassette file versions.
 
 **Default**: *Elements are stored alphabetically*
 
 **NOTE:** This setting must be used when creating the cassette.
+
 ```csharp
 using EasyVCR;
 
@@ -126,8 +135,10 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 
 ### HttpClient Conversion
 
-Override how HttpClient request and response objects are converted into `EasyVCR` request and response objects, and vice versa.
+Override how HttpClient request and response objects are converted into `EasyVCR` request and response objects, and vice
+versa.
 Useful if `HttpClient` suffers breaking changes in future .NET versions.
+
 ```csharp
 using EasyVCR;
 
@@ -142,14 +153,16 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettin
 
 ## VCR
 
-In addition to individual recordable HttpClient instances, `EasyVCR` also offers a built-in VCR, which can be used to easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every request made using the VCR's HttpClient.
+In addition to individual recordable HttpClient instances, `EasyVCR` also offers a built-in VCR, which can be used to
+easily switch between multiple cassettes and/or modes. Any advanced settings applied to the VCR will be applied on every
+request made using the VCR's HttpClient.
 
 ```csharp
 using EasyVCR;
 
 var advancedSettings = new AdvancedSettings
 {
-    Censors = new Censors().HideQueryParameter("api_key") // hide the api_key query parameter
+    Censors = new Censors().HideQueryParameters(new List<string> { "api_key" }) // hide the api_key query parameter
 };
 
 // Create a VCR with the advanced settings applied
