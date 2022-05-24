@@ -216,7 +216,12 @@ namespace EasyVCR
                 if (KeyShouldBeCensored(key, _bodyParamsToCensor))
                 {
                     var value = dictionary[key];
-                    if (Utilities.IsJsonDictionary(value))
+                    if (value == null)
+                    {
+                        // don't need to worry about censoring something that's null (don't replace null with the censor string)
+                        continue;
+                    }
+                    else if (Utilities.IsJsonDictionary(value))
                     {
                         // replace with empty dictionary
                         censoredBodyDictionary.Add(key, new Dictionary<string, object>());
