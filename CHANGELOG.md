@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.1 (2022-05-26)
+
+- Improvements to censoring
+  - Null values won't be replaced during censoring, avoid interfering with de/serialization
+  - Censoring runs recursively through nested dictionaries and lists
+
 ## v0.3.0 (2022-05-24)
 
 - Performance improvements to censoring
