@@ -88,7 +88,8 @@ namespace EasyVCR.InternalUtilities.JSON
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = new Ordering.OrderedContractResolver(orderOption),
-                Converters = converters
+                Converters = converters,
+                NullValueHandling = NullValueHandling.Ignore
             };
 
             return JsonConvert.SerializeObject(obj, formatting, settings);

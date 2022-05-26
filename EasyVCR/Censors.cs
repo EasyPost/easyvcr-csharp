@@ -204,11 +204,58 @@ namespace EasyVCR
             return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
         }
 
-        private Dictionary<string, object>? ApplyBodyCensors(Dictionary<string, object> dictionary)
+        private List<object> ApplyBodyCensors(List<object> list)
+        {
+            if (list.Count == 0)
+                // short circuit if there are no body parameters
+                return list;
+
+            var censoredList = new List<object>();
+            foreach (var entry in list)
+            {
+                if (Utilities.IsJsonDictionary(entry))
+                {
+                    var entryDict = ((JObject)entry).ToObject<Dictionary<string, object>>();
+                    if (entryDict == null)
+                    {
+                        // could not convert to dictionary, so skip (this should never happen)
+                        censoredList.Add(entry);
+                    }
+                    else
+                    {
+                        var censoredEntryDict = ApplyBodyCensors(entryDict);
+                        censoredList.Add(censoredEntryDict);
+                    }
+                }
+                else if (Utilities.IsJsonArray(entry))
+                {
+                    var entryList = ((JArray)entry).ToObject<List<object>>();
+                    if (entryList == null)
+                    {
+                        // could not convert to list, so skip (this should never happen)
+                        censoredList.Add(entry);
+                    }
+                    else
+                    {
+                        var censoredEntryList = ApplyBodyCensors(entryList);
+                        censoredList.Add(censoredEntryList);
+                    }
+                }
+                else
+                {
+                    // either a primitive or null, no censoring needed
+                    censoredList.Add(entry);
+                }
+            }
+
+            return censoredList;
+        }
+
+        private Dictionary<string, object> ApplyBodyCensors(Dictionary<string, object> dictionary)
         {
             if (dictionary.Count == 0)
                 // short circuit if there are no body parameters
-                return null;
+                return dictionary;
 
             var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in dictionary.Keys)
@@ -216,7 +263,12 @@ namespace EasyVCR
                 if (KeyShouldBeCensored(key, _bodyParamsToCensor))
                 {
                     var value = dictionary[key];
-                    if (Utilities.IsJsonDictionary(value))
+                    if (value == null)
+                    {
+                        // don't need to worry about censoring something that's null (don't replace null with the censor string)
+                        continue;
+                    }
+                    else if (Utilities.IsJsonDictionary(value))
                     {
                         // replace with empty dictionary
                         censoredBodyDictionary.Add(key, new Dictionary<string, object>());
@@ -238,10 +290,22 @@ namespace EasyVCR
 
                     if (Utilities.IsJsonDictionary(value))
                     {
+                        // recursively censor inner dictionaries
                         var valueDict = ((JObject)dictionary[key]).ToObject<Dictionary<string, object>>();
                         if (valueDict != null)
                         {
-                            value = ApplyBodyCensors(valueDict)!;
+                            // change the value if can be parsed as a dictionary (otherwise, skip censoring)
+                            value = ApplyBodyCensors(valueDict);
+                        }
+                    }
+
+                    else if (Utilities.IsJsonArray(value))
+                    {
+                        // recursively censor list elements
+                        var valueList = ((JArray)dictionary[key]).ToObject<List<object>>();
+                        if (valueList != null)
+                        {
+                            value = ApplyBodyCensors(valueList);
                         }
                     }
 
@@ -254,36 +318,52 @@ namespace EasyVCR
 
         private string CensorJsonBodyParameters(string body)
         {
-            Dictionary<string, object> bodyDictionary;
             try
             {
-                bodyDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(body);
+                var bodyDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(body);
+                var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
+                return censoredBodyDictionary == null ? body : JsonSerialization.ConvertObjectToJson(censoredBodyDictionary);
             }
             catch (Exception)
             {
-                // short circuit if body is not a JSON dictionary
-                return body;
+                // body is not a JSON dictionary
+                try
+                {
+                    var bodyList = JsonSerialization.ConvertJsonToObject<List<object>>(body);
+                    var censoredBodyList = ApplyBodyCensors(bodyList);
+                    return censoredBodyList == null ? body : JsonSerialization.ConvertObjectToJson(censoredBodyList);
+                }
+                catch
+                {
+                    // short circuit if body is not a JSON dictionary or JSON list
+                    return body;
+                }
             }
-
-            var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
-            return censoredBodyDictionary == null ? body : JsonSerialization.ConvertObjectToJson(censoredBodyDictionary);
         }
 
         private string CensorXmlBodyParameters(string body)
         {
-            Dictionary<string, object> bodyDictionary;
             try
             {
-                bodyDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(body);
+                var bodyDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(body);
+                var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
+                return censoredBodyDictionary == null ? body : XmlSerialization.ConvertObjectToXml(censoredBodyDictionary);
             }
             catch (Exception)
             {
-                // short circuit if body is not an XML dictionary
-                return body;
+                // body is not an XML dictionary
+                try
+                {
+                    var bodyList = XmlSerialization.ConvertXmlToObject<List<object>>(body);
+                    var censoredBodyList = ApplyBodyCensors(bodyList);
+                    return censoredBodyList == null ? body : XmlSerialization.ConvertObjectToXml(censoredBodyList);
+                }
+                catch
+                {
+                    // short circuit if body is not a XML dictionary or XML list
+                    return body;
+                }
             }
-
-            var censoredBodyDictionary = ApplyBodyCensors(bodyDictionary);
-            return censoredBodyDictionary == null ? body : XmlSerialization.ConvertObjectToXml(censoredBodyDictionary);
         }
 
         private bool KeyShouldBeCensored(string foundKey, List<string> keysToCensor)
