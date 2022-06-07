@@ -51,8 +51,9 @@ namespace EasyVCR
         /// <summary>
         ///     Add a rule to compare the bodies of the requests.
         /// </summary>
+        /// <param name="ignoredElements">List of body elements to ignore when matching by body.</param>
         /// <returns>The same MatchRules object.</returns>
-        public MatchRules ByBody()
+        public MatchRules ByBody(List<CensorElement>? ignoredElements = null)
         {
             By((received, recorded) =>
             {
@@ -64,8 +65,8 @@ namespace EasyVCR
                     // one has a null body, so they don't match
                     return false;
 
-                string? receivedBody = JsonSerialization.NormalizeJson(received.Body);
-                string? recordedBody = JsonSerialization.NormalizeJson(recorded.Body);
+                var receivedBody = JsonSerialization.NormalizeJson(received.Body, ignoredElements);
+                var recordedBody = JsonSerialization.NormalizeJson(recorded.Body, ignoredElements);
 
                 if (receivedBody == null && recordedBody == null)
                     // both have empty string bodies, so they match

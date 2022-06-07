@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideHeaders(new List<string> { "Date" })
+                Censors = new Censors(censorString).HideHeaderKeys(new List<string> { "Date" })
             };
 
             // record cassette with advanced settings first
@@ -243,7 +244,7 @@ namespace EasyVCR.Tests
             // set up advanced settings
             const string censorString = "censored-by-test";
             var censors = new Censors(censorString);
-            censors.HideBodyParameters(new List<string> { "nested_dict_1_1_1", "nested_dict_2_2", "nested_array", "null_key" });
+            censors.HideBodyElementKeys(new List<string> { "nested_dict_1_1_1", "nested_dict_2_2", "nested_array", "null_key" });
             var advancedSettings = new AdvancedSettings
             {
                 Censors = censors
@@ -300,7 +301,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideBodyParameters(new List<string> { "Table" })
+                Censors = new Censors(censorString).HideBodyElementKeys(new List<string> { "Table" })
             };
 
             // record cassette with advanced settings first
@@ -315,6 +316,44 @@ namespace EasyVCR.Tests
 
             // TODO: Test is failing because the response is not being censored.
             // have to manually check cassette for the censored string in the response body
+        }
+
+        [TestMethod]
+        public async Task TextIgnoreElements()
+        {
+            var cassette = TestUtils.GetCassette("test_ignore_elements");
+            cassette.Erase(); // Erase cassette before recording
+
+            var bodyData1 = new StringContent("{\"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\"}");
+            var bodyData2 = new StringContent("{\"name\": \"Different Name\",\n    \"company\": \"EasyPost\"}");
+
+            // record baseline request first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var _ = await client.PostAsync(FakeDataService.GetExchangeRatesUrl("json"), bodyData1);
+
+            // try to replay the request with different body data
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByBody().ByMethod().ByFullUrl()
+            });
+
+            // should fail since we're strictly in replay mode and there's no exact match
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetExchangeRatesUrl("json"), bodyData2));
+
+            // try to replay the request with different body data, but ignoring the differences
+            var ignoreElements = new List<CensorElement>
+            {
+                new CensorElement("name", false)
+            };
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByBody(ignoreElements).ByMethod().ByFullUrl()
+            });
+
+            // should succeed since we're ignoring the differences
+            var response = await client.PostAsync(FakeDataService.GetExchangeRatesUrl("json"), bodyData2);
+            Assert.IsNotNull(response);
+            Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }
 
         private static async Task<ExchangeRates?> GetExchangeRatesRequest(Cassette cassette, Mode mode)

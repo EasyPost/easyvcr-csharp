@@ -19,7 +19,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).HideHeaders(new List<string> { "Date" }),
+                Censors = new Censors(censorString).HideHeaderKeys(new List<string> { "Date" }),
             };
 
             var vcr = new VCR(advancedSettings);

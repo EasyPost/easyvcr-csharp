@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Xml.Linq;
 using EasyVCR.Interfaces;
@@ -110,14 +111,22 @@ namespace EasyVCR.InternalUtilities.JSON
         ///     Normalize a JSON string to remove CRLF and other whitespace.
         /// </summary>
         /// <param name="json">JSON string to normalize.</param>
+        /// <param name="removeElements">List of elements to remove from the JSON string.</param>
         /// <returns>Normalized JSON string.</returns>
-        internal static string? NormalizeJson(string json)
+        internal static string? NormalizeJson(string json, List<CensorElement>? removeElements = null)
         {
             if (string.IsNullOrWhiteSpace(json))
             {
                 return null;
             }
 
+            // need to use censors to remove elements from the JSON string
+            if (removeElements != null)
+            {
+                return Censors.CensorJsonData(json, "FILTERED", removeElements);
+            }
+
+            // don't need to remove elements
             object obj = ConvertJsonToObject(json);
             return ConvertObjectToJson(obj);
         }
