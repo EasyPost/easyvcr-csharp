@@ -225,56 +225,77 @@ namespace EasyVCR
             return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
         }
 
-        public static string CensorJsonData(string body, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
+        /// <summary>
+        ///     Apply censors to a JSON string.
+        /// </summary>
+        /// <param name="data">JSON string to apply censors to.</param>
+        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <returns>A censored JSON string.</returns>
+        public static string CensorJsonData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
         {
             try
             {
-                var jsonDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(body);
+                var jsonDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(data);
                 var censoredJsonDictionary = ApplyDataCensors(jsonDictionary, censorText, elementsToCensors);
-                return censoredJsonDictionary == null ? body : JsonSerialization.ConvertObjectToJson(censoredJsonDictionary);
+                return censoredJsonDictionary == null ? data : JsonSerialization.ConvertObjectToJson(censoredJsonDictionary);
             }
             catch (Exception)
             {
                 // body is not a JSON dictionary
                 try
                 {
-                    var jsonList = JsonSerialization.ConvertJsonToObject<List<object>>(body);
+                    var jsonList = JsonSerialization.ConvertJsonToObject<List<object>>(data);
                     var censoredJsonList = ApplyDataCensors(jsonList, censorText, elementsToCensors);
-                    return censoredJsonList == null ? body : JsonSerialization.ConvertObjectToJson(censoredJsonList);
+                    return censoredJsonList == null ? data : JsonSerialization.ConvertObjectToJson(censoredJsonList);
                 }
                 catch
                 {
                     // short circuit if body is not a JSON dictionary or JSON list
-                    return body;
+                    return data;
                 }
             }
         }
 
-        public static string CensorXmlData(string body, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
+        /// <summary>
+        ///     Apply censors to an XML string.
+        /// </summary>
+        /// <param name="data">XML string to apply censors to.</param>
+        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <returns>A censored XML string.</returns>
+        public static string CensorXmlData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
         {
             try
             {
-                var xmlDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(body);
+                var xmlDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(data);
                 var censoredXmlDictionary = ApplyDataCensors(xmlDictionary, censorText, elementsToCensors);
-                return censoredXmlDictionary == null ? body : XmlSerialization.ConvertObjectToXml(censoredXmlDictionary);
+                return censoredXmlDictionary == null ? data : XmlSerialization.ConvertObjectToXml(censoredXmlDictionary);
             }
             catch (Exception)
             {
                 // body is not an XML dictionary
                 try
                 {
-                    var xmlList = XmlSerialization.ConvertXmlToObject<List<object>>(body);
+                    var xmlList = XmlSerialization.ConvertXmlToObject<List<object>>(data);
                     var censoredXmlList = ApplyDataCensors(xmlList, censorText, elementsToCensors);
-                    return censoredXmlList == null ? body : XmlSerialization.ConvertObjectToXml(censoredXmlList);
+                    return censoredXmlList == null ? data : XmlSerialization.ConvertObjectToXml(censoredXmlList);
                 }
                 catch
                 {
                     // short circuit if body is not a XML dictionary or XML list
-                    return body;
+                    return data;
                 }
             }
         }
 
+        /// <summary>
+        ///     Apply censors to a list of elements.
+        /// </summary>
+        /// <param name="list">List of elements to apply censors to.</param>
+        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <returns>A censored list of elements.</returns>
         private static List<object> ApplyDataCensors(List<object> list, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
         {
             if (list.Count == 0)
@@ -322,6 +343,13 @@ namespace EasyVCR
             return censoredList;
         }
 
+        /// <summary>
+        ///     Apply censors to a dictionary of elements.
+        /// </summary>
+        /// <param name="dictionary">Dictionary of elements to apply censors to.</param>
+        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <returns>A censored dictionary of elements.</returns>
         private static Dictionary<string, object> ApplyDataCensors(Dictionary<string, object> dictionary, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
         {
             if (dictionary.Count == 0)
@@ -387,14 +415,25 @@ namespace EasyVCR
             return censoredBodyDictionary;
         }
 
+        /// <summary>
+        ///     Check if a JSON element should be censored.
+        /// </summary>
+        /// <param name="foundKey">The key of the JSON element to evaluate.</param>
+        /// <param name="elementsToCensor">A list of elements to censor.</param>
+        /// <returns>True if the JSON value should be censored, false otherwise.</returns>
         private static bool KeyShouldBeCensored(string foundKey, IReadOnlyCollection<CensorElement> elementsToCensor)
         {
             return elementsToCensor.Count != 0 && elementsToCensor.Any(element => element.Matches(foundKey));
         }
 
-        private static string ToQueryString(NameValueCollection collection)
+        /// <summary>
+        ///     Convert a collection of query parameter pairs to a query string.
+        /// </summary>
+        /// <param name="queryParamCollection">Collection of key-value pairs.</param>
+        /// <returns>A formatted URL query string.</returns>
+        private static string ToQueryString(NameValueCollection queryParamCollection)
         {
-            return string.Join("&", collection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(collection.Get(key))}").ToArray());
+            return string.Join("&", queryParamCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(queryParamCollection.Get(key))}").ToArray());
         }
     }
 }
