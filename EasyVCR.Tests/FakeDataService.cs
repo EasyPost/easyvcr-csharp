@@ -66,9 +66,14 @@ namespace EasyVCR.Tests
 
         public async Task<HttpResponseMessage> GetExchangeRatesRawResponse()
         {
-            return await Client.GetAsync("http://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=" + _format);
+            return await Client.GetAsync(GetExchangeRatesUrl(_format));
         }
 
         protected abstract ExchangeRates Convert(string responseBody);
+
+        public static string GetExchangeRatesUrl(string format)
+        {
+            return "https://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=" + format;
+        }
     }
 }

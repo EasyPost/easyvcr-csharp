@@ -46,12 +46,12 @@ namespace EasyVCR.InternalUtilities
             var request = new Request
             {
                 Method = httpRequestMessage.Method.ToString(),
-                Uri = censors.CensorQueryParameters(httpRequestMessage.RequestUri?.ToString()),
-                RequestHeaders = censors.CensorHeaders(ToHeaders(httpRequestMessage.Headers)),
-                ContentHeaders = censors.CensorHeaders(ToContentHeaders(httpRequestMessage.Content)),
+                Uri = censors.ApplyQueryParametersCensors(httpRequestMessage.RequestUri?.ToString()),
+                RequestHeaders = censors.ApplyHeaderCensors(ToHeaders(httpRequestMessage.Headers)),
+                ContentHeaders = censors.ApplyHeaderCensors(ToContentHeaders(httpRequestMessage.Content)),
                 BodyContentType = ContentTypeExtensions.DetermineContentType(requestBody)
             };
-            request.Body = censors.CensorBodyParameters(requestBody, request.BodyContentType);
+            request.Body = censors.ApplyBodyParametersCensors(requestBody, request.BodyContentType);
             return request;
         }
 
@@ -71,12 +71,12 @@ namespace EasyVCR.InternalUtilities
                     Code = httpResponseMessage.StatusCode,
                     Message = httpResponseMessage.ReasonPhrase
                 },
-                ResponseHeaders = censors.CensorHeaders(ToHeaders(httpResponseMessage.Headers)),
-                ContentHeaders = censors.CensorHeaders(ToContentHeaders(httpResponseMessage.Content)),
+                ResponseHeaders = censors.ApplyHeaderCensors(ToHeaders(httpResponseMessage.Headers)),
+                ContentHeaders = censors.ApplyHeaderCensors(ToContentHeaders(httpResponseMessage.Content)),
                 BodyContentType = ContentTypeExtensions.DetermineContentType(responseBody),
                 HttpVersion = httpResponseMessage.Version
             };
-            response.Body = censors.CensorBodyParameters(responseBody, response.BodyContentType);
+            response.Body = censors.ApplyBodyParametersCensors(responseBody, response.BodyContentType);
             return response;
         }
 
