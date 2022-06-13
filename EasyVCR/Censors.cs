@@ -33,9 +33,9 @@ namespace EasyVCR
             get
             {
                 var censors = new Censors();
-                censors.HideHeaderKeys(Defaults.CredentialHeadersToHide);
-                censors.HideQueryParameterKeys(Defaults.CredentialParametersToHide);
-                censors.HideBodyElementKeys(Defaults.CredentialParametersToHide);
+                censors.CensorHeadersByKeys(Defaults.CredentialHeadersToHide);
+                censors.CensorQueryParametersByKeys(Defaults.CredentialParametersToHide);
+                censors.CensorBodyElementsByKeys(Defaults.CredentialParametersToHide);
 
                 return censors;
             }
@@ -56,10 +56,21 @@ namespace EasyVCR
         /// <summary>
         ///     Add a rule to censor specified body elements.
         /// </summary>
+        /// <param name="elements">List of body elements to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors CensorBodyElements(IEnumerable<CensorElement> elements)
+        {
+            _bodyElementsToCensor.AddRange(elements);
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a rule to censor specified body elements by their keys.
+        /// </summary>
         /// <param name="elementKeys">List of keys of body elements to censor.</param>
         /// <param name="caseSensitive">Whether to match case sensitively.</param>
         /// <returns></returns>
-        public Censors HideBodyElementKeys(List<string> elementKeys, bool caseSensitive = false)
+        public Censors CensorBodyElementsByKeys(List<string> elementKeys, bool caseSensitive = false)
         {
             foreach (var key in elementKeys)
             {
@@ -70,24 +81,25 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to censor specified body parameters.
+        ///     Add a rule to censor specified headers.
+        ///     Note: This will censor the header keys in both the request and response.
         /// </summary>
-        /// <param name="elements">List of body elements to censor.</param>
+        /// <param name="headers">List of headers to censor.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideBodyElements(IEnumerable<CensorElement> elements)
+        public Censors CensorHeaders(IEnumerable<CensorElement> headers)
         {
-            _bodyElementsToCensor.AddRange(elements);
+            _headersToCensor.AddRange(headers);
             return this;
         }
 
         /// <summary>
-        ///     Add a rule to censor specified header keys.
+        ///     Add a rule to censor specified headers by their keys.
         ///     Note: This will censor the header keys in both the request and response.
         /// </summary>
         /// <param name="headerKeys">List of keys of header to censor.</param>
         /// <param name="caseSensitive">Whether to match case sensitively.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideHeaderKeys(List<string> headerKeys, bool caseSensitive = false)
+        public Censors CensorHeadersByKeys(List<string> headerKeys, bool caseSensitive = false)
         {
             foreach (var key in headerKeys)
             {
@@ -98,24 +110,23 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to censor specified header keys.
-        ///     Note: This will censor the header keys in both the request and response.
+        ///     Add a rule to censor specified query parameters.
         /// </summary>
-        /// <param name="headers">List of headers to censor.</param>
+        /// <param name="elements">List of query parameters to censor.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideHeaders(IEnumerable<CensorElement> headers)
+        public Censors CensorQueryParameters(IEnumerable<CensorElement> elements)
         {
-            _headersToCensor.AddRange(headers);
+            _queryParamsToCensor.AddRange(elements);
             return this;
         }
 
         /// <summary>
-        ///     Add a rule to censor specified query parameters.
+        ///     Add a rule to censor specified query parameters by their keys.
         /// </summary>
         /// <param name="parameterKeys">List of keys of query parameters to censor.</param>
         /// <param name="caseSensitive">Whether to match case sensitively.</param>
         /// <returns>The current Censor object.</returns>
-        public Censors HideQueryParameterKeys(List<string> parameterKeys, bool caseSensitive = false)
+        public Censors CensorQueryParametersByKeys(List<string> parameterKeys, bool caseSensitive = false)
         {
             foreach (var key in parameterKeys)
             {
@@ -126,24 +137,13 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to censor specified query parameters.
-        /// </summary>
-        /// <param name="elements">List of query parameters to censor.</param>
-        /// <returns>The current Censor object.</returns>
-        public Censors HideQueryParameters(IEnumerable<CensorElement> elements)
-        {
-            _queryParamsToCensor.AddRange(elements);
-            return this;
-        }
-
-        /// <summary>
         ///     Censor the appropriate body parameters.
         /// </summary>
         /// <param name="body">String representation of request body to apply censors to.</param>
         /// <param name="contentType">ContentType enum indicating what type of content body is.</param>
         /// <returns>Censored string representation of request body.</returns>
         /// <exception cref="SerializeException">Could not serialize data to apply censors.</exception>
-        internal string CensorBodyParameters(string body, ContentType? contentType)
+        internal string ApplyBodyParametersCensors(string body, ContentType? contentType)
         {
             if (contentType == null) throw new VCRException("Cannot determine content type of response body, unable to apply censors.");
 
@@ -184,13 +184,13 @@ namespace EasyVCR
         /// </summary>
         /// <param name="headers">Dictionary of headers to apply censors to.</param>
         /// <returns>Censored IDictionary object.</returns>
-        internal IDictionary<string, string> CensorHeaders(IDictionary<string, string> headers)
+        internal IDictionary<string, string> ApplyHeaderCensors(IDictionary<string, string> headers)
         {
             if (headers.Count == 0)
                 // short circuit if there are no headers to censor
                 return headers;
 
-            return _headersToCensor.Count == 0 ? headers : headers.ToDictionary(header => header.Key, header => KeyShouldBeCensored(header.Key, _headersToCensor) ? _censorText : header.Value);
+            return _headersToCensor.Count == 0 ? headers : headers.ToDictionary(header => header.Key, header => ElementShouldBeCensored(header.Key, _headersToCensor) ? _censorText : header.Value);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace EasyVCR
         /// </summary>
         /// <param name="url">Full URL string to apply censors to.</param>
         /// <returns>Censored URL string.</returns>
-        internal string? CensorQueryParameters(string? url)
+        internal string? ApplyQueryParametersCensors(string? url)
         {
             if (_queryParamsToCensor.Count == 0)
             {
@@ -219,7 +219,7 @@ namespace EasyVCR
             var censoredQueryParameters = new NameValueCollection();
             foreach (var key in queryParameters.AllKeys)
             {
-                censoredQueryParameters.Add(key, KeyShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
+                censoredQueryParameters.Add(key, ElementShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
             }
 
             return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
@@ -359,7 +359,7 @@ namespace EasyVCR
             var censoredBodyDictionary = new Dictionary<string, object>();
             foreach (var key in dictionary.Keys)
             {
-                if (KeyShouldBeCensored(key, elementsToCensors))
+                if (ElementShouldBeCensored(key, elementsToCensors))
                 {
                     var value = dictionary[key];
                     if (value == null)
@@ -421,7 +421,7 @@ namespace EasyVCR
         /// <param name="foundKey">The key of the JSON element to evaluate.</param>
         /// <param name="elementsToCensor">A list of elements to censor.</param>
         /// <returns>True if the JSON value should be censored, false otherwise.</returns>
-        private static bool KeyShouldBeCensored(string foundKey, IReadOnlyCollection<CensorElement> elementsToCensor)
+        private static bool ElementShouldBeCensored(string foundKey, IReadOnlyCollection<CensorElement> elementsToCensor)
         {
             return elementsToCensor.Count != 0 && elementsToCensor.Any(element => element.Matches(foundKey));
         }
