@@ -62,7 +62,7 @@ file.
 
 Censor sensitive data in the request and response bodies and headers, such as API keys and auth tokens.
 
-NOTE: This feature currently only works on JSON response bodies, and can only censor root-level properties.
+NOTE: This feature currently only works on JSON response bodies.
 
 **Default**: *Disabled*
 
@@ -70,9 +70,13 @@ NOTE: This feature currently only works on JSON response bodies, and can only ce
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
+
+var censors = new Censors().CensorHeadersByKeys(new List<string> { "Authorization" }) // Hide the Authorization header
+censors.CensorBodyElementsByKeys(new List<CensorElement> { new CensorElement("table", true) }); // Hide the table element (case sensitive) in the request and response body
+
 var advancedOptions = new AdvancedOptions()
 {
-    Censors = new Censors().HideHeaders(new List<string> { "Authorization" }) // Hide the Authorization header
+    Censors = censors
 };
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
@@ -162,7 +166,7 @@ using EasyVCR;
 
 var advancedSettings = new AdvancedSettings
 {
-    Censors = new Censors().HideQueryParameters(new List<string> { "api_key" }) // hide the api_key query parameter
+    Censors = new Censors().CensorQueryParametersByKeys(new List<string> { "api_key" }) // hide the api_key query parameter
 };
 
 // Create a VCR with the advanced settings applied
