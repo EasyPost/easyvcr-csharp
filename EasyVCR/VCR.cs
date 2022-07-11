@@ -6,12 +6,19 @@ namespace EasyVCR
     /// <summary>
     ///     Built-in VCR tool for EasyVCR.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class VCR
     {
         /// <summary>
         ///     The current cassette in the VCR.
         /// </summary>
         private Cassette? _currentCassette;
+
+        /// <summary>
+        ///     Advanced settings for the VCR.
+        /// </summary>
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
+        public AdvancedSettings? AdvancedSettings { get; set; }
 
         /// <summary>
         ///     The name of the current cassette in the VCR.
@@ -48,11 +55,7 @@ namespace EasyVCR
             private set => _mode = value;
         }
 
-        /// <summary>
-        ///     Advanced settings for the VCR.
-        /// </summary>
-        public AdvancedSettings? AdvancedSettings { get; set; }
-
+        // ReSharper disable once InconsistentNaming
         private Mode _mode { get; set; }
 
         /// <summary>
@@ -107,14 +110,6 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Enable playback mode on the VCR.
-        /// </summary>
-        public void Replay()
-        {
-            Mode = Mode.Replay;
-        }
-
-        /// <summary>
         ///     Enable auto mode on the VCR (record if needed, replay otherwise).
         /// </summary>
         public void RecordIfNeeded()
@@ -122,7 +117,15 @@ namespace EasyVCR
             Mode = Mode.Auto;
         }
 
-        private Mode? GetModeFromEnvironment()
+        /// <summary>
+        ///     Enable playback mode on the VCR.
+        /// </summary>
+        public void Replay()
+        {
+            Mode = Mode.Replay;
+        }
+
+        private static Mode? GetModeFromEnvironment()
         {
             const string keyName = "EASYVCR_MODE";
             var keyValue = Environment.GetEnvironmentVariable(keyName);

@@ -27,6 +27,7 @@ namespace EasyVCR.InternalUtilities
                 return ContentType.Xml;
             }
 
+            // ReSharper disable once ConvertIfStatementToReturnStatement
             if (IsHtml(content))
             {
                 return ContentType.Html;
@@ -38,18 +39,13 @@ namespace EasyVCR.InternalUtilities
         public static ContentType? FromString(string? contentType)
         {
             if (contentType == null) return null;
-            switch (contentType.ToLower())
+            return contentType.ToLower() switch
             {
-                case "json":
-                    return ContentType.Json;
-                case "xml":
-                    return ContentType.Xml;
-                case "html":
-                    return ContentType.Html;
-                case "text":
-                default:
-                    return ContentType.Text;
-            }
+                "json" => ContentType.Json,
+                "xml" => ContentType.Xml,
+                "html" => ContentType.Html,
+                var _ => ContentType.Text
+            };
         }
 
         private static bool IsHtml(string content)

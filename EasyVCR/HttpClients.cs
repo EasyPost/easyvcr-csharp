@@ -1,6 +1,9 @@
 using System.Net.Http;
 using EasyVCR.Handlers;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace EasyVCR
 {
     /// <summary>

@@ -10,18 +10,7 @@ namespace EasyVCR.Tests
     {
         internal static Cassette GetCassette(string cassetteName, IOrderOption? order = null)
         {
-            var cassettePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cassettes", cassetteName);
             return new Cassette(GetDirectoryInCurrentDirectory("cassettes"), cassetteName, order);
-        }
-
-        internal static string GetCurrentDirectory()
-        {
-            return _GetCurrentDirectory();
-        }
-
-        internal static string GetDirectoryInCurrentDirectory(string directoryPath)
-        {
-            return Path.Combine(GetCurrentDirectory(), directoryPath);
         }
 
         internal static HttpClient GetSimpleClient(string cassetteName, Mode mode)
@@ -30,6 +19,7 @@ namespace EasyVCR.Tests
             return HttpClients.NewHttpClient(cassette, mode);
         }
 
+        // ReSharper disable once InconsistentNaming
         internal static VCR GetSimpleVCR(Mode mode)
         {
             var vcr = new VCR(new AdvancedSettings
@@ -50,6 +40,8 @@ namespace EasyVCR.Tests
                 case Mode.Auto:
                     vcr.RecordIfNeeded();
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
 
             return vcr;
@@ -63,6 +55,16 @@ namespace EasyVCR.Tests
             if (string.IsNullOrEmpty(path)) throw new ArgumentException("Could not get directory from source file path");
 
             return path;
+        }
+
+        private static string GetCurrentDirectory()
+        {
+            return _GetCurrentDirectory();
+        }
+
+        private static string GetDirectoryInCurrentDirectory(string directoryPath)
+        {
+            return Path.Combine(GetCurrentDirectory(), directoryPath);
         }
     }
 }

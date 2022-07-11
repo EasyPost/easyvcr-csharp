@@ -9,23 +9,23 @@ namespace EasyVCR.Tests
     public class ExchangeRates
     {
         [JsonProperty("code")]
-        internal string Code { get; set; }
+        internal string? Code { get; set; }
         [JsonProperty("currency")]
-        internal string Currency { get; set; }
+        internal string? Currency { get; set; }
         [JsonProperty("rates")]
-        internal List<Rate> Rates { get; set; }
+        internal List<Rate>? Rates { get; set; }
         [JsonProperty("table")]
-        internal string Table { get; set; }
+        internal string? Table { get; set; }
     }
 
     public class Rate
     {
         [JsonProperty("effectiveDate")]
-        internal string EffectiveDate { get; set; }
+        internal string? EffectiveDate { get; set; }
         [JsonProperty("mid")]
         internal float Mid { get; set; }
         [JsonProperty("no")]
-        internal string No { get; set; }
+        internal string? No { get; set; }
     }
 
     public abstract class FakeDataService
@@ -46,13 +46,13 @@ namespace EasyVCR.Tests
             }
         }
 
-        public FakeDataService(string format, VCR vcr)
+        protected FakeDataService(string format, VCR vcr)
         {
             _format = format;
             _vcr = vcr;
         }
 
-        public FakeDataService(string format, HttpClient client)
+        protected FakeDataService(string format, HttpClient client)
         {
             _format = format;
             _client = client;
@@ -71,7 +71,7 @@ namespace EasyVCR.Tests
 
         protected abstract ExchangeRates Convert(string responseBody);
 
-        public static string GetExchangeRatesUrl(string format)
+        public static string GetExchangeRatesUrl(string? format)
         {
             return "https://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=" + format;
         }

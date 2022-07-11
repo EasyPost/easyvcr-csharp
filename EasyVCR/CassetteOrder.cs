@@ -48,8 +48,8 @@ namespace EasyVCR
             /// <summary>
             ///     Function to order the JSON elements in the cassette in alphabetical order.
             /// </summary>
-            Func<IList<JsonProperty>, IEnumerable<JsonProperty>>? IOrderOption.OrderFunction =>
-                (properties) =>
+            Func<IList<JsonProperty>, IEnumerable<JsonProperty>> IOrderOption.OrderFunction =>
+                properties =>
                 {
                     var ordered = properties
                         .OrderBy(p => p.Order ?? int.MaxValue)

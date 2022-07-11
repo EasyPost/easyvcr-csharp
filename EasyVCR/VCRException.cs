@@ -5,6 +5,7 @@ namespace EasyVCR
     /// <summary>
     ///     Custom exception for EasyVCR
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class VCRException : Exception
     {
         /// <summary>

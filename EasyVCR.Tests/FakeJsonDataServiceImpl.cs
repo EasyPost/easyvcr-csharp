@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
 
+// ReSharper disable UnusedMember.Global
+
 namespace EasyVCR.Tests
 {
     public class FakeJsonDataService : FakeDataService

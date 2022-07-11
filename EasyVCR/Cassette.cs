@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EasyVCR.Interfaces;
-using EasyVCR.InternalUtilities;
 using EasyVCR.InternalUtilities.JSON;
 using EasyVCR.RequestElements;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
+// ReSharper disable UnusedMember.Global
 
 namespace EasyVCR
 {
@@ -16,6 +17,7 @@ namespace EasyVCR
     /// </summary>
     public class Cassette
     {
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private static object _fileLocker = new object();
 
         /// <summary>
@@ -62,11 +64,10 @@ namespace EasyVCR
             {
                 File.Delete(_filePath);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignore if no file exists
             }
-
         }
 
         /// <summary>
@@ -119,6 +120,7 @@ namespace EasyVCR
                 {
                     matchingIndex = existingInteractions.FindIndex(i => matchRules.RequestsMatch(httpInteraction.Request, i.Request));
                 }
+
                 List<HttpInteraction> newInteractions;
                 if (matchingIndex < 0)
                 {

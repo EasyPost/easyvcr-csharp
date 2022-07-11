@@ -7,11 +7,11 @@ namespace EasyVCR
         /// <summary>
         ///     Whether the name is case-sensitive.
         /// </summary>
-        private bool CaseSensitive { get; set; }
+        private bool CaseSensitive { get; }
         /// <summary>
         ///     Name of the element to censor.
         /// </summary>
-        private string Name { get; set; }
+        private string Name { get; }
 
         /// <summary>
         ///     Constructor for a new censor element.

@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+// ReSharper disable UnusedVariable
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedType.Global
+
 namespace EasyVCR.Tests
 {
     public class Sample
@@ -15,7 +20,7 @@ namespace EasyVCR.Tests
             {
                 MatchRules = MatchRules.DefaultStrict, // use the built-in strict match rules
                 Censors = Censors.DefaultSensitive, // use the built-in sensitive censors
-                SimulateDelay = true, // simulate the exact delay of the original request during playback
+                SimulateDelay = true // simulate the exact delay of the original request during playback
                 // InteractionConverter = new MyInteractionConverter(), // use a custom interaction converter by implementing IInteractionConverter
             };
             var order = new CassetteOrder.Alphabetical(); // elements of each request in a cassette will be ordered alphabetically
@@ -36,16 +41,16 @@ namespace EasyVCR.Tests
         /// </summary>
         public async Task AdvancedVCRExample()
         {
-            var bodyElementsToIgnoreDuringMatch = new List<CensorElement>()
+            var bodyElementsToIgnoreDuringMatch = new List<CensorElement>
             {
-                { new CensorElement("name", true) },
-                { new CensorElement("phone", false) },
+                new CensorElement("name", true),
+                new CensorElement("phone", false)
             };
             var advancedSettings = new AdvancedSettings
             {
                 MatchRules = new MatchRules().ByBody(bodyElementsToIgnoreDuringMatch).ByHeader("X-My-Header"), // Match recorded requests by body and a specific header
                 Censors = new Censors("redacted").CensorHeadersByKeys(new List<string> { "Header-To-Hide" }).CensorQueryParametersByKeys(new List<string> { "api_key" }), // Redact a specific header and query parameter 
-                ManualDelay = 1000, // Simulate a delay of 1 second
+                ManualDelay = 1000 // Simulate a delay of 1 second
             };
             var order = new CassetteOrder.None(); // elements of each request in a cassette will not be ordered any particular way
             var vcr = new VCR(advancedSettings);

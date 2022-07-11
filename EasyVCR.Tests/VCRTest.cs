@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace EasyVCR.Tests
 {
     [TestClass]
+    // ReSharper disable once InconsistentNaming
     public class VCRTest
     {
         [TestMethod]
@@ -19,7 +20,7 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).CensorHeadersByKeys(new List<string> { "Date" }),
+                Censors = new Censors(censorString).CensorHeadersByKeys(new List<string> { "Date" })
             };
 
             var vcr = new VCR(advancedSettings);
@@ -53,7 +54,7 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
-        public async Task TestCassetteName()
+        public Task TestCassetteName()
         {
             const string cassetteName = "test_vcr_cassette_name";
             var cassette = TestUtils.GetCassette(cassetteName);
@@ -62,10 +63,11 @@ namespace EasyVCR.Tests
 
             // make sure the cassette name is set correctly
             Assert.AreEqual(cassetteName, vcr.CassetteName);
+            return Task.CompletedTask;
         }
 
         [TestMethod]
-        public async Task TestCassetteSwap()
+        public Task TestCassetteSwap()
         {
             const string cassette1Name = "test_vcr_cassette_swap_1";
             const string cassette2Name = "test_vcr_cassette_swap_2";
@@ -82,6 +84,7 @@ namespace EasyVCR.Tests
             cassette = TestUtils.GetCassette(cassette2Name);
             vcr.Insert(cassette);
             Assert.AreEqual(cassette2Name, vcr.CassetteName);
+            return Task.CompletedTask;
         }
 
         [TestMethod]
@@ -161,7 +164,7 @@ namespace EasyVCR.Tests
         [TestMethod]
         public void TestMode()
         {
-            var cassette = TestUtils.GetCassette("test_vcr_mode");
+            TestUtils.GetCassette("test_vcr_mode");
             var vcr = TestUtils.GetSimpleVCR(Mode.Bypass);
             Assert.AreEqual(Mode.Bypass, vcr.Mode);
             vcr.Record();
