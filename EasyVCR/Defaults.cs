@@ -30,17 +30,17 @@ namespace EasyVCR
         /// </summary>
         internal static List<string> CredentialParametersToHide => new List<string>
         {
-            "api_key",
-            "apiKey",
-            "key",
-            "api_token",
-            "apiToken",
-            "token",
             "access_token",
+            "apiKey",
+            "apiToken",
+            "api_key",
+            "api_token",
             "client_id",
             "client_secret",
+            "key",
             "password",
             "secret",
+            "token",
             "username"
         };
     }

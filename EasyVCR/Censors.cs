@@ -247,7 +247,7 @@ namespace EasyVCR
             }
             catch (Exception)
             {
-                // body is not a JSON dictionary 
+                // body is not a JSON dictionary
                 try
                 {
                     var jsonList = JsonSerialization.ConvertJsonToObject<List<object>>(data);
