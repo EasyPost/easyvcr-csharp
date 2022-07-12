@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using EasyVCR.Interfaces;
 using Newtonsoft.Json;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace EasyVCR.InternalUtilities.JSON
 {
     /// <summary>
@@ -101,7 +103,7 @@ namespace EasyVCR.InternalUtilities.JSON
         /// </summary>
         /// <param name="xml">XML string to convert to JSON.</param>
         /// <returns>A JSON string.</returns>
-        internal static string? ConvertXmlToJson(string xml)
+        internal static string ConvertXmlToJson(string xml)
         {
             var doc = XDocument.Parse(xml); //or XDocument.Load(path)
             return JsonConvert.SerializeXNode(doc);

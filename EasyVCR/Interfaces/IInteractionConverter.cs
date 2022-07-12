@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EasyVCR.RequestElements;
 
+// ReSharper disable UnusedMemberInSuper.Global
+
 namespace EasyVCR.Interfaces
 {
     /// <summary>

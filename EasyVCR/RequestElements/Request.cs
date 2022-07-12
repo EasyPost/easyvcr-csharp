@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using EasyVCR.InternalUtilities;
 using Newtonsoft.Json;
 
+#pragma warning disable CS8618
+
 namespace EasyVCR.RequestElements
 {
     /// <summary>
@@ -21,8 +23,8 @@ namespace EasyVCR.RequestElements
         [JsonIgnore]
         internal ContentType? BodyContentType
         {
-            get { return ContentTypeExtensions.FromString(BodyContentTypeString); }
-            set { BodyContentTypeString = value?.ToString(); }
+            get => ContentTypeExtensions.FromString(BodyContentTypeString);
+            set => BodyContentTypeString = value?.ToString();
         }
 
         /// <summary>

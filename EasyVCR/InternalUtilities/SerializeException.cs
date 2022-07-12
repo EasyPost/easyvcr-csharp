@@ -5,7 +5,7 @@ namespace EasyVCR.InternalUtilities
     /// <summary>
     ///     Custom serialization exception for EasyVCR
     /// </summary>
-    internal class SerializeException : Exception
+    internal abstract class SerializeException : Exception
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="VCRException" /> class.

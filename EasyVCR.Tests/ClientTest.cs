@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -74,7 +73,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_default_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            var postUrl = "https://google.com";
+            const string postUrl = "https://google.com";
             var postBody = new StringContent("{\"key\":\"value\"}");
 
             // record cassette first
@@ -143,6 +142,7 @@ namespace EasyVCR.Tests
             Assert.IsTrue((int)stopwatch.ElapsedMilliseconds >= delay);
         }
 
+        [TestMethod]
         public async Task TestErase()
         {
             var cassette = TestUtils.GetCassette("test_erase");
@@ -291,7 +291,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_nested_censoring");
             cassette.Erase(); // Erase cassette before recording
 
-            var postUrl = "https://google.com";
+            const string postUrl = "https://google.com";
             var postBody = new StringContent("{\r\n  \"array\": [\r\n    \"array_1\",\r\n    \"array_2\",\r\n    \"array_3\"\r\n  ],\r\n  \"dict\": {\r\n    \"nested_array\": [\r\n      \"nested_array_1\",\r\n      \"nested_array_2\",\r\n      \"nested_array_3\"\r\n    ],\r\n    \"nested_dict\": {\r\n      \"nested_dict_1\": {\r\n        \"nested_dict_1_1\": {\r\n          \"nested_dict_1_1_1\": \"nested_dict_1_1_1_value\"\r\n        }\r\n      },\r\n      \"nested_dict_2\": {\r\n        \"nested_dict_2_1\": \"nested_dict_2_1_value\",\r\n        \"nested_dict_2_2\": \"nested_dict_2_2_value\"\r\n      }\r\n    },\r\n    \"dict_1\": \"dict_1_value\",\r\n    \"null_key\": null\r\n  }\r\n}");
             // set up advanced settings
             const string censorString = "censored-by-test";
@@ -304,7 +304,7 @@ namespace EasyVCR.Tests
 
             // record cassette
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var response = await client.PostAsync(postUrl, postBody);
+            var _ = await client.PostAsync(postUrl, postBody);
 
             // NOTE: Have to manually check the cassette
         }
@@ -316,7 +316,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_strict_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            var postUrl = "https://google.com";
+            const string postUrl = "https://google.com";
             var postBody = new StringContent("{\n  \"address\": {\n    \"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\",\n    \"street1\": \"388 Townsend St\",\n    \"street2\": \"Apt 20\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zip\": \"94107\",\n    \"country\": \"US\",\n    \"phone\": \"5555555555\"\n  }\n}");
 
             // record cassette first
@@ -364,7 +364,7 @@ namespace EasyVCR.Tests
             // now replay cassette
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeXmlDataService(client);
-            var response = await fakeDataService.GetExchangeRatesRawResponse();
+            _ = await fakeDataService.GetExchangeRatesRawResponse();
 
             // TODO: Test is failing because the response is not being censored.
             // have to manually check cassette for the censored string in the response body

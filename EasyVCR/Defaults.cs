@@ -14,7 +14,7 @@ namespace EasyVCR
         /// </summary>
         internal static readonly Dictionary<string, object> ReplayHeaders = new Dictionary<string, object>
         {
-            { ViaRecordingHeaderKey, "true" },
+            { ViaRecordingHeaderKey, "true" }
         };
 
         /// <summary>
@@ -22,9 +22,7 @@ namespace EasyVCR
         /// </summary>
         internal static List<string> CredentialHeadersToHide => new List<string>
         {
-            {
-                "authorization"
-            }
+            "authorization"
         };
 
         /// <summary>
@@ -32,42 +30,18 @@ namespace EasyVCR
         /// </summary>
         internal static List<string> CredentialParametersToHide => new List<string>
         {
-            {
-                "api_key"
-            },
-            {
-                "apiKey"
-            },
-            {
-                "key"
-            },
-            {
-                "api_token"
-            },
-            {
-                "apiToken"
-            },
-            {
-                "token"
-            },
-            {
-                "access_token"
-            },
-            {
-                "client_id"
-            },
-            {
-                "client_secret"
-            },
-            {
-                "password"
-            },
-            {
-                "secret"
-            },
-            {
-                "username"
-            }
+            "access_token",
+            "apiKey",
+            "apiToken",
+            "api_key",
+            "api_token",
+            "client_id",
+            "client_secret",
+            "key",
+            "password",
+            "secret",
+            "token",
+            "username"
         };
     }
 }

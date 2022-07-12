@@ -1,6 +1,8 @@
 using System;
 using Newtonsoft.Json;
 
+#pragma warning disable CS8618
+
 namespace EasyVCR.RequestElements
 {
     /// <summary>
@@ -8,6 +10,12 @@ namespace EasyVCR.RequestElements
     /// </summary>
     internal class HttpInteraction : HttpElement
     {
+        /// <summary>
+        ///     The duration of the request.
+        /// </summary>
+        [JsonProperty("Duration")]
+        // request duration in milliseconds
+        internal int Duration { get; set; }
         /// <summary>
         ///     Timestamp of when the interaction was recorded.
         /// </summary>
@@ -23,11 +31,5 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Response")]
         internal Response Response { get; set; }
-        /// <summary>
-        ///     The duration of the request.
-        /// </summary>
-        [JsonProperty("Duration")]
-        // request duration in milliseconds
-        internal int Duration { get; set; }
     }
 }

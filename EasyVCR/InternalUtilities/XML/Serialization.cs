@@ -2,6 +2,9 @@ using System;
 using System.Dynamic;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+
 namespace EasyVCR.InternalUtilities.XML
 {
     /// <summary>

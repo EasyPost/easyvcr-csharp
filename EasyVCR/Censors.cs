@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
+// ReSharper disable UnusedMember.Global
+
 namespace EasyVCR
 {
     /// <summary>
@@ -219,6 +221,9 @@ namespace EasyVCR
             var censoredQueryParameters = new NameValueCollection();
             foreach (var key in queryParameters.AllKeys)
             {
+                if (key == null)
+                    // short circuit if key is null
+                    continue;
                 censoredQueryParameters.Add(key, ElementShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
             }
 
@@ -238,7 +243,7 @@ namespace EasyVCR
             {
                 var jsonDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(data);
                 var censoredJsonDictionary = ApplyDataCensors(jsonDictionary, censorText, elementsToCensors);
-                return censoredJsonDictionary == null ? data : JsonSerialization.ConvertObjectToJson(censoredJsonDictionary);
+                return JsonSerialization.ConvertObjectToJson(censoredJsonDictionary);
             }
             catch (Exception)
             {
@@ -247,7 +252,7 @@ namespace EasyVCR
                 {
                     var jsonList = JsonSerialization.ConvertJsonToObject<List<object>>(data);
                     var censoredJsonList = ApplyDataCensors(jsonList, censorText, elementsToCensors);
-                    return censoredJsonList == null ? data : JsonSerialization.ConvertObjectToJson(censoredJsonList);
+                    return JsonSerialization.ConvertObjectToJson(censoredJsonList);
                 }
                 catch
                 {
@@ -270,7 +275,7 @@ namespace EasyVCR
             {
                 var xmlDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(data);
                 var censoredXmlDictionary = ApplyDataCensors(xmlDictionary, censorText, elementsToCensors);
-                return censoredXmlDictionary == null ? data : XmlSerialization.ConvertObjectToXml(censoredXmlDictionary);
+                return XmlSerialization.ConvertObjectToXml(censoredXmlDictionary);
             }
             catch (Exception)
             {
@@ -279,7 +284,7 @@ namespace EasyVCR
                 {
                     var xmlList = XmlSerialization.ConvertXmlToObject<List<object>>(data);
                     var censoredXmlList = ApplyDataCensors(xmlList, censorText, elementsToCensors);
-                    return censoredXmlList == null ? data : XmlSerialization.ConvertObjectToXml(censoredXmlList);
+                    return XmlSerialization.ConvertObjectToXml(censoredXmlList);
                 }
                 catch
                 {
@@ -367,7 +372,8 @@ namespace EasyVCR
                         // don't need to worry about censoring something that's null (don't replace null with the censor string)
                         continue;
                     }
-                    else if (Utilities.IsJsonDictionary(value))
+
+                    if (Utilities.IsJsonDictionary(value))
                     {
                         // replace with empty dictionary
                         censoredBodyDictionary.Add(key, new Dictionary<string, object>());

@@ -5,6 +5,8 @@ using System.Text;
 using EasyVCR.InternalUtilities;
 using Newtonsoft.Json;
 
+#pragma warning disable CS8618
+
 namespace EasyVCR.RequestElements
 {
     /// <summary>
@@ -24,8 +26,8 @@ namespace EasyVCR.RequestElements
         [JsonIgnore]
         internal ContentType? BodyContentType
         {
-            get { return ContentTypeExtensions.FromString(BodyContentTypeString); }
-            set { BodyContentTypeString = value?.ToString(); }
+            get => ContentTypeExtensions.FromString(BodyContentTypeString);
+            set => BodyContentTypeString = value?.ToString();
         }
 
         /// <summary>
@@ -64,12 +66,14 @@ namespace EasyVCR.RequestElements
             var result = new HttpResponseMessage(Status.Code);
             result.ReasonPhrase = Status.Message;
             result.Version = HttpVersion;
+            // ReSharper disable once RedundantToStringCall
             foreach (var h in ResponseHeaders ?? new Dictionary<string, string>()) result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             // add default replay headers
             foreach (var h in Defaults.ReplayHeaders) result.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             var content = new ByteArrayContent(Encoding.UTF8.GetBytes(Body ?? string.Empty));
+            // ReSharper disable once RedundantToStringCall
             foreach (var h in ContentHeaders ?? new Dictionary<string, string>()) content.Headers.TryAddWithoutValidation(h.Key, h.Value.ToString());
 
             result.Content = content;

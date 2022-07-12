@@ -6,6 +6,10 @@ using EasyVCR.RequestElements;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedMember.Global
+
 namespace EasyVCR
 {
     /// <summary>
@@ -36,13 +40,13 @@ namespace EasyVCR
         /// <summary>
         ///     Add a rule to compare the base URLs of the requests.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The same MatchRules object.</returns>
         public MatchRules ByBaseUrl()
         {
             By((received, recorded) =>
             {
-                var receivedUri = new Uri(received.Uri).GetLeftPart(UriPartial.Path);
-                var recordedUri = new Uri(recorded.Uri).GetLeftPart(UriPartial.Path);
+                var receivedUri = new Uri(received.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
+                var recordedUri = new Uri(recorded.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
                 return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
             });
             return this;
@@ -72,7 +76,7 @@ namespace EasyVCR
                     // both have empty string bodies, so they match
                     return true;
 
-                return receivedBody.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
+                return receivedBody!.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
         }
@@ -127,13 +131,11 @@ namespace EasyVCR
                 ByBaseUrl();
                 By((received, recorded) =>
                 {
-                    var receivedQuery = new Uri(received.Uri).Query;
-                    var recordedQuery = new Uri(recorded.Uri).Query;
+                    var receivedQuery = new Uri(received.Uri ?? string.Empty).Query;
+                    var recordedQuery = new Uri(recorded.Uri ?? string.Empty).Query;
                     var receivedQueryDict = HttpUtility.ParseQueryString(receivedQuery);
                     var recordedQueryDict = HttpUtility.ParseQueryString(recordedQuery);
-                    if (receivedQueryDict.Count != recordedQueryDict.Count) return false;
-
-                    return receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
+                    return receivedQueryDict.Count == recordedQueryDict.Count && receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
                 });
             }
 
@@ -202,13 +204,7 @@ namespace EasyVCR
         /// <returns>True if the requests match, false otherwise.</returns>
         internal bool RequestsMatch(Request receivedRequest, Request recordedRequest)
         {
-            if (_rules.Count == 0) return true;
-
-            foreach (var rule in _rules)
-                if (!rule(receivedRequest, recordedRequest))
-                    return false;
-
-            return true;
+            return _rules.Count == 0 || _rules.All(rule => rule(receivedRequest, recordedRequest));
         }
 
         /// <summary>

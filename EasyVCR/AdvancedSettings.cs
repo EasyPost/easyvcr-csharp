@@ -10,11 +10,6 @@ namespace EasyVCR
     public class AdvancedSettings
     {
         /// <summary>
-        ///     Rules to use when evaluating recordings.
-        /// </summary>
-        public MatchRules? MatchRules = MatchRules.Default;
-
-        /// <summary>
         ///     Censors to use when building requests and responses.
         /// </summary>
         public Censors? Censors = Censors.Default;
@@ -23,17 +18,22 @@ namespace EasyVCR
         ///     Override how HttpRequestMessage and HttpResponseMessage objects are converted to Request and Response objects.
         ///     Not recommended to use unless System.Net.Http has introduced breaking changes.
         /// </summary>
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public IInteractionConverter? InteractionConverter = new DefaultInteractionConverter();
-
-        /// <summary>
-        ///     Simulate the original request's duration. Overrides <see cref="ManualDelay"/> if set.
-        /// </summary>
-        public bool SimulateDelay = false;
 
         /// <summary>
         ///     Simulate a delay in milliseconds for the request.
         /// </summary>
         public int ManualDelay = 0;
+        /// <summary>
+        ///     Rules to use when evaluating recordings.
+        /// </summary>
+        public MatchRules? MatchRules = MatchRules.Default;
+
+        /// <summary>
+        ///     Simulate the original request's duration. Overrides <see cref="ManualDelay"/> if set.
+        /// </summary>
+        public bool SimulateDelay = false;
 
         /// <summary>
         ///     Retrieve the manual delay as a TimeSpan.

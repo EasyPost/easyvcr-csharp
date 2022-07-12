@@ -12,16 +12,17 @@ namespace EasyVCR.Handlers
     /// <summary>
     ///     A handler that records and replays HTTP requests and responses.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     internal class VCRHandler : DelegatingHandler
     {
         private readonly Cassette _cassette;
 
         private readonly Censors _censors;
+        private readonly TimeSpan? _delay;
         private readonly IInteractionConverter _interactionConverter;
         private readonly MatchRules _matchRules;
         private readonly Mode _mode;
         private readonly bool _useOriginalDelay;
-        private readonly TimeSpan? _delay;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="VCRHandler" /> class.
@@ -65,14 +66,11 @@ namespace EasyVCR.Handlers
                 case Mode.Replay:
                     // try to get recorded request
                     var replayInteraction = await FindMatchingInteraction(request);
-                    if (replayInteraction != null)
-                    {
-                        // simulate delay if configured
-                        await SimulateDelay(replayInteraction, cancellationToken);
-                        // found a matching interaction, replay response
-                        return replayInteraction.Response.ToHttpResponseMessage(request);
-                    }
-                    throw new VCRException($"No interaction found for request {request.Method} {request.RequestUri}");
+                    if (replayInteraction == null) throw new VCRException($"No interaction found for request {request.Method} {request.RequestUri}");
+                    // simulate delay if configured
+                    await SimulateDelay(replayInteraction, cancellationToken);
+                    // found a matching interaction, replay response
+                    return replayInteraction.Response.ToHttpResponseMessage(request);
                 case Mode.Auto:
                     // try to get recorded request
                     var autoInteraction = await FindMatchingInteraction(request);
@@ -83,6 +81,7 @@ namespace EasyVCR.Handlers
                         // found a matching interaction, replay response
                         return autoInteraction.Response.ToHttpResponseMessage(request);
                     }
+
                     //  no matching interaction, make real request, record response
                     stopwatch.Start();
                     var autoResponse = await base.SendAsync(request, cancellationToken);
