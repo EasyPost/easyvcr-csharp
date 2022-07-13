@@ -1,5 +1,8 @@
 namespace EasyVCR
 {
+    /// <summary>
+    ///     Enums representing different actions to take when a recording is expired.
+    /// </summary>
     public enum ExpirationActions
     {
         /// <summary>
