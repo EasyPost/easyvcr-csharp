@@ -36,6 +36,16 @@ namespace EasyVCR
         public bool SimulateDelay = false;
 
         /// <summary>
+        ///     How long should a given cassette entry be considered valid.
+        /// </summary>
+        public TimeFrame? ValidTimeFrame = TimeFrame.Forever;
+
+        /// <summary>
+        ///     What should happen if a given cassette entry is expired.
+        /// </summary>
+        public ExpirationActions WhenExpired = ExpirationActions.Warn;
+
+        /// <summary>
         ///     Retrieve the manual delay as a TimeSpan.
         /// </summary>
         internal TimeSpan? ManualDelayTimeSpan => ManualDelay >= 0 ? TimeSpan.FromMilliseconds(ManualDelay) : TimeSpan.Zero;
