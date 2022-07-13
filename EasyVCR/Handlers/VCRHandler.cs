@@ -20,6 +20,7 @@ namespace EasyVCR.Handlers
         private readonly Censors _censors;
         private readonly TimeSpan? _delay;
         private readonly IInteractionConverter _interactionConverter;
+        private readonly ConsoleFallbackLogger _logger;
         private readonly MatchRules _matchRules;
         private readonly Mode _mode;
         private readonly bool _useOriginalDelay;
@@ -38,7 +39,6 @@ namespace EasyVCR.Handlers
             InnerHandler = innerHandler;
             _cassette = cassette;
             _mode = mode;
-
             _censors = advancedSettings?.Censors ?? new Censors();
             _interactionConverter = advancedSettings?.InteractionConverter ?? new DefaultInteractionConverter();
             _matchRules = advancedSettings?.MatchRules ?? new MatchRules();
@@ -46,6 +46,10 @@ namespace EasyVCR.Handlers
             _delay = advancedSettings?.ManualDelayTimeSpan ?? TimeSpan.Zero;
             _validTimeFrame = advancedSettings?.ValidTimeFrame ?? TimeFrame.Forever;
             _whenExpired = advancedSettings?.WhenExpired ?? ExpirationActions.Warn;
+            _logger = new ConsoleFallbackLogger(advancedSettings?.Logger, "EasyVCR");
+
+            // Will throw an exception if an invalid settings combination is provided.
+            ExpirationActionExtensions.CheckCompatibleSettings(_whenExpired, _mode);
         }
 
         /// <summary>
@@ -79,11 +83,14 @@ namespace EasyVCR.Handlers
                             case ExpirationActions.Warn:
                                 // just throw a warning
                                 // will still simulate delay below
-                                Console.WriteLine($"WARNING: Matching interaction is expired.");
+                                _logger.Warning("Matching interaction is expired.");
                                 break;
-                            case ExpirationActions.Address:
+                            case ExpirationActions.ThrowException:
                                 // throw an exception and exit this function
                                 throw new VCRException($"Matching interaction is expired.");
+                            case ExpirationActions.RecordAgain:
+                                // we should never get here, the settings check should catch this during construction
+                                throw new VCRException("Cannot re-record an expired interaction in Replay mode.");
                             default:
                                 // we should never get here
                                 throw new ArgumentOutOfRangeException();
@@ -108,9 +115,12 @@ namespace EasyVCR.Handlers
                                 case ExpirationActions.Warn:
                                     // just throw a warning
                                     // will still simulate delay below
-                                    Console.WriteLine($"WARNING: Matching interaction is expired.");
+                                    _logger.Warning("Matching interaction is expired.");
                                     break;
-                                case ExpirationActions.Address:
+                                case ExpirationActions.ThrowException:
+                                    // throw an exception and exit this function
+                                    throw new VCRException($"Matching interaction is expired.");
+                                case ExpirationActions.RecordAgain:
                                     //  re-record over expired interaction
                                     // this will not execute the simulated delay, but since it's making a live request, a real delay will happen.
                                     stopwatch.Start();

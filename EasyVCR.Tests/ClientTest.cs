@@ -201,7 +201,7 @@ namespace EasyVCR.Tests
             var advancedSettings = new AdvancedSettings
             {
                 ValidTimeFrame = TimeFrame.Never,
-                WhenExpired = ExpirationActions.Address // throw exception when in replay mode
+                WhenExpired = ExpirationActions.RecordAgain // throw exception when in replay mode
             };
             Task.Delay(TimeSpan.FromSeconds(1)).Wait(); // Allow 1 second to lapse to ensure recording is now "expired"
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);

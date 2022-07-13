@@ -19,22 +19,22 @@ namespace EasyVCR
         /// <summary>
         ///     Number of days for this time frame.
         /// </summary>
-        public int Days { get; set; }
+        public int Days { get; set; } = 0;
 
         /// <summary>
         ///     Number of hours for this time frame.
         /// </summary>
-        public int Hours { get; set; }
+        public int Hours { get; set; } = 0;
 
         /// <summary>
         ///     Number of minutes for this time frame.
         /// </summary>
-        public int Minutes { get; set; }
+        public int Minutes { get; set; } = 0;
 
         /// <summary>
         ///     Number of seconds for this time frame.
         /// </summary>
-        public int Seconds { get; set; }
+        public int Seconds { get; set; } = 0;
 
         /// <summary>
         ///     If this time frame is a common time frame.
@@ -47,6 +47,46 @@ namespace EasyVCR
         public static TimeFrame Forever => new TimeFrame
         {
             CommonTimeFrame = CommonTimeFrames.Forever
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 1 month.
+        /// </summary>
+        public static TimeFrame Months1 => new TimeFrame
+        {
+            Days = 30
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 12 months.
+        /// </summary>
+        public static TimeFrame Months12 => new TimeFrame
+        {
+            Days = 365
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 2 months.
+        /// </summary>
+        public static TimeFrame Months2 => new TimeFrame
+        {
+            Days = 61
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 3 months.
+        /// </summary>
+        public static TimeFrame Months3 => new TimeFrame
+        {
+            Days = 91
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 6 months.
+        /// </summary>
+        public static TimeFrame Months6 => new TimeFrame
+        {
+            Days = 182
         };
 
         /// <summary>

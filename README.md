@@ -158,6 +158,43 @@ var cassette = new Cassette("path/to/cassettes", "my_cassette", order);
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
 ```
 
+### Delay
+
+Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
+
+**Default**: *No delay*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    SimulateDelay = true, // Simulate a delay of the original request duration when replaying (overrides ManualDelay)
+    ManualDelay = 1000 // Simulate a delay of 1000 milliseconds when replaying
+};
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
+### Logging
+
+Have EasyVCR integrate with your custom logger to log warnings and errors.
+
+**Default**: *Logs to console*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    Logger = new MyCustomLogger(), // Have EasyVCR use your custom logger when making log entries
+};
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
 ### HttpClient Conversion
 
 Override how HttpClient request and response objects are converted into `EasyVCR` request and response objects, and vice

@@ -1,6 +1,9 @@
 using System;
 using EasyVCR.Interfaces;
 using EasyVCR.InternalUtilities;
+using Microsoft.Extensions.Logging;
+
+// ReSharper disable FieldCanBeMadeReadOnly.Global
 
 namespace EasyVCR
 {
@@ -20,6 +23,11 @@ namespace EasyVCR
         /// </summary>
         // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public IInteractionConverter? InteractionConverter = new DefaultInteractionConverter();
+
+        /// <summary>
+        ///     Tell EasyVCR to use a custom <see cref="ILogger"/> logger. Will log to console otherwise.
+        /// </summary>
+        public ILogger? Logger = null;
 
         /// <summary>
         ///     Simulate a delay in milliseconds for the request.

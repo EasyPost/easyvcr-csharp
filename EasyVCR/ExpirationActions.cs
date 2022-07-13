@@ -1,3 +1,5 @@
+using System;
+
 namespace EasyVCR
 {
     /// <summary>
@@ -10,10 +12,23 @@ namespace EasyVCR
         /// </summary>
         Warn,
         /// <summary>
-        ///     Address the expiration.
-        ///     In replay mode, this will throw an exception.
-        ///     In auto mode, this will automatically re-record the interaction.
+        ///     Throw an exception that the recorded interaction is expired.
         /// </summary>
-        Address
+        ThrowException,
+        /// <summary>
+        ///     Automatically re-record the recorded interaction. This cannot be used with <see cref="Mode.Replay" />.
+        /// </summary>
+        RecordAgain
+    }
+
+    internal static class ExpirationActionExtensions
+    {
+        internal static void CheckCompatibleSettings(ExpirationActions action, Mode mode)
+        {
+            if (action == ExpirationActions.RecordAgain && mode == Mode.Replay)
+            {
+                throw new VCRException("Cannot use the RecordAgain expiration action in combination with Replay mode.");
+            }
+        }
     }
 }
