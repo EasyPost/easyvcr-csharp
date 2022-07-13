@@ -201,12 +201,20 @@ namespace EasyVCR.Tests
             var advancedSettings = new AdvancedSettings
             {
                 ValidTimeFrame = TimeFrame.Never,
-                WhenExpired = ExpirationActions.RecordAgain // throw exception when in replay mode
+                WhenExpired = ExpirationActions.ThrowException // throw exception when in replay mode
             };
             Task.Delay(TimeSpan.FromSeconds(1)).Wait(); // Allow 1 second to lapse to ensure recording is now "expired"
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeJsonDataService(client);
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetExchangeRatesRawResponse());
+
+            // replay cassette with bad expiration rules, should throw an exception because settings are bad
+            advancedSettings = new AdvancedSettings
+            {
+                ValidTimeFrame = TimeFrame.Never,
+                WhenExpired = ExpirationActions.RecordAgain // invalid settings for replay mode, should throw exception
+            };
+            await Assert.ThrowsExceptionAsync<VCRException>(() => Task.FromResult(HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings)));
         }
 
         [TestMethod]
