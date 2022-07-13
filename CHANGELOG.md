@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Next Release
+- New feature: Set expiration time for interactions (how long since it was recorded should an interaction be considered valid)
+  - Can determine what to do if a matching interaction is considered invalid:
+    - Warn the user, but proceed with the interaction
+    - Address the expiration (throw an exception if in `Replay` mode, automatically re-record interaction in `Auto` mode)
+
 ## v0.4.0 (2022-06-13)
 
 - Improvements to censoring

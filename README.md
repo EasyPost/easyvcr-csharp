@@ -101,6 +101,27 @@ var advancedOptions = new AdvancedOptions()
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
 ```
 
+### Expiration
+
+Set expiration dates for recorded requests, and decide what to do with expired recordings.
+
+**Default**: *No expiration*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    ValidTimeFrame = new TimeFrame() {  // Any matching request is considered expired if it was recorded more than 30 days ago
+        Days = 30,
+    },
+    WhenExpired = ExpirationActions.Address // Throw exception if in replay mode, automatically re-record if in auto mode
+};
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
 ### Matching
 
 Customize how a recorded request is determined to be a match to the current request.
