@@ -189,7 +189,7 @@ namespace EasyVCR.Tests
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
             var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetExchangeRatesRawResponse();
+            await fakeDataService.GetExchangeRatesRawResponse();
 
             // replay cassette with default expiration rules, should find a match
             client = HttpClients.NewHttpClient(cassette, Mode.Replay);
