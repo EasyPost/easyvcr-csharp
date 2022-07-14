@@ -116,7 +116,7 @@ var advancedOptions = new AdvancedOptions()
     ValidTimeFrame = new TimeFrame() {  // Any matching request is considered expired if it was recorded more than 30 days ago
         Days = 30,
     },
-    WhenExpired = ExpirationActions.Address // Throw exception if in replay mode, automatically re-record if in auto mode
+    WhenExpired = ExpirationActions.ThrowException // Throw exception if the recording is expired
 };
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);

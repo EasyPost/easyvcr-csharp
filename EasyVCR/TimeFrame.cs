@@ -42,62 +42,6 @@ namespace EasyVCR
         private CommonTimeFrames? CommonTimeFrame { get; set; }
 
         /// <summary>
-        ///     Get a TimeFrame that represents "forever".
-        /// </summary>
-        public static TimeFrame Forever => new TimeFrame
-        {
-            CommonTimeFrame = CommonTimeFrames.Forever
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents 1 month.
-        /// </summary>
-        public static TimeFrame Months1 => new TimeFrame
-        {
-            Days = 30
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents 12 months.
-        /// </summary>
-        public static TimeFrame Months12 => new TimeFrame
-        {
-            Days = 365
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents 2 months.
-        /// </summary>
-        public static TimeFrame Months2 => new TimeFrame
-        {
-            Days = 61
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents 3 months.
-        /// </summary>
-        public static TimeFrame Months3 => new TimeFrame
-        {
-            Days = 91
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents 6 months.
-        /// </summary>
-        public static TimeFrame Months6 => new TimeFrame
-        {
-            Days = 182
-        };
-
-        /// <summary>
-        ///     Get a TimeFrame that represents "never".
-        /// </summary>
-        public static TimeFrame Never => new TimeFrame
-        {
-            CommonTimeFrame = CommonTimeFrames.Never
-        };
-
-        /// <summary>
         ///     Constructor for a TimeFrame object.
         /// </summary>
         public TimeFrame()
@@ -129,5 +73,66 @@ namespace EasyVCR
                 var _ => fromTime.AddDays(Days).AddHours(Hours).AddMinutes(Minutes).AddSeconds(Seconds)
             };
         }
+
+
+        // @formatter:off
+        
+        /// <summary>
+        ///     Get a TimeFrame that represents "never".
+        /// </summary>
+        public static TimeFrame Never => new TimeFrame
+        {
+            CommonTimeFrame = CommonTimeFrames.Never
+        };
+        
+        /// <summary>
+        ///     Get a TimeFrame that represents "forever".
+        /// </summary>
+        public static TimeFrame Forever => new TimeFrame
+        {
+            CommonTimeFrame = CommonTimeFrames.Forever
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 1 month.
+        /// </summary>
+        public static TimeFrame Months1 => new TimeFrame
+        {
+            Days = 30
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 2 months.
+        /// </summary>
+        public static TimeFrame Months2 => new TimeFrame
+        {
+            Days = 61
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 3 months.
+        /// </summary>
+        public static TimeFrame Months3 => new TimeFrame
+        {
+            Days = 91
+        };
+
+        /// <summary>
+        ///     Get a TimeFrame that represents 6 months.
+        /// </summary>
+        public static TimeFrame Months6 => new TimeFrame
+        {
+            Days = 182
+        };
+        
+        /// <summary>
+        ///     Get a TimeFrame that represents 12 months.
+        /// </summary>
+        public static TimeFrame Months12 => new TimeFrame
+        {
+            Days = 365
+        };
+        
+        // @formatter:on
     }
 }
