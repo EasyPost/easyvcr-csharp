@@ -17,7 +17,7 @@ namespace EasyVCR.InternalUtilities
         ///     Constructor.
         /// </summary>
         /// <param name="logger"><see cref="ILogger" /> logger to optionally use internally.</param>
-        /// <param name="name">Name of </param>
+        /// <param name="name">Name of application adding entries.</param>
         internal ConsoleFallbackLogger(ILogger? logger, string name)
         {
             _name = name;
