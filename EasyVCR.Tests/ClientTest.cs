@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -177,6 +178,43 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(summary);
             Assert.IsNotNull(summary.Rates);
             Assert.IsTrue(cassette.NumInteractions > 0); // Make sure cassette is not empty
+        }
+
+        [TestMethod]
+        public async Task TestExpirationSettings()
+        {
+            var cassette = TestUtils.GetCassette("test_expiration_settings");
+            cassette.Erase(); // Erase cassette before recording
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var fakeDataService = new FakeJsonDataService(client);
+            await fakeDataService.GetExchangeRatesRawResponse();
+
+            // replay cassette with default expiration rules, should find a match
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay);
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetExchangeRatesRawResponse();
+            Assert.IsNotNull(response);
+
+            // replay cassette with custom expiration rules, should not find a match because recording is expired (throw exception)
+            var advancedSettings = new AdvancedSettings
+            {
+                ValidTimeFrame = TimeFrame.Never,
+                WhenExpired = ExpirationActions.ThrowException // throw exception when in replay mode
+            };
+            Task.Delay(TimeSpan.FromSeconds(1)).Wait(); // Allow 1 second to lapse to ensure recording is now "expired"
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeJsonDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetExchangeRatesRawResponse());
+
+            // replay cassette with bad expiration rules, should throw an exception because settings are bad
+            advancedSettings = new AdvancedSettings
+            {
+                ValidTimeFrame = TimeFrame.Never,
+                WhenExpired = ExpirationActions.RecordAgain // invalid settings for replay mode, should throw exception
+            };
+            await Assert.ThrowsExceptionAsync<VCRException>(() => Task.FromResult(HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings)));
         }
 
         [TestMethod]

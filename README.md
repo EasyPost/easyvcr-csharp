@@ -101,6 +101,27 @@ var advancedOptions = new AdvancedOptions()
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
 ```
 
+### Expiration
+
+Set expiration dates for recorded requests, and decide what to do with expired recordings.
+
+**Default**: *No expiration*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    ValidTimeFrame = new TimeFrame() {  // Any matching request is considered expired if it was recorded more than 30 days ago
+        Days = 30,
+    },
+    WhenExpired = ExpirationActions.ThrowException // Throw exception if the recording is expired
+};
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
 ### Matching
 
 Customize how a recorded request is determined to be a match to the current request.
@@ -133,6 +154,43 @@ using EasyVCR;
 
 var order = new CassetteOrder.None(); // elements of each request in a cassette won't be ordered in any particular way
 var cassette = new Cassette("path/to/cassettes", "my_cassette", order);
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
+### Delay
+
+Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
+
+**Default**: *No delay*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    SimulateDelay = true, // Simulate a delay of the original request duration when replaying (overrides ManualDelay)
+    ManualDelay = 1000 // Simulate a delay of 1000 milliseconds when replaying
+};
+
+var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+```
+
+### Logging
+
+Have EasyVCR integrate with your custom logger to log warnings and errors.
+
+**Default**: *Logs to console*
+
+```csharp
+using EasyVCR;
+
+var cassette = new Cassette("path/to/cassettes", "my_cassette");
+var advancedOptions = new AdvancedOptions()
+{
+    Logger = new MyCustomLogger(), // Have EasyVCR use your custom logger when making log entries
+};
 
 var httpClient = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
 ```
