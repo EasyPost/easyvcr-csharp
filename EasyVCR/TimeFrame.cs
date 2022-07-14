@@ -76,7 +76,7 @@ namespace EasyVCR
 
 
         // @formatter:off
-        
+
         /// <summary>
         ///     Get a TimeFrame that represents "never".
         /// </summary>
@@ -84,7 +84,7 @@ namespace EasyVCR
         {
             CommonTimeFrame = CommonTimeFrames.Never
         };
-        
+
         /// <summary>
         ///     Get a TimeFrame that represents "forever".
         /// </summary>
@@ -124,7 +124,7 @@ namespace EasyVCR
         {
             Days = 182
         };
-        
+
         /// <summary>
         ///     Get a TimeFrame that represents 12 months.
         /// </summary>
@@ -132,7 +132,7 @@ namespace EasyVCR
         {
             Days = 365
         };
-        
+
         // @formatter:on
     }
 }
