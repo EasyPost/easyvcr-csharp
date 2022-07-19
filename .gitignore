@@ -239,3 +239,6 @@ nuget/
 /lib/*
 **/bin/*
 **/obj/*
+
+# macOS Finder preferences
+.DS_Store
