@@ -1,31 +1,20 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
+// ReSharper disable InconsistentNaming
+
 namespace EasyVCR.Tests
 {
-    public class ExchangeRates
+    public class IPAddressData
     {
-        [JsonProperty("code")]
-        internal string? Code { get; set; }
-        [JsonProperty("currency")]
-        internal string? Currency { get; set; }
-        [JsonProperty("rates")]
-        internal List<Rate>? Rates { get; set; }
-        [JsonProperty("table")]
-        internal string? Table { get; set; }
-    }
+        #region JSON Properties
 
-    public class Rate
-    {
-        [JsonProperty("effectiveDate")]
-        internal string? EffectiveDate { get; set; }
-        [JsonProperty("mid")]
-        internal float Mid { get; set; }
-        [JsonProperty("no")]
-        internal string? No { get; set; }
+        [JsonProperty("ip")]
+        internal string? IPAddress { get; set; }
+
+        #endregion
     }
 
     public abstract class FakeDataService
@@ -58,22 +47,22 @@ namespace EasyVCR.Tests
             _client = client;
         }
 
-        public async Task<ExchangeRates?> GetExchangeRates()
+        public async Task<IPAddressData?> GetIPAddressData()
         {
-            var response = await GetExchangeRatesRawResponse();
+            var response = await GetIPAddressDataRawResponse();
             return Convert(await response.Content.ReadAsStringAsync());
         }
 
-        public async Task<HttpResponseMessage> GetExchangeRatesRawResponse()
+        public async Task<HttpResponseMessage> GetIPAddressDataRawResponse()
         {
-            return await Client.GetAsync(GetExchangeRatesUrl(_format));
+            return await Client.GetAsync(GetIPAddressDataUrl(_format));
         }
 
-        protected abstract ExchangeRates Convert(string responseBody);
+        protected abstract IPAddressData Convert(string responseBody);
 
-        public static string GetExchangeRatesUrl(string? format)
+        public static string GetIPAddressDataUrl(string? format)
         {
-            return "https://api.nbp.pl/api/exchangerates/rates/a/gbp/last/10/?format=" + format;
+            return $"https://api.ipify.org/?format={format}";
         }
     }
 }

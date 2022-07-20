@@ -37,7 +37,7 @@ namespace EasyVCR.Tests
             vcr.Record();
             var client = vcr.Client;
             var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetExchangeRates();
+            var _ = await fakeDataService.GetIPAddressData();
 
             // now replay and confirm that the censor is applied
             vcr.Replay();
@@ -45,7 +45,7 @@ namespace EasyVCR.Tests
             // so, we need to re-grab the VCR client and re-create the FakeDataService
             client = vcr.Client;
             fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetExchangeRatesRawResponse();
+            var response = await fakeDataService.GetIPAddressDataRawResponse();
             Assert.IsNotNull(response);
             Assert.IsTrue(response.Headers.Contains("Date"));
             var censoredHeader = response.Headers.GetValues("Date").FirstOrDefault();
@@ -143,7 +143,7 @@ namespace EasyVCR.Tests
 
             // record a request to a cassette
             var fakeDataService = new FakeJsonDataService(vcr);
-            var summary = await fakeDataService.GetExchangeRates();
+            var summary = await fakeDataService.GetIPAddressData();
             Assert.IsNotNull(summary);
             Assert.IsTrue(cassette.NumInteractions > 0);
 
@@ -185,9 +185,9 @@ namespace EasyVCR.Tests
             vcr.Insert(cassette);
             var fakeDataService = new FakeJsonDataService(vcr);
 
-            var summary = await fakeDataService.GetExchangeRates();
+            var summary = await fakeDataService.GetIPAddressData();
             Assert.IsNotNull(summary);
-            Assert.IsNotNull(summary.Rates);
+            Assert.IsNotNull(summary.IPAddress);
             Assert.IsTrue(cassette.NumInteractions > 0);
         }
 
@@ -200,18 +200,18 @@ namespace EasyVCR.Tests
             var fakeDataService = new FakeJsonDataService(vcr);
 
             // record first
-            var _ = await fakeDataService.GetExchangeRates();
+            var _ = await fakeDataService.GetIPAddressData();
             Assert.IsTrue(cassette.NumInteractions > 0); // make sure we recorded something
 
             // now replay
             vcr.Replay();
-            var summary = await fakeDataService.GetExchangeRates();
+            var summary = await fakeDataService.GetIPAddressData();
             Assert.IsNotNull(summary);
 
             // double check by erasing the cassette and trying to replay
             vcr.Erase();
             // should throw an exception because there's no matching interaction now
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetExchangeRates());
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressData());
         }
 
         [TestMethod]
@@ -222,9 +222,9 @@ namespace EasyVCR.Tests
             vcr.Insert(cassette);
             var fakeDataService = new FakeJsonDataService(vcr);
 
-            var summary = await fakeDataService.GetExchangeRates();
+            var summary = await fakeDataService.GetIPAddressData();
             Assert.IsNotNull(summary);
-            Assert.IsNotNull(summary.Rates);
+            Assert.IsNotNull(summary.IPAddress);
         }
     }
 }
