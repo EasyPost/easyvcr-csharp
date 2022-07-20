@@ -18,11 +18,11 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // in replay mode, if cassette is empty, should throw an exception
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetExchangeRatesRequest(cassette, Mode.Replay));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetIPAddressDataRequest(cassette, Mode.Replay));
             Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is still empty
 
             // in auto mode, if cassette is empty, should make and record a real request
-            var summary = await GetExchangeRatesRequest(cassette, Mode.Auto);
+            var summary = await GetIPAddressDataRequest(cassette, Mode.Auto);
             Assert.IsNotNull(summary);
             Assert.IsNotNull(summary.IPAddress);
             Assert.IsTrue(cassette.NumInteractions > 0); // Make sure cassette is no longer empty
@@ -149,7 +149,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_erase");
 
             // record something to the cassette
-            var _ = await GetExchangeRatesRequest(cassette, Mode.Record);
+            var _ = await GetIPAddressDataRequest(cassette, Mode.Record);
             Assert.IsTrue(cassette.NumInteractions > 0);
 
             // erase the cassette
@@ -164,7 +164,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // cassette is empty, so replaying should throw an exception
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetExchangeRatesRequest(cassette, Mode.Replay));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetIPAddressDataRequest(cassette, Mode.Replay));
         }
 
         [TestMethod]
@@ -173,7 +173,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_erase_and_record");
             cassette.Erase(); // Erase cassette before recording
 
-            var summary = await GetExchangeRatesRequest(cassette, Mode.Record);
+            var summary = await GetIPAddressDataRequest(cassette, Mode.Record);
 
             Assert.IsNotNull(summary);
             Assert.IsNotNull(summary.IPAddress);
@@ -408,7 +408,7 @@ namespace EasyVCR.Tests
             // have to manually check cassette for the censored string in the response body
         }
 
-        private static async Task<IPAddressData?> GetExchangeRatesRequest(Cassette cassette, Mode mode)
+        private static async Task<IPAddressData?> GetIPAddressDataRequest(Cassette cassette, Mode mode)
         {
             var client = HttpClients.NewHttpClient(cassette, mode, new AdvancedSettings
             {
