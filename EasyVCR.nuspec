@@ -11,6 +11,8 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A powerful library for recording and replaying HTTP requests</description>
         <tags>EasyVCR HTTP requests record replay cassettes testing</tags>
+        <readme>docs\README.md</readme>
+        <icon>images\icon.png</icon>
         <dependencies>
             <group targetFramework="netstandard2.0">
                 <dependency id="Newtonsoft.Json" version="13.0.1" />
@@ -35,5 +37,7 @@
         <file src="lib\net5.0\EasyVCR.XML" target="lib\net5.0" />
         <file src="lib\net6.0\EasyVCR.dll" target="lib\net6.0" />
         <file src="lib\net6.0\EasyVCR.XML" target="lib\net6.0" />
+        <file src="README.md" target="docs\" />
+        <file src="icon.png" target="images\" />
     </files>
 </package>
