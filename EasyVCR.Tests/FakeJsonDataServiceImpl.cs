@@ -14,9 +14,9 @@ namespace EasyVCR.Tests
         {
         }
 
-        protected override ExchangeRates Convert(string responseBody)
+        protected override IPAddressData Convert(string responseBody)
         {
-            return InternalUtilities.JSON.Serialization.ConvertJsonToObject<ExchangeRates>(responseBody);
+            return InternalUtilities.JSON.Serialization.ConvertJsonToObject<IPAddressData>(responseBody);
         }
     }
 
@@ -30,9 +30,9 @@ namespace EasyVCR.Tests
         {
         }
 
-        protected override ExchangeRates Convert(string responseBody)
+        protected override IPAddressData Convert(string responseBody)
         {
-            return InternalUtilities.XML.Serialization.ConvertXmlToObject<ExchangeRates>(responseBody);
+            return InternalUtilities.XML.Serialization.ConvertXmlToObject<IPAddressData>(responseBody);
         }
     }
 }
