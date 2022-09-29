@@ -3,7 +3,6 @@
 
 namespace EasyVCR.Tests.FSharp
 
-open EasyVCR
 open Xunit
 
 type FSharpCompileTest() =
