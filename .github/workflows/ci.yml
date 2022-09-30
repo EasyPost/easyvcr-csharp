@@ -29,18 +29,18 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        name: [ 'NetStandard20', 'NetCore31', 'Net50', 'Net60' ]
+        name: [ 'net462', 'netcoreapp3.1', 'net5.0', 'net6.0' ]
         include:
-          - name: NetStandard20
-            # can't run tests on .NET Standard, it's just a bridge between .NET Framework and .NET.
-            # So we'll target .NET Framework 4.6.2
+          - name: net462
+            # This is really a test of .NET Standard, a bridge between .NET Framework and .NET, targeting .NET Framework 4.6.2
             # More notes at the bottom of this file
+            # Name chosen so we don't have to change the names of the required tests on GitHub Actions
             framework: net462
-          - name: NetCore31
+          - name: netcoreapp3.1
             framework: netcoreapp3.1
-          - name: Net50
+          - name: net5.0
             framework: net5.0
-          - name: Net60
+          - name: net6.0
             framework: net6.0
     steps:
       - uses: actions/checkout@v3
