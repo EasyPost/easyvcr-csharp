@@ -101,7 +101,6 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
-        [Ignore] // TODO: fix this test
         public async Task TestDelay()
         {
             var cassette = TestUtils.GetCassette("test_delay");
@@ -122,7 +121,7 @@ namespace EasyVCR.Tests
 
             // confirm the normal replay worked, note time
             Assert.IsNotNull(response);
-            var normalReplayTime = (int)stopwatch.ElapsedMilliseconds;
+            var normalReplayTime = Math.Max(0, (int)stopwatch.ElapsedMilliseconds); // sometimes stopwatch returns a negative number, let's avoid that
 
             // set up advanced settings
             var delay = normalReplayTime + 3000; // add 3 seconds to the normal replay time, for good measure
@@ -139,9 +138,10 @@ namespace EasyVCR.Tests
             response = await fakeDataService.GetIPAddressDataRawResponse();
             stopwatch.Stop();
 
-            // check that the delay was respected
+            // check that the delay was respected (within margin of error)
             Assert.IsNotNull(response);
-            Assert.IsTrue((int)stopwatch.ElapsedMilliseconds >= delay);
+            var delay95Percentile = (int)(delay * 0.95); // 5% tolerance
+            Assert.IsTrue((int)stopwatch.ElapsedMilliseconds >= delay95Percentile);
         }
 
         [TestMethod]
