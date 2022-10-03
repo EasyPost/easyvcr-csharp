@@ -86,6 +86,8 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettin
 
 Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
 
+NOTE: Delays may suffer from a small margin of error on certain .NET versions. Do not rely on the delay being exact down to the millisecond.
+
 **Default**: *No delay*
 
 ```csharp
