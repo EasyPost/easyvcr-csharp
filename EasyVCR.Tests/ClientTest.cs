@@ -101,7 +101,6 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
-        [Ignore] // TODO: fix this test
         public async Task TestDelay()
         {
             var cassette = TestUtils.GetCassette("test_delay");
