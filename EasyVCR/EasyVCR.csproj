@@ -42,7 +42,7 @@
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\EasyPost.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>..\EasyPost.pub</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <PropertyGroup>
