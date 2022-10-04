@@ -1,12 +1,14 @@
 # CHANGELOG
 
-## Next Release
+## v0.5.0 (2022-10-04)
+
 - New feature: Set expiration time for interactions (how long since it was recorded should an interaction be considered valid)
   - Can determine what to do if a matching interaction is considered invalid:
     - Warn the user, but proceed with the interaction
     - Throw an exception
     - Automatically re-record (cannot be used in `Replay` mode)
 - New feature: Pass in a custom ILogger instance to EasyVCR to funnel log messages into your own logging setup (fallback: logs to console)
+- Improvement: Clarify that Delay may not be exact
 
 ## v0.4.0 (2022-06-13)
 
