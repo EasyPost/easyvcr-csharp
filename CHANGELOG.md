@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Next Release
+
+- Fix missing NuGet dependency for custom logger
+
 ## v0.5.0 (2022-10-04)
 
 - New feature: Set expiration time for interactions (how long since it was recorded should an interaction be considered valid)
