@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.5.1 (2022-10-04)
+## v0.5.1 (2022-10-05)
 
 - Fix missing NuGet dependency for custom logger
 
