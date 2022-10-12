@@ -29,7 +29,7 @@ namespace EasyVCR
         ///     Retrieve a pre-configured HTTP client that will use the VCR.
         /// </summary>
         /// <exception cref="InvalidOperationException">The VCR has no cassette</exception>
-        public HttpClient Client
+        public EasyVCRHttpClient Client
         {
             get
             {
@@ -66,6 +66,16 @@ namespace EasyVCR
         {
             AdvancedSettings = advancedSettings;
             Mode = Mode.Auto;
+        }
+
+        /// <summary>
+        ///     Create a clone of the VCR's pre-configured HTTP client.
+        /// </summary>
+        /// <returns>A pre-configured HTTP client that will use the VCR.</returns>
+        public EasyVCRHttpClient CloneClient()
+        {
+            // The Client property always generates a new client, so we can just use that.
+            return Client;
         }
 
         /// <summary>

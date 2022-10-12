@@ -10,7 +10,7 @@ namespace EasyVCR.Tests
         {
         }
 
-        public FakeJsonDataService(HttpClient client) : base("json", client)
+        public FakeJsonDataService(EasyVCRHttpClient client) : base("json", client)
         {
         }
 
@@ -26,7 +26,7 @@ namespace EasyVCR.Tests
         {
         }
 
-        public FakeXmlDataService(HttpClient client) : base("xml", client)
+        public FakeXmlDataService(EasyVCRHttpClient client) : base("xml", client)
         {
         }
 
