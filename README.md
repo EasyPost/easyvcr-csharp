@@ -17,10 +17,11 @@ using EasyVCR;
 // Create a cassette to handle HTTP interactions
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 
-// create an HttpClient using the cassette
+// create an EasyVcrHttpClient using the cassette
 var recordingHttpClient = HttpClients.NewHttpClient(cassette, Mode.Record);
 
-// Use this HttpClient in any class making HTTP calls
+// Use this EasyVcrHttpClient in any class making HTTP calls
+// Note: EasyVcrHttpClient implements HttpClient, so it can be used anywhere a HttpClient is expected
 // For example, RestSharp v107+ supports custom HTTP clients
 RestClient restClient = new RestClient(recordingHttpClient, new RestClientOptions()));
 
@@ -40,7 +41,7 @@ using EasyVCR;
 // Create a cassette to handle HTTP interactions
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 
-// create an HttpClient using the cassette
+// create an EasyVcrHttpClient using the cassette
 var replayingHttpClient = HttpClients.NewHttpClient(cassette, Mode.Replay);
 ```
 
@@ -86,7 +87,8 @@ var httpClient = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettin
 
 Simulate a delay when replaying a recorded request, either using a specified delay or the original request duration.
 
-NOTE: Delays may suffer from a small margin of error on certain .NET versions. Do not rely on the delay being exact down to the millisecond.
+NOTE: Delays may suffer from a small margin of error on certain .NET versions. Do not rely on the delay being exact down
+to the millisecond.
 
 **Default**: *No delay*
 

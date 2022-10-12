@@ -13,7 +13,7 @@ namespace EasyVCR.Tests
             return new Cassette(GetDirectoryInCurrentDirectory("cassettes"), cassetteName, order);
         }
 
-        internal static HttpClient GetSimpleClient(string cassetteName, Mode mode)
+        internal static EasyVCRHttpClient GetSimpleClient(string cassetteName, Mode mode)
         {
             var cassette = GetCassette(cassetteName);
             return HttpClients.NewHttpClient(cassette, mode);

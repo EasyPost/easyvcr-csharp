@@ -82,7 +82,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Create a VCR, create a cassette, insert cassette into VCR, get the HttpClient from the VCR and make a request.
+        ///     Create a VCR, create a cassette, insert cassette into VCR, get the EasyVcrHttpClient from the VCR and make a request.
         /// </summary>
         public async Task SimpleVCRExample()
         {

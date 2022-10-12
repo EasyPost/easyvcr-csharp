@@ -19,11 +19,11 @@ namespace EasyVCR.Tests
 
     public abstract class FakeDataService
     {
-        private readonly HttpClient? _client;
+        private readonly EasyVCRHttpClient? _client;
         private readonly string? _format;
         private readonly VCR? _vcr;
 
-        public HttpClient Client
+        public EasyVCRHttpClient Client
         {
             get
             {
@@ -31,7 +31,7 @@ namespace EasyVCR.Tests
 
                 if (_vcr != null) return _vcr.Client;
 
-                throw new InvalidOperationException("No VCR or HttpClient has been set.");
+                throw new InvalidOperationException("No VCR or EasyVcrHttpClient has been set.");
             }
         }
 
@@ -41,7 +41,7 @@ namespace EasyVCR.Tests
             _vcr = vcr;
         }
 
-        protected FakeDataService(string format, HttpClient client)
+        protected FakeDataService(string format, EasyVCRHttpClient client)
         {
             _format = format;
             _client = client;
