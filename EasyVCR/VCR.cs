@@ -77,7 +77,7 @@ namespace EasyVCR
             // The Client property always generates a new client, so we can just use that.
             return Client;
         }
-        
+
         /// <summary>
         ///     Remove the current cassette from the VCR.
         /// </summary>
