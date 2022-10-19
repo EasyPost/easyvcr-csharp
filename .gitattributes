@@ -57,3 +57,7 @@
 *.PDF  diff=astextplain
 *.rtf  diff=astextplain
 *.RTF  diff=astextplain
+
+# Don't expand cassettes
+EasyVCR.Tests/cassettes/**/* -diff
+EasyVCR.Tests/cassettes/**/* linguist-generated
