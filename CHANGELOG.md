@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.6.0 (2022-10-19)
+
+- Add support for client cloning (useful when trying to re-use EasyVCR's HTTP client as an inner client inside multiple HTTP clients)
+  - This avoids an error where some clients, like RestSharp, expect the inner client to be a new instance each time
+- EasyVCR now used an `EasyVCRHTTPClient` class instead of `HttpClient` to allow for internal functionality
+  - `EasyVCRHTTPClient` implements `HttpClient`, so it can be used anywhere a `HttpClient` is expected
+
 ## v0.5.1 (2022-10-05)
 
 - Fix missing NuGet dependency for custom logger
