@@ -244,4 +244,4 @@ nuget/
 .DS_Store
 
 # Cassettes made by unit tests
-EasyVCR.Tests/cassettes/
+EasyVCR.Tests/cassettes/*
