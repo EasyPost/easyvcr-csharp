@@ -80,5 +80,37 @@
         "Message": "OK"
       }
     }
+  },
+  {
+    "Duration": 228,
+    "RecordedAt": "2022-10-19T13:18:37.317012-06:00",
+    "Request": {
+      "Body": "",
+      "BodyContentType": "Text",
+      "ContentHeaders": {},
+      "Method": "GET",
+      "RequestHeaders": {},
+      "Uri": "https://api.ipify.org/?format=json"
+    },
+    "Response": {
+      "Body": "{\"ip\":\"73.229.235.140\"}",
+      "BodyContentType": "Json",
+      "ContentHeaders": {
+        "Content-Type": "application/json",
+        "Content-Length": "23"
+      },
+      "HttpVersion": "1.1",
+      "ResponseHeaders": {
+        "Server": "Cowboy",
+        "Connection": "keep-alive",
+        "Vary": "Origin",
+        "Date": "Wed, 19 Oct 2022 19:18:37 GMT",
+        "Via": "1.1 vegur"
+      },
+      "Status": {
+        "Code": 200,
+        "Message": "OK"
+      }
+    }
   }
 ]

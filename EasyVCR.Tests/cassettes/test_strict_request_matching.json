@@ -1,9 +1,9 @@
 [
   {
-    "Duration": 98,
-    "RecordedAt": "2022-05-12T16:01:52.443453-06:00",
+    "Duration": 152,
+    "RecordedAt": "2022-10-19T13:19:12.392468-06:00",
     "Request": {
-      "Body": "{\"address\":{\"name\":\"Jack Sparrow\",\"company\":\"EasyPost\",\"street1\":\"388 Townsend St\",\"street2\":\"Apt 20\",\"city\":\"San Francisco\",\"state\":\"CA\",\"zip\":\"94107\",\"country\":\"US\",\"phone\":\"5555555555\"}}",
+      "Body": "{\n  \"address\": {\n    \"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\",\n    \"street1\": \"388 Townsend St\",\n    \"street2\": \"Apt 20\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zip\": \"94107\",\n    \"country\": \"US\",\n    \"phone\": \"5555555555\"\n  }\n}",
       "BodyContentType": "Json",
       "ContentHeaders": {
         "Content-Type": "text/plain; charset=utf-8",
@@ -18,16 +18,16 @@
       "BodyContentType": "Html",
       "ContentHeaders": {
         "Allow": "GET,HEAD",
-        "Content-Type": "text/html; charset=UTF-8",
+        "Content-Type": "text/html; charset=utf-8",
         "Content-Length": "1589"
       },
       "HttpVersion": "1.1",
       "ResponseHeaders": {
-        "Date": "Thu, 12 May 2022 22:01:52 GMT",
+        "Date": "Wed, 19 Oct 2022 19:19:12 GMT",
         "Server": "gws",
         "X-XSS-Protection": "0",
         "X-Frame-Options": "SAMEORIGIN",
-        "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\""
+        "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000"
       },
       "Status": {
         "Code": 405,
