@@ -1,0 +1,34 @@
+[
+  {
+    "Duration": 285,
+    "RecordedAt": "2022-10-19T13:19:09.455204-06:00",
+    "Request": {
+      "Body": "",
+      "BodyContentType": "Text",
+      "ContentHeaders": {},
+      "Method": "GET",
+      "RequestHeaders": {},
+      "Uri": "https://api.ipify.org/?format=json"
+    },
+    "Response": {
+      "Body": "{\"ip\":\"73.229.235.140\"}",
+      "BodyContentType": "Json",
+      "ContentHeaders": {
+        "Content-Type": "application/json",
+        "Content-Length": "23"
+      },
+      "HttpVersion": "1.1",
+      "ResponseHeaders": {
+        "Server": "Cowboy",
+        "Connection": "keep-alive",
+        "Vary": "Origin",
+        "Date": "Wed, 19 Oct 2022 19:19:09 GMT",
+        "Via": "1.1 vegur"
+      },
+      "Status": {
+        "Code": 200,
+        "Message": "OK"
+      }
+    }
+  }
+]

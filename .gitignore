@@ -242,6 +242,3 @@ nuget/
 
 # macOS Finder preferences
 .DS_Store
-
-# Cassettes made by unit tests
-EasyVCR.Tests/cassettes/*
