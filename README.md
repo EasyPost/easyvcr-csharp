@@ -1,5 +1,9 @@
 # EasyVCR
 
+[![CI](https://github.com/EasyPost/easyvcr-csharp/workflows/CI/badge.svg)](https://github.com/EasyPost/easyvcr-csharp/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/github/EasyPost/easyvcr-csharp/badge.svg?branch=master)](https://coveralls.io/github/EasyPost/easyvcr-csharp?branch=master)
+[![NuGet](https://img.shields.io/nuget/dt/EasyVCR)](https://www.nuget.org/packages/EasyVCR)
+
 EasyVCR is a library for recording and replaying HTTP interactions in your test suite.
 
 This can be useful for speeding up your test suite, or for running your tests on a CI server which doesn't have
