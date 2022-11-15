@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.0 (2022-11-15)
+
+- Add support for .NET 7
+
 ## v0.6.0 (2022-10-19)
 
 - Add support for client cloning (useful when trying to re-use EasyVCR's HTTP client as an inner client inside multiple HTTP clients)
