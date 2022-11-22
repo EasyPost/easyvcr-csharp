@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Next Release
+
+- [BUGFIX] Fix bug that would throw error if trying to "match by body" with non-JSON bodies.
+
 ## v0.7.0 (2022-11-15)
 
 - Add support for .NET 7
