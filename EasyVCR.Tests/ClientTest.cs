@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestSharp;
 
@@ -343,6 +345,31 @@ namespace EasyVCR.Tests
             var response = await client.PostAsync(FakeDataService.GetIPAddressDataUrl("json"), bodyData2);
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
+        }
+
+        [TestMethod]
+        public async Task TestMatchNonJsonBody()
+        {
+            var cassette = TestUtils.GetCassette("test_match_non_json_body");
+            cassette.Erase(); // Erase cassette before recording
+
+            const string url = "https://google.com";
+            var postData = HttpUtility.UrlEncode($"param1=name&param2=age", Encoding.UTF8);
+            var data = Encoding.UTF8.GetBytes(postData);
+            var content = new ByteArrayContent(data);
+            content.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+            // record baseline request first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var _ = await client.PostAsync(url, content);
+
+            // try to replay the request with match by body enforcement
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByBody()
+            });
+            var response = await client.PostAsync(url, content);
+            Assert.IsNotNull(response);
         }
 
 

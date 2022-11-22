@@ -69,8 +69,23 @@ namespace EasyVCR
                     // one has a null body, so they don't match
                     return false;
 
-                var receivedBody = JsonSerialization.NormalizeJson(received.Body, ignoredElements);
-                var recordedBody = JsonSerialization.NormalizeJson(recorded.Body, ignoredElements);
+                var receivedBody = received.Body;
+                var recordedBody = recorded.Body;
+                try
+                {
+                    receivedBody = JsonSerialization.NormalizeJson(received.Body, ignoredElements);
+                } catch (Exception)
+                {
+                    // not JSON, using the string as it is
+                }
+                
+                try
+                {
+                    recordedBody = JsonSerialization.NormalizeJson(recorded.Body, ignoredElements);
+                } catch (Exception)
+                {
+                    // not JSON, using the string as it is
+                }
 
                 if (receivedBody == null && recordedBody == null)
                     // both have empty string bodies, so they match
