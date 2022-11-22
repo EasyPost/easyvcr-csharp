@@ -74,15 +74,17 @@ namespace EasyVCR
                 try
                 {
                     receivedBody = JsonSerialization.NormalizeJson(received.Body, ignoredElements);
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     // not JSON, using the string as it is
                 }
-                
+
                 try
                 {
                     recordedBody = JsonSerialization.NormalizeJson(recorded.Body, ignoredElements);
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     // not JSON, using the string as it is
                 }
