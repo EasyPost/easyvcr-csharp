@@ -127,6 +127,11 @@ namespace EasyVCR.Tests
             Assert.AreEqual(censoredHeader, censorString);
         }
 
+        /// <summary>
+        ///     Test that the RegexCensor works as expected.
+        ///     NOTE: This test does not currently programmatically verify that the RegexCensor is working as expected.
+        ///     Instead, it relies on the developer to manually verify that the cassette file contains the expected censored values.
+        /// </summary>
         [TestMethod]
         public async Task TestRegexCensors()
         {
@@ -150,10 +155,8 @@ namespace EasyVCR.Tests
             var fakeDataService = new FakeJsonDataService(client);
             var _ = await fakeDataService.GetIPAddressDataRawResponse();
 
-            // manually check that the cassette contains the censored path element
-
+            
             // verify that censoring does not interfere with replay
-
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeJsonDataService(client);
             var response = await fakeDataService.GetIPAddressDataRawResponse();
