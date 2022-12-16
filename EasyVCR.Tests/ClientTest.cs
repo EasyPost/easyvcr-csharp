@@ -155,7 +155,6 @@ namespace EasyVCR.Tests
             var fakeDataService = new FakeJsonDataService(client);
             var _ = await fakeDataService.GetIPAddressDataRawResponse();
 
-            
             // verify that censoring does not interfere with replay
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeJsonDataService(client);
