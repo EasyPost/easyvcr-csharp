@@ -127,6 +127,41 @@ namespace EasyVCR.Tests
             Assert.AreEqual(censoredHeader, censorString);
         }
 
+        /// <summary>
+        ///     Test that the RegexCensor works as expected.
+        ///     NOTE: This test does not currently programmatically verify that the RegexCensor is working as expected.
+        ///     Instead, it relies on the developer to manually verify that the cassette file contains the expected censored values.
+        /// </summary>
+        [TestMethod]
+        public async Task TestRegexCensors()
+        {
+            var cassette = TestUtils.GetCassette("test_regex_censors");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up regex pattern
+            var url = new Uri(FakeDataService.GetIPAddressDataUrl());
+            var domain = url.Host;
+            var regexPattern = domain;
+
+            // set up advanced settings
+            const string censorString = "censored-by-test";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorPathElementsByPatterns(new List<string> { regexPattern })
+            };
+
+            // record cassette with advanced settings
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeJsonDataService(client);
+            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+
+            // verify that censoring does not interfere with replay
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            Assert.IsNotNull(response);
+        }
+
         [TestMethod]
         public void TestClient()
         {
@@ -306,7 +341,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetIPAddressDataUrl("json"), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
 
             // try to replay the request with different body data
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
@@ -315,7 +350,7 @@ namespace EasyVCR.Tests
             });
 
             // should fail since we're strictly in replay mode and there's no exact match
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetIPAddressDataUrl("json"), bodyData2));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2));
         }
 
         [TestMethod]
@@ -329,7 +364,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetIPAddressDataUrl("json"), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
 
             // try to replay the request with different body data, but ignoring the differences
             var ignoreElements = new List<CensorElement>
@@ -342,7 +377,7 @@ namespace EasyVCR.Tests
             });
 
             // should succeed since we're ignoring the differences
-            var response = await client.PostAsync(FakeDataService.GetIPAddressDataUrl("json"), bodyData2);
+            var response = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2);
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }

@@ -65,10 +65,14 @@ file.
 
 ### Censoring
 
-Censor sensitive data in the request and response bodies and headers, such as API keys and auth tokens.
+Censor sensitive data in the request and response, such as API keys and auth tokens.
 
-NOTE: This feature currently only works on JSON response bodies.
-
+Can censor:
+- Request and response headers (via key name)
+- Request and response bodies (via key name) (JSON only)
+- Request query parameters (via key name)
+- Request URL path elements (via regex pattern matching)
+- 
 **Default**: *Disabled*
 
 ```csharp
@@ -78,6 +82,7 @@ var cassette = new Cassette("path/to/cassettes", "my_cassette");
 
 var censors = new Censors().CensorHeadersByKeys(new List<string> { "Authorization" }) // Hide the Authorization header
 censors.CensorBodyElementsByKeys(new List<CensorElement> { new CensorElement("table", true) }); // Hide the table element (case sensitive) in the request and response body
+censors.CensorPathElementsByPatterns(new List<string> { ".*\\d{4}.*" }); // Hide any path element that contains 4 digits
 
 var advancedOptions = new AdvancedOptions()
 {
