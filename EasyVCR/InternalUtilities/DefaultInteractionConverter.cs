@@ -46,7 +46,7 @@ namespace EasyVCR.InternalUtilities
             var request = new Request
             {
                 Method = httpRequestMessage.Method.ToString(),
-                Uri = censors.ApplyQueryParametersCensors(httpRequestMessage.RequestUri?.ToString()),
+                Uri = censors.ApplyUrlCensors(httpRequestMessage.RequestUri?.ToString()),
                 RequestHeaders = censors.ApplyHeaderCensors(ToHeaders(httpRequestMessage.Headers)),
                 ContentHeaders = censors.ApplyHeaderCensors(ToContentHeaders(httpRequestMessage.Content)),
                 BodyContentType = ContentTypeExtensions.DetermineContentType(requestBody)

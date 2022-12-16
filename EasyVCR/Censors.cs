@@ -21,6 +21,7 @@ namespace EasyVCR
         private readonly string _censorText = "*****";
         private readonly List<CensorElement> _headersToCensor;
         private readonly List<CensorElement> _queryParamsToCensor;
+        private readonly List<RegexCensorElement> _pathElementsToCensor;
 
         /// <summary>
         ///     Default censors is to not censor anything.
@@ -52,6 +53,7 @@ namespace EasyVCR
             _queryParamsToCensor = new List<CensorElement>();
             _bodyElementsToCensor = new List<CensorElement>();
             _headersToCensor = new List<CensorElement>();
+            _pathElementsToCensor = new List<RegexCensorElement>();
             _censorText = censorString ?? _censorText;
         }
 
@@ -137,6 +139,33 @@ namespace EasyVCR
 
             return this;
         }
+        
+        /// <summary>
+        ///     Add a rule to censor specified path elements.
+        /// </summary>
+        /// <param name="elements">List of path elements to censor.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors CensorPathElements(IEnumerable<RegexCensorElement> elements)
+        {
+            _pathElementsToCensor.AddRange(elements);
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a rule to censor specified path elements by their patterns.
+        /// </summary>
+        /// <param name="patterns">List of patterns of path elements to censor.</param>
+        /// <param name="caseSensitive">Whether to match case sensitively.</param>
+        /// <returns>The current Censor object.</returns>
+        public Censors CensorPathElementsByPatterns(List<string> patterns, bool caseSensitive = false)
+        {
+            foreach (var pattern in patterns)
+            {
+                _pathElementsToCensor.Add(new RegexCensorElement(pattern, caseSensitive));
+            }
+
+            return this;
+        }
 
         /// <summary>
         ///     Censor the appropriate body parameters.
@@ -150,8 +179,10 @@ namespace EasyVCR
             if (contentType == null) throw new VCRException("Cannot determine content type of response body, unable to apply censors.");
 
             if (string.IsNullOrWhiteSpace(body))
+            {
                 // short circuit if body is null or empty
                 return body;
+            }
 
             if (_bodyElementsToCensor.Count == 0)
             {
@@ -189,45 +220,136 @@ namespace EasyVCR
         internal IDictionary<string, string> ApplyHeaderCensors(IDictionary<string, string> headers)
         {
             if (headers.Count == 0)
+            {
                 // short circuit if there are no headers to censor
                 return headers;
+            }
 
             return _headersToCensor.Count == 0 ? headers : headers.ToDictionary(header => header.Key, header => ElementShouldBeCensored(header.Key, _headersToCensor) ? _censorText : header.Value);
         }
 
         /// <summary>
-        ///     Censor the appropriate query parameters.
+        ///     Censor the appropriate path elements and query parameters.
         /// </summary>
         /// <param name="url">Full URL string to apply censors to.</param>
         /// <returns>Censored URL string.</returns>
-        internal string? ApplyQueryParametersCensors(string? url)
+        internal string? ApplyUrlCensors(string? url)
         {
-            if (_queryParamsToCensor.Count == 0)
+            if (url == null)
+            {
+                // short circuit if url is null
+                return url;
+            }
+            
+            if (_queryParamsToCensor.Count == 0 && _pathElementsToCensor.Count == 0)
             {
                 // short circuit if there are no censors to apply
                 return url;
             }
 
+            var uri = new Uri(url);
+
+            var path = uri.GetLeftPart(UriPartial.Path);
+            var query = uri.Query;
+            var queryParameters = HttpUtility.ParseQueryString(query);
+
+            string censoredPath;
+            string? censoredQueryString;
+            
+            if (_pathElementsToCensor.Count == 0)
+            {
+                // don't need to censor path elements
+                censoredPath = path;
+            }
+            else
+            {
+                // censor path elements
+                var tempPath = path;
+                foreach (var pathCensor in _pathElementsToCensor)
+                {
+                    tempPath = pathCensor.MatchAndReplaceAsNeeded(path, _censorText);
+                }
+
+                censoredPath = tempPath;
+            }
+            
+            if (queryParameters.Count == 0)
+            {
+                // no query parameters to censor
+                censoredQueryString = null;
+            }
+            else
+            {
+                if (_queryParamsToCensor.Count == 0)
+                {
+                    // don't need to censor query parameters
+                    censoredQueryString = query;
+                }
+                else
+                {
+                    // censor query parameters
+                    var censoredQueryParameters = new NameValueCollection();
+                    foreach (var key in queryParameters.AllKeys)
+                    {
+                        if (key == null)
+                        {
+                            // short circuit if key is null
+                            continue;
+                        }
+                        censoredQueryParameters.Add(key, ElementShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
+                    }
+                    
+                    censoredQueryString = ToQueryString(censoredQueryParameters);
+                }
+            }
+            
+            // build censored url
+            var censoredUrl = censoredPath;
+            if (censoredQueryString != null)
+            {
+                censoredUrl += $"?{censoredQueryString}";
+            }
+            
+            return censoredUrl;
+        }
+
+        /// <summary>
+        ///     Censor the appropriate path elements.
+        /// </summary>
+        /// <param name="url">Full URL string to apply censors to.</param>
+        /// <returns>URL string with path elements censored. Query parameters will not be censored as part of this process.</returns>
+        internal string? ApplyPathElements(string? url)
+        {
             if (url == null)
+            {
                 // short circuit if url is null
                 return url;
-            var uri = new Uri(url);
-            var queryParameters = HttpUtility.ParseQueryString(uri.Query);
-
-            if (queryParameters.Count == 0)
-                // short circuit if there are no query parameters
-                return url;
-
-            var censoredQueryParameters = new NameValueCollection();
-            foreach (var key in queryParameters.AllKeys)
+            }
+            
+            if (_pathElementsToCensor.Count == 0)
             {
-                if (key == null)
-                    // short circuit if key is null
-                    continue;
-                censoredQueryParameters.Add(key, ElementShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
+                // short circuit if there are no censors to apply
+                return url;
             }
 
-            return $"{uri.GetLeftPart(UriPartial.Path)}?{ToQueryString(censoredQueryParameters)}";
+            var uri = new Uri(url);
+            var queryParameters = HttpUtility.ParseQueryString(uri.Query);
+            
+            var path = uri.GetLeftPart(UriPartial.Path);
+
+            foreach (var pathCensor in _pathElementsToCensor)
+            {
+                path = pathCensor.MatchAndReplaceAsNeeded(path, _censorText);
+            }
+
+            var censoredUrl = path;
+            
+            if (queryParameters.Count > 0)
+            {
+                censoredUrl = $"{censoredUrl}?{ToQueryString(queryParameters)}";
+            }
+
+            return censoredUrl;
         }
 
         /// <summary>

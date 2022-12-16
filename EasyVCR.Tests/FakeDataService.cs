@@ -55,14 +55,19 @@ namespace EasyVCR.Tests
 
         public async Task<HttpResponseMessage> GetIPAddressDataRawResponse()
         {
-            return await Client.GetAsync(GetIPAddressDataUrl(_format));
+            return await Client.GetAsync(GetPreparedIPAddressDataUrl(_format));
         }
 
         protected abstract IPAddressData Convert(string responseBody);
 
-        public static string GetIPAddressDataUrl(string? format)
+        public static string GetPreparedIPAddressDataUrl(string? format)
         {
-            return $"https://api.ipify.org/?format={format}";
+            return $"{GetIPAddressDataUrl()}?format={format}";
+        }
+
+        public static string GetIPAddressDataUrl()
+        {
+            return "https://api.ipify.org/";
         }
     }
 }
