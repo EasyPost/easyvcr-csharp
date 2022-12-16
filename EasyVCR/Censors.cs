@@ -248,8 +248,8 @@ namespace EasyVCR
             }
 
             var uri = new Uri(url);
-
-            var path = uri.GetLeftPart(UriPartial.Path);
+            
+            var path = uri.GetLeftPart(UriPartial.Path); // bad function name, Microsoft. This gets the indicated portion of a URI (here, the full path minus query), not the left part of the path.
             var query = uri.Query;
             var queryParameters = HttpUtility.ParseQueryString(query);
 
@@ -335,7 +335,7 @@ namespace EasyVCR
             var uri = new Uri(url);
             var queryParameters = HttpUtility.ParseQueryString(uri.Query);
 
-            var path = uri.GetLeftPart(UriPartial.Path);
+            var path = uri.GetLeftPart(UriPartial.Path); // bad function name, Microsoft. This gets the indicated portion of a URI (here, the full path minus query), not the left part of the path.
 
             foreach (var pathCensor in _pathElementsToCensor)
             {

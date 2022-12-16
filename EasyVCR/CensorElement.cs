@@ -86,10 +86,12 @@ namespace EasyVCR
 
             try
             {
-                return Regex.IsMatch(value,
+                return Regex.IsMatch(
+                    value,
                     Value,
                     options,
-                    TimeSpan.FromMilliseconds(250));
+                    TimeSpan.FromMilliseconds(250)
+                    );
             }
             catch (RegexMatchTimeoutException)
             {
