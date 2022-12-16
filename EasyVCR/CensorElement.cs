@@ -62,11 +62,13 @@ namespace EasyVCR
                 options |= RegexOptions.IgnoreCase;
             }
 
-            return Regex.Replace(value,
+            return Regex.Replace(
+                value,
                 Value,
                 replacement,
                 options,
-                TimeSpan.FromMilliseconds(250));
+                TimeSpan.FromMilliseconds(250)
+            );
         }
 
         /// <summary>
