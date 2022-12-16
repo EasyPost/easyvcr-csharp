@@ -46,7 +46,7 @@ namespace EasyVCR
         public RegexCensorElement(string pattern, bool caseSensitive) : base(pattern, caseSensitive)
         {
         }
-        
+
         /// <summary>
         ///     Replace the provided value with the provided replacement if the value matches the regex pattern.
         ///     Returns the original value if the value does not match the regex pattern.
@@ -61,14 +61,14 @@ namespace EasyVCR
             {
                 options |= RegexOptions.IgnoreCase;
             }
-            
+
             return Regex.Replace(value,
                 Value,
                 replacement,
                 options,
                 TimeSpan.FromMilliseconds(250));
         }
-        
+
         /// <summary>
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>

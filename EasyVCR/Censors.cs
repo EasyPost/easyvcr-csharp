@@ -139,7 +139,7 @@ namespace EasyVCR
 
             return this;
         }
-        
+
         /// <summary>
         ///     Add a rule to censor specified path elements.
         /// </summary>
@@ -240,7 +240,7 @@ namespace EasyVCR
                 // short circuit if url is null
                 return url;
             }
-            
+
             if (_queryParamsToCensor.Count == 0 && _pathElementsToCensor.Count == 0)
             {
                 // short circuit if there are no censors to apply
@@ -255,7 +255,7 @@ namespace EasyVCR
 
             string censoredPath;
             string? censoredQueryString;
-            
+
             if (_pathElementsToCensor.Count == 0)
             {
                 // don't need to censor path elements
@@ -272,7 +272,7 @@ namespace EasyVCR
 
                 censoredPath = tempPath;
             }
-            
+
             if (queryParameters.Count == 0)
             {
                 // no query parameters to censor
@@ -298,18 +298,18 @@ namespace EasyVCR
                         }
                         censoredQueryParameters.Add(key, ElementShouldBeCensored(key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
                     }
-                    
+
                     censoredQueryString = ToQueryString(censoredQueryParameters);
                 }
             }
-            
+
             // build censored url
             var censoredUrl = censoredPath;
             if (censoredQueryString != null)
             {
                 censoredUrl += $"?{censoredQueryString}";
             }
-            
+
             return censoredUrl;
         }
 
@@ -325,7 +325,7 @@ namespace EasyVCR
                 // short circuit if url is null
                 return url;
             }
-            
+
             if (_pathElementsToCensor.Count == 0)
             {
                 // short circuit if there are no censors to apply
@@ -334,7 +334,7 @@ namespace EasyVCR
 
             var uri = new Uri(url);
             var queryParameters = HttpUtility.ParseQueryString(uri.Query);
-            
+
             var path = uri.GetLeftPart(UriPartial.Path);
 
             foreach (var pathCensor in _pathElementsToCensor)
@@ -343,7 +343,7 @@ namespace EasyVCR
             }
 
             var censoredUrl = path;
-            
+
             if (queryParameters.Count > 0)
             {
                 censoredUrl = $"{censoredUrl}?{ToQueryString(queryParameters)}";

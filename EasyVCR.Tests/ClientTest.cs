@@ -132,7 +132,7 @@ namespace EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_regex_censors");
             cassette.Erase(); // Erase cassette before recording
-            
+
             // set up regex pattern
             var url = new Uri(FakeDataService.GetIPAddressDataUrl());
             var domain = url.Host;
@@ -144,16 +144,16 @@ namespace EasyVCR.Tests
             {
                 Censors = new Censors(censorString).CensorPathElementsByPatterns(new List<string> { regexPattern })
             };
-            
+
             // record cassette with advanced settings
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
             var fakeDataService = new FakeJsonDataService(client);
             var _ = await fakeDataService.GetIPAddressDataRawResponse();
-            
+
             // manually check that the cassette contains the censored path element
-            
+
             // verify that censoring does not interfere with replay
-            
+
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeJsonDataService(client);
             var response = await fakeDataService.GetIPAddressDataRawResponse();
