@@ -151,6 +151,13 @@ namespace EasyVCR.Tests
             var _ = await fakeDataService.GetIPAddressDataRawResponse();
             
             // manually check that the cassette contains the censored path element
+            
+            // verify that censoring does not interfere with replay
+            
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            Assert.IsNotNull(response);
         }
 
         [TestMethod]
