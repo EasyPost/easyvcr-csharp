@@ -72,7 +72,7 @@ Can censor:
 - Request and response bodies (via key name) (JSON only)
 - Request query parameters (via key name)
 - Request URL path elements (via regex pattern matching)
-- 
+
 **Default**: *Disabled*
 
 ```csharp
