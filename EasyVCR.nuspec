@@ -45,6 +45,8 @@
         <file src="lib\net5.0\EasyVCR.XML" target="lib\net5.0" />
         <file src="lib\net6.0\EasyVCR.dll" target="lib\net6.0" />
         <file src="lib\net6.0\EasyVCR.XML" target="lib\net6.0" />
+        <file src="lib\net7.0\EasyVCR.dll" target="lib\net7.0" />
+        <file src="lib\net7.0\EasyVCR.XML" target="lib\net7.0" />
         <file src="README.md" target="docs\" />
         <file src="icon.png" target="images\" />
     </files>
