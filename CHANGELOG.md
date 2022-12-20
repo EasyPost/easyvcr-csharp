@@ -1,7 +1,8 @@
 # CHANGELOG
 
-## v0.7.1 (2022-12-20)
+## v0.8.0 (2022-12-20)
 
+- Adds ability to censor parts of a URL path using regex patterns
 - Fixes a bug that would throw error if trying to "match by body" with non-JSON bodies.
 
 ## v0.7.0 (2022-11-15)
