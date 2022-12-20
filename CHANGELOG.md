@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## Next Release
+## v0.7.1 (2022-12-20)
 
-- [BUGFIX] Fix bug that would throw error if trying to "match by body" with non-JSON bodies.
+- Fixes a bug that would throw error if trying to "match by body" with non-JSON bodies.
 
 ## v0.7.0 (2022-11-15)
 
