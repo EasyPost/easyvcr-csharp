@@ -97,13 +97,13 @@ jobs:
             7.x.x
         # Install MSBuild, used to build the test project
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.1.2
         # Install NuGet.exe to restore required NuGet packages
       - name: Setup Nuget
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v1.1.1
         # Load NuGet package cache
       - name: Load NuGet package cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ matrix.framework }}-${{ hashFiles('**/packages.lock.json') }}
@@ -143,16 +143,16 @@ jobs:
         run: echo "::set-output name=test_file::EasyVCR.Tests.${{ matrix.lang }}"
         # Install MSBuild, used to build the test project
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.1.2
         # Install NuGet.exe to restore required NuGet packages
       - name: Setup Nuget
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v1.1.1
         # Install Visual Studio's console test application, to execute tests
       - name: Setup VSTest
-        uses: darenm/Setup-VSTest@v1
+        uses: darenm/Setup-VSTest@v1.2
         # Load NuGet package cache
       - name: Load NuGet package cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ matrix.framework }}-${{ hashFiles('**/packages.lock.json') }}
