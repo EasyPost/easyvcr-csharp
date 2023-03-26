@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using EasyVCR.Handlers;
 
@@ -60,8 +61,16 @@ namespace EasyVCR
         /// <returns>An EasyVcrHttpClient instance.</returns>
         public static EasyVCRHttpClient NewHttpClientWithHandler(HttpMessageHandler? innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
-            innerHandler ??= new HttpClientHandler();
-            return new EasyVCRHttpClient(new VCRHandler(innerHandler, cassette, mode, advancedSettings));
+            var vcrHandler = new VCRHandler(cassette, mode, advancedSettings)
+            {
+                InnerHandler = innerHandler ?? new HttpClientHandler()
+            };
+            return new EasyVCRHttpClient(vcrHandler);
+        }
+
+        public static DelegatingHandler NewDelegatingHandler(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
+        {
+            return new VCRHandler(cassette, mode, advancedSettings);
         }
     }
 }

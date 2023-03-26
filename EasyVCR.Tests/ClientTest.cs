@@ -171,6 +171,15 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
+        public void TestDelegatingHandler()
+        {
+            var vcrHandler = TestUtils.GetSimpleDelegatingHandler("test_client_handler", Mode.Bypass);
+
+            Assert.IsNotNull(vcrHandler);
+            Assert.IsNull(vcrHandler.InnerHandler);
+        }
+
+        [TestMethod]
         public async Task TestDefaultRequestMatching()
         {
             // test that match by method and url works

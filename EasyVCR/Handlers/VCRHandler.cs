@@ -34,9 +34,8 @@ namespace EasyVCR.Handlers
         /// <param name="cassette">Cassette to use to record/replay requests.</param>
         /// <param name="mode">Mode to operate in.</param>
         /// <param name="advancedSettings">Advanced settings to use during recording/replaying, optional</param>
-        internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
+        internal VCRHandler(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
         {
-            InnerHandler = innerHandler;
             _cassette = cassette;
             _mode = mode;
             _censors = advancedSettings?.Censors ?? new Censors();

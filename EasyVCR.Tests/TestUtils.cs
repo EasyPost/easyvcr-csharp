@@ -19,6 +19,12 @@ namespace EasyVCR.Tests
             return HttpClients.NewHttpClient(cassette, mode);
         }
 
+        internal static DelegatingHandler GetSimpleDelegatingHandler(string cassetteName, Mode mode)
+        {
+            var cassette = GetCassette(cassetteName);
+            return HttpClients.NewDelegatingHandler(cassette, mode);
+        }
+
         // ReSharper disable once InconsistentNaming
         internal static VCR GetSimpleVCR(Mode mode)
         {
