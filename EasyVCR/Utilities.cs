@@ -14,10 +14,17 @@ namespace EasyVCR
         /// </summary>
         /// <param name="folderPath">Path to parent folder of file.</param>
         /// <param name="fileName">Name of file.</param>
+        /// <param name="createIfNotExist">Create the file path if it doesn't exist.</param>
         /// <returns>Path to file.</returns>
-        public static string GetFilePath(string folderPath, string fileName)
+        public static string GetFilePath(string folderPath, string fileName, bool createIfNotExist = false)
         {
-            return Path.Combine(folderPath, fileName);
+            var path = Path.Combine(folderPath, fileName);
+            if (File.Exists(path)) return path;
+            if (!createIfNotExist) throw new FileNotFoundException($"File {path} does not exist.");
+            // Create the directory if it doesn't exist (file will be created when writing to it)
+            Directory.CreateDirectory(folderPath);
+            return path;
+
         }
 
         /// <summary>
