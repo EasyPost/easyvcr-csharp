@@ -152,7 +152,8 @@ namespace EasyVCR
                     var recordedQuery = new Uri(recorded.Uri ?? string.Empty).Query;
                     var receivedQueryDict = HttpUtility.ParseQueryString(receivedQuery);
                     var recordedQueryDict = HttpUtility.ParseQueryString(recordedQuery);
-                    return receivedQueryDict.Count == recordedQueryDict.Count && receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
+                    if (receivedQueryDict.Count != recordedQueryDict.Count) return false;
+                    return receivedQueryDict.Count == 0 || receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
                 });
             }
 
