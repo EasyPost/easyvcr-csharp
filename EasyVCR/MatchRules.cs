@@ -170,7 +170,9 @@ namespace EasyVCR
             {
                 var receivedHeaders = received.RequestHeaders;
                 var recordedHeaders = recorded.RequestHeaders;
-                if (!receivedHeaders.ContainsKey(name) || !recordedHeaders.ContainsKey(name)) return false;
+                if (!receivedHeaders.ContainsKey(name)) return !recordedHeaders.ContainsKey(name);
+
+                if (!recordedHeaders.ContainsKey(name)) return false;
 
                 var receivedHeader = receivedHeaders[name];
                 var recordedHeader = recordedHeaders[name];

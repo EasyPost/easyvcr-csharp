@@ -453,6 +453,85 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
+        public async Task TestHeadersFailMatch()
+        {
+            var cassette = TestUtils.GetCassette("test_headers_fail_match");
+            cassette.Erase(); // Erase cassette before recording
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value1");
+            var fakeDataService = new FakeJsonDataService(client);
+            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+
+            // replay cassette with default match rules, should find a match
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay);
+            // no custom header to request, shouldn't matter when matching by default rules
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            Assert.IsNotNull(response);
+
+            // replay cassette with custom match rules, should not find a match because header value is different (throw exception)
+            var advancedSettings = new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByHeader("X-Custom-Header")
+            };
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value2"); // add header with different value to request
+            fakeDataService = new FakeJsonDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+        }
+
+        [TestMethod]
+        public async Task TestMissingHeaderFailMatch()
+        {
+            var cassette = TestUtils.GetCassette("test_missing_header_fail_match");
+            cassette.Erase(); // Erase cassette before recording
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value");
+            var fakeDataService = new FakeJsonDataService(client);
+            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+
+            // replay cassette with custom match rules, should not find a match because header is missing (throw exception)
+            var advancedSettings = new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByHeader("X-Custom-Header")
+            };
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeJsonDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+        }
+
+        [TestMethod]
+        public async Task TestHeadersPassMatch()
+        {
+            var cassette = TestUtils.GetCassette("test_headers_pass_match");
+            cassette.Erase(); // Erase cassette before recording
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            client.DefaultRequestHeaders.Add("X-Custom-Header1", "custom-value1"); // add custom header to request
+            client.DefaultRequestHeaders.Add("X-Custom-Header2", "custom-value2");
+            var fakeDataService = new FakeJsonDataService(client);
+            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+
+            // replay cassette with custom match rules
+            var advancedSettings = new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByHeader("X-Custom-Header1").ByHeader("X-Custom-Header3")
+            };
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            client.DefaultRequestHeaders.Add("X-Custom-Header1", "custom-value1");
+            fakeDataService = new FakeJsonDataService(client);
+            var response = await fakeDataService.GetIPAddressDataRawResponse();
+
+            // should succeed since X-Custom-Header1 header value equals
+            Assert.IsNotNull(response);
+        }
+
+        [TestMethod]
         public async Task TestNestedCensoring()
         {
             var cassette = TestUtils.GetCassette("test_nested_censoring");
