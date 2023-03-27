@@ -242,3 +242,6 @@ nuget/
 
 # macOS Finder preferences
 .DS_Store
+
+# Don't include cassettes
+**/cassettes/*
