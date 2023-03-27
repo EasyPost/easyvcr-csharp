@@ -47,7 +47,7 @@ namespace EasyVCR
             {
                 var receivedUri = new Uri(received.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
                 var recordedUri = new Uri(recorded.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
-                return receivedUri.Equals(recordedUri, StringComparison.OrdinalIgnoreCase);
+                return receivedUri.Equals(recordedUri, StringComparison.InvariantCultureIgnoreCase);
             });
             return this;
         }

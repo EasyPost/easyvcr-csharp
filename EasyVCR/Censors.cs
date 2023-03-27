@@ -322,7 +322,7 @@ namespace EasyVCR
         /// </summary>
         /// <param name="url">Full URL string to apply censors to.</param>
         /// <returns>URL string with path elements censored. Query parameters will not be censored as part of this process.</returns>
-        internal string? ApplyPathElements(string? url)
+        internal string? ApplyPathElementsCensors(string? url)
         {
             if (url == null)
             {
