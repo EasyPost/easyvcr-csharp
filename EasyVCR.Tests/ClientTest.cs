@@ -6,8 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using EasyVCR.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestSharp;
+// ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
 {
@@ -162,12 +164,47 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(response);
         }
 
+        /// <summary>
+        ///     This test confirms that the <see cref="EasyVCRHttpClient"/> is constructed correctly.
+        /// </summary>
         [TestMethod]
         public void TestClient()
         {
             var client = TestUtils.GetSimpleClient("test_client", Mode.Bypass);
 
             Assert.IsNotNull(client);
+        }
+
+        /// <summary>
+        ///     This test confirms that users can construct their own <see cref="VCRHandler"/> for their own needs,
+        ///     if they don't want to use the pre-configured <see cref="EasyVCRHttpClient"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestVCRHandler()
+        {
+            var cassette = TestUtils.GetCassette("test_client_handler");
+            const Mode mode = Mode.Bypass;
+
+            var vcrHandler = VCRHandler.NewVCRHandler(cassette, mode);
+
+            Assert.IsNotNull(vcrHandler);
+            Assert.IsNull(vcrHandler.InnerHandler);
+        }
+
+        /// <summary>
+        ///     This test confirms that users can construct their own <see cref="VCRHandler"/> for their own needs,
+        ///     with its own inner handler, if they don't want to use the pre-configured <see cref="EasyVCRHttpClient"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestVCRHandlerWithInnerHandler()
+        {
+            var cassette = TestUtils.GetCassette("test_client_handler_with_inner_handler");
+            const Mode mode = Mode.Bypass;
+
+            var vcrHandler = VCRHandler.NewVCRHandler(cassette, mode, innerHandler: new HttpClientHandler());
+
+            Assert.IsNotNull(vcrHandler);
+            Assert.IsNotNull(vcrHandler.InnerHandler);
         }
 
         [TestMethod]
@@ -177,7 +214,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_default_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl = "https://google.com";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\"key\":\"value\"}");
 
             // record cassette first
@@ -388,7 +425,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_match_non_json_body");
             cassette.Erase(); // Erase cassette before recording
 
-            const string url = "https://google.com";
+            const string url = "http://httpbin.org/post";
             var postData = HttpUtility.UrlEncode($"param1=name&param2=age", Encoding.UTF8);
             var data = Encoding.UTF8.GetBytes(postData);
             var content = new ByteArrayContent(data);
@@ -537,7 +574,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_nested_censoring");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl = "https://google.com";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\r\n  \"array\": [\r\n    \"array_1\",\r\n    \"array_2\",\r\n    \"array_3\"\r\n  ],\r\n  \"dict\": {\r\n    \"nested_array\": [\r\n      \"nested_array_1\",\r\n      \"nested_array_2\",\r\n      \"nested_array_3\"\r\n    ],\r\n    \"nested_dict\": {\r\n      \"nested_dict_1\": {\r\n        \"nested_dict_1_1\": {\r\n          \"nested_dict_1_1_1\": \"nested_dict_1_1_1_value\"\r\n        }\r\n      },\r\n      \"nested_dict_2\": {\r\n        \"nested_dict_2_1\": \"nested_dict_2_1_value\",\r\n        \"nested_dict_2_2\": \"nested_dict_2_2_value\"\r\n      }\r\n    },\r\n    \"dict_1\": \"dict_1_value\",\r\n    \"null_key\": null\r\n  }\r\n}");
             // set up advanced settings
             const string censorString = "censored-by-test";
@@ -562,7 +599,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_strict_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl = "https://google.com";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\n  \"address\": {\n    \"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\",\n    \"street1\": \"388 Townsend St\",\n    \"street2\": \"Apt 20\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zip\": \"94107\",\n    \"country\": \"US\",\n    \"phone\": \"5555555555\"\n  }\n}");
 
             // record cassette first

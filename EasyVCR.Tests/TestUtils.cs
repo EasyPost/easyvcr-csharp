@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using EasyVCR.Handlers;
 using EasyVCR.Interfaces;
+// ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
 {
@@ -24,7 +26,7 @@ namespace EasyVCR.Tests
         {
             var vcr = new VCR(new AdvancedSettings
             {
-                MatchRules = MatchRules.DefaultStrict
+                MatchRules = MatchRules.DefaultStrict,
             });
             switch (mode)
             {

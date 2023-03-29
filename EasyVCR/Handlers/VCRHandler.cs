@@ -30,13 +30,15 @@ namespace EasyVCR.Handlers
         /// <summary>
         ///     Initializes a new instance of the <see cref="VCRHandler" /> class.
         /// </summary>
-        /// <param name="innerHandler">Inner handler to also execute on requests.</param>
         /// <param name="cassette">Cassette to use to record/replay requests.</param>
         /// <param name="mode">Mode to operate in.</param>
         /// <param name="advancedSettings">Advanced settings to use during recording/replaying, optional</param>
-        internal VCRHandler(HttpMessageHandler innerHandler, Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null)
+        /// <param name="innerHandler">Inner handler to also execute on requests.</param>
+        private VCRHandler(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null, HttpMessageHandler? innerHandler = null)
         {
-            InnerHandler = innerHandler;
+            if (innerHandler != null)
+                InnerHandler = innerHandler; // despite not being nullable, InnerHandler does not need to be set (is optional): https://learn.microsoft.com/en-us/dotnet/api/System.Net.Http.DelegatingHandler.InnerHandler
+
             _cassette = cassette;
             _mode = mode;
             _censors = advancedSettings?.Censors ?? new Censors();
@@ -50,6 +52,22 @@ namespace EasyVCR.Handlers
 
             // Will throw an exception if an invalid settings combination is provided.
             ExpirationActionExtensions.CheckCompatibleSettings(_whenExpired, _mode);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        /// <summary>
+        ///     Creates a new VCRHandler.
+        ///     Available if you want to construct your own HTTP client rather than using the built-in <see cref="EasyVCRHttpClient"/>.
+        /// </summary>
+        /// <param name="cassette">Cassette object to use.</param>
+        /// <param name="mode">Mode to operate in (i.e. Record, Replay, Auto, Bypass).</param>
+        /// <param name="advancedSettings">AdvancedSettings object to use.</param>
+        /// <param name="innerHandler">Custom inner handler to execute as part of HTTP requests.</param>
+        /// <returns>A VCRHandler instance.</returns>
+        public static VCRHandler NewVCRHandler(Cassette cassette, Mode mode, AdvancedSettings? advancedSettings = null, HttpMessageHandler? innerHandler = null)
+        {
+            // This could be done by simply making the constructor public, but this falls in line with the other helper methods in HttpClients.cs
+            return new VCRHandler(cassette, mode, advancedSettings, innerHandler);
         }
 
         /// <summary>
