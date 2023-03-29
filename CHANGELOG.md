@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Next Release
+
+- Fix a bug where URLs were not be extracted correctly, potentially causing false matches when matching by URL
+
 ## v0.8.0 (2022-12-20)
 
 - Adds ability to censor parts of a URL path using regex patterns
