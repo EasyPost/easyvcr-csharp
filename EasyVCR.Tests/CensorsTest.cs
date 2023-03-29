@@ -33,7 +33,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Test that, when the body is empty, we return the original body unmodified
+        ///     Test that, when the body is empty, we return the original body unmodified (empty string)
         /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsEmptyStringReturnsOriginalString()
@@ -65,7 +65,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Test that, when the content type is text (not JSON), we return the original body unmodified
+        ///     Test that, when the content type is text (not JSON), we return the original body unmodified (we don't censor raw text currently)
         /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsTextContentTypeReturnsOriginalString()
@@ -81,7 +81,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Test that, when the content type is HTML (not JSON), we return the original body unmodified
+        ///     Test that, when the content type is HTML (not JSON), we return the original body unmodified (we don't censor HTML currently)
         /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsHtmlContentTypeReturnsOriginalString()
@@ -97,7 +97,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Test that, when the content type is XML (not JSON), we return the original body unmodified
+        ///     Test that, when the content type is XML (not JSON), we return the original body unmodified (we don't censor XML currently)
         /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsXmlContentTypeReturnsOriginalString()
@@ -113,7 +113,7 @@ namespace EasyVCR.Tests
         }
 
         /// <summary>
-        ///     Test that, when no header are provided, we return the original headers unmodified (empty dictionary)
+        ///     Test that, when no headers are provided, we return the original headers unmodified (empty dictionary)
         /// </summary>
         [TestMethod]
         public void TestApplyHeaderCensorsNoHeadersReturnsOriginalHeaders()
