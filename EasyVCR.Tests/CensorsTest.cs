@@ -28,7 +28,7 @@ namespace EasyVCR.Tests
             InternalUtilities.ContentType? contentType = null;
 
             var censors = new Censors();
-            
+
             Assert.ThrowsException<VCRException>(() => censors.ApplyBodyParametersCensors(body, contentType));
         }
 
