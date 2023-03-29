@@ -6,14 +6,21 @@ namespace EasyVCR.Tests
     [TestClass]
     public class CensorsTest
     {
+        /// <summary>
+        ///     Test that the default censor set is constructed without throwing an exception
+        /// </summary>
         [TestMethod]
         public void TestDefaultCensors()
         {
             var censors = Censors.Default;
 
+            // if we don't throw an exception by this point, we're good
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        ///     Test that, when we don't know the content type, we throw an exception
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsNoContentType()
         {
@@ -21,10 +28,13 @@ namespace EasyVCR.Tests
             InternalUtilities.ContentType? contentType = null;
 
             var censors = new Censors();
-
+            
             Assert.ThrowsException<VCRException>(() => censors.ApplyBodyParametersCensors(body, contentType));
         }
 
+        /// <summary>
+        ///     Test that, when the body is empty, we return the original body unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsEmptyStringReturnsOriginalString()
         {
@@ -38,6 +48,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(body, result);
         }
 
+        /// <summary>
+        ///     Test that, when no body censors are configured, we return the original body unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsNoCensorsReturnsOriginalString()
         {
@@ -51,6 +64,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(body, result);
         }
 
+        /// <summary>
+        ///     Test that, when the content type is text (not JSON), we return the original body unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsTextContentTypeReturnsOriginalString()
         {
@@ -64,6 +80,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(body, result);
         }
 
+        /// <summary>
+        ///     Test that, when the content type is HTML (not JSON), we return the original body unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsHtmlContentTypeReturnsOriginalString()
         {
@@ -77,6 +96,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(body, result);
         }
 
+        /// <summary>
+        ///     Test that, when the content type is XML (not JSON), we return the original body unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyBodyParametersCensorsXmlContentTypeReturnsOriginalString()
         {
@@ -90,6 +112,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(body, result);
         }
 
+        /// <summary>
+        ///     Test that, when no header are provided, we return the original headers unmodified (empty dictionary)
+        /// </summary>
         [TestMethod]
         public void TestApplyHeaderCensorsNoHeadersReturnsOriginalHeaders()
         {
@@ -102,6 +127,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(headers, result);
         }
 
+        /// <summary>
+        ///     Test that, when no header censors are configured, we return the original headers unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyHeaderCensorsNoCensorsReturnsOriginalHeaders()
         {
@@ -114,6 +142,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(headers, result);
         }
 
+        /// <summary>
+        ///     Test that, when no URL is provided, we return the original URL unmodified (null)
+        /// </summary>
         [TestMethod]
         public void TestApplyUrlCensorsNoUrlReturnsOriginalUrl()
         {
@@ -126,6 +157,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(url, result);
         }
 
+        /// <summary>
+        ///     Test that, when no URL censors are configured, we return the original URL unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyUrlCensorsNoQueryOrPathCensorsReturnsOriginalUrl()
         {
@@ -138,6 +172,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(url, result);
         }
 
+        /// <summary>
+        ///     Test that, when no path is provided, we return the original path unmodified (null)
+        /// </summary>
         [TestMethod]
         public void TestApplyPathElementsCensorsNoUrlReturnsOriginalUrl()
         {
@@ -150,6 +187,9 @@ namespace EasyVCR.Tests
             Assert.AreEqual(url, result);
         }
 
+        /// <summary>
+        ///     Test that, when no path censors are configured, we return the original path unmodified
+        /// </summary>
         [TestMethod]
         public void TestApplyPathElementsCensorsNoCensorsReturnsOriginalUrl()
         {
