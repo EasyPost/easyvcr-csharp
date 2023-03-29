@@ -46,11 +46,11 @@ namespace EasyVCR.InternalUtilities
             var request = new Request
             {
                 Method = httpRequestMessage.Method.ToString(),
-                #if NETSTANDARD2_0 || NETCOREAPP3_1
+#if NETSTANDARD2_0 || NETCOREAPP3_1
                 Uri = censors.ApplyUrlCensors(httpRequestMessage.RequestUri.AbsoluteUri),
-                #else
+#else
                 Uri = censors.ApplyUrlCensors(httpRequestMessage.RequestUri?.AbsoluteUri ?? string.Empty),
-                #endif
+#endif
                 RequestHeaders = censors.ApplyHeaderCensors(ToHeaders(httpRequestMessage.Headers)),
                 ContentHeaders = censors.ApplyHeaderCensors(ToContentHeaders(httpRequestMessage.Content)),
                 BodyContentType = ContentTypeExtensions.DetermineContentType(requestBody)
