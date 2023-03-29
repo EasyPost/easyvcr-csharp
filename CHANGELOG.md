@@ -2,7 +2,7 @@
 
 ## Next Release
 
-- Fix a bug where URLs were not be extracted correctly, potentially causing false matches when matching by URL
+- Fix a bug where URLs were not being extracted correctly, potentially causing false matches when matching by URL
 
 ## v0.8.0 (2022-12-20)
 
