@@ -6,8 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using EasyVCR.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestSharp;
+// ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
 {
@@ -162,6 +164,9 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(response);
         }
 
+        /// <summary>
+        ///     This test confirms that the <see cref="EasyVCRHttpClient"/> is constructed correctly.
+        /// </summary>
         [TestMethod]
         public void TestClient()
         {
@@ -170,13 +175,36 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(client);
         }
 
+        /// <summary>
+        ///     This test confirms that users can construct their own <see cref="VCRHandler"/> for their own needs,
+        ///     if they don't want to use the pre-configured <see cref="EasyVCRHttpClient"/>.
+        /// </summary>
         [TestMethod]
-        public void TestDelegatingHandler()
+        public void TestVCRHandler()
         {
-            var vcrHandler = TestUtils.GetSimpleDelegatingHandler("test_client_handler", Mode.Bypass);
+            var cassette = TestUtils.GetCassette("test_client_handler");
+            const Mode mode = Mode.Bypass;
+
+            var vcrHandler = VCRHandler.NewVCRHandler(cassette, mode);
 
             Assert.IsNotNull(vcrHandler);
             Assert.IsNull(vcrHandler.InnerHandler);
+        }
+
+        /// <summary>
+        ///     This test confirms that users can construct their own <see cref="VCRHandler"/> for their own needs,
+        ///     with its own inner handler, if they don't want to use the pre-configured <see cref="EasyVCRHttpClient"/>.
+        /// </summary>
+        [TestMethod]
+        public void TestVCRHandlerWithInnerHandler()
+        {
+            var cassette = TestUtils.GetCassette("test_client_handler_with_inner_handler");
+            const Mode mode = Mode.Bypass;
+
+            var vcrHandler = VCRHandler.NewVCRHandler(cassette, mode, innerHandler: new HttpClientHandler());
+
+            Assert.IsNotNull(vcrHandler);
+            Assert.IsNotNull(vcrHandler.InnerHandler);
         }
 
         [TestMethod]

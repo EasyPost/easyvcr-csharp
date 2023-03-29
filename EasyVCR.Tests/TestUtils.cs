@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using EasyVCR.Handlers;
 using EasyVCR.Interfaces;
+// ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
 {
@@ -19,18 +21,12 @@ namespace EasyVCR.Tests
             return HttpClients.NewHttpClient(cassette, mode);
         }
 
-        internal static DelegatingHandler GetSimpleDelegatingHandler(string cassetteName, Mode mode)
-        {
-            var cassette = GetCassette(cassetteName);
-            return HttpClients.NewDelegatingHandler(cassette, mode);
-        }
-
         // ReSharper disable once InconsistentNaming
         internal static VCR GetSimpleVCR(Mode mode)
         {
             var vcr = new VCR(new AdvancedSettings
             {
-                MatchRules = MatchRules.DefaultStrict
+                MatchRules = MatchRules.DefaultStrict,
             });
             switch (mode)
             {
