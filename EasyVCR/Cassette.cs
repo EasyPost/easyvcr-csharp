@@ -52,7 +52,7 @@ namespace EasyVCR
         {
             _orderOption = order ?? new CassetteOrder.Alphabetical();
             Name = cassetteName;
-            _filePath = Utilities.GetFilePath(folderPath, $"{cassetteName}.json");
+            _filePath = Utilities.GetFilePath(folderPath, $"{cassetteName}.json", createIfNotExist: true);
         }
 
         /// <summary>
