@@ -40,7 +40,7 @@ namespace EasyVCR
         /// <summary>
         ///     Add a rule to compare the HTTP methods of the requests.
         /// </summary>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByMethod()
         {
             By((received, recorded) => received.Method.Equals(recorded.Method, StringComparison.OrdinalIgnoreCase));
@@ -51,7 +51,7 @@ namespace EasyVCR
         ///     Add a rule to compare the base URLs of the requests.
         ///     Ex. http://example.com in http://example.com/path/to/resource?query=string
         /// </summary>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByBaseUrl()
         {
             By((received, recorded) =>
@@ -67,7 +67,7 @@ namespace EasyVCR
         ///     Add a rule to compare the paths of the requests.
         ///     Ex. /path/to/resource in http://example.com/path/to/resource?query=string
         /// </summary>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByPath()
         {
             By((received, recorded) =>
@@ -87,7 +87,7 @@ namespace EasyVCR
         ///     If true, query parameters must be in the same exact order to match. If false, query parameter order
         ///     doesn't matter.
         /// </param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByQuery(bool exact = false)
         {
             By((received, recorded) =>
@@ -109,7 +109,7 @@ namespace EasyVCR
         ///     If true, query parameters must be in the same exact order to match. If false, query parameter order
         ///     doesn't matter.
         /// </param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByFullUrl(bool exact = false)
         {
             ByBaseUrl();
@@ -122,7 +122,7 @@ namespace EasyVCR
         ///     Add a rule to compare the bodies of the requests.
         /// </summary>
         /// <param name="ignoredElements">List of body elements to ignore when matching by body.</param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByBody(List<CensorElement>? ignoredElements = null)
         {
             By((received, recorded) =>
@@ -168,7 +168,7 @@ namespace EasyVCR
         ///     Add a rule to compare a specific header of the requests.
         /// </summary>
         /// <param name="name">Key of the header to compare.</param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByHeader(string name)
         {
             By((received, recorded) =>
@@ -194,7 +194,7 @@ namespace EasyVCR
         ///     If false, as long as the evaluated request has all the headers of the matching request (and potentially more), the
         ///     match is considered valid.
         /// </param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByHeaders(bool exact = false)
         {
             if (exact)
@@ -217,7 +217,7 @@ namespace EasyVCR
         ///     A <see cref="Func{Request, Request, TResult}"/> that takes in two <see cref="Request"/> objects and outputs a boolean.
         ///     The first <see cref="Request"/> is the current pre-flight request, and the second is a previously-recorded request from the current cassette.
         /// </param>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByCustomRule(Func<Request, Request, bool> rule)
         {
             By(rule);
@@ -229,7 +229,7 @@ namespace EasyVCR
         ///     Note, this rule is very strict, and will fail if the requests are not identical (including duration).
         ///     It is highly recommended to use the other rules to compare the requests.
         /// </summary>
-        /// <returns>The same MatchRules object.</returns>
+        /// <returns>The same <see cref="MatchRules"/> object.</returns>
         public MatchRules ByEverything()
         {
             By((received, recorded) =>
