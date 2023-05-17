@@ -36,9 +36,20 @@ namespace EasyVCR
         {
             _rules = new List<Func<Request, Request, bool>>();
         }
+        
+        /// <summary>
+        ///     Add a rule to compare the HTTP methods of the requests.
+        /// </summary>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByMethod()
+        {
+            By((received, recorded) => received.Method.Equals(recorded.Method, StringComparison.OrdinalIgnoreCase));
+            return this;
+        }
 
         /// <summary>
         ///     Add a rule to compare the base URLs of the requests.
+        ///     Ex. http://example.com in http://example.com/path/to/resource?query=string
         /// </summary>
         /// <returns>The same MatchRules object.</returns>
         public MatchRules ByBaseUrl()
@@ -49,6 +60,61 @@ namespace EasyVCR
                 var recordedUri = new Uri(recorded.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
                 return receivedUri.Equals(recordedUri, StringComparison.InvariantCultureIgnoreCase);
             });
+            return this;
+        }
+        
+        /// <summary>
+        ///     Add a rule to compare the paths of the requests.
+        ///     Ex. /path/to/resource in http://example.com/path/to/resource?query=string
+        /// </summary>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByPath()
+        {
+            By((received, recorded) =>
+            {
+                var receivedPath = new Uri(received.Uri ?? string.Empty).AbsolutePath;
+                var recordedPath = new Uri(recorded.Uri ?? string.Empty).AbsolutePath;
+                return receivedPath.Equals(recordedPath, StringComparison.OrdinalIgnoreCase);
+            });
+            return this;
+        }
+
+        /// <summary>
+        ///     Add a rule to compare the query parameters of the requests.
+        ///     Ex. query=string in http://example.com/path/to/resource?query=string
+        /// </summary>
+        /// <param name="exact">
+        ///     If true, query parameters must be in the same exact order to match. If false, query parameter order
+        ///     doesn't matter.
+        /// </param>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByQuery(bool exact = false)
+        {
+            By((received, recorded) =>
+            {
+                var receivedQuery = new Uri(received.Uri ?? string.Empty).Query;
+                var recordedQuery = new Uri(recorded.Uri ?? string.Empty).Query;
+                var receivedQueryDict = HttpUtility.ParseQueryString(receivedQuery);
+                var recordedQueryDict = HttpUtility.ParseQueryString(recordedQuery);
+                return receivedQueryDict.Count == recordedQueryDict.Count && receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
+            });
+            return this;
+        }
+        
+        /// <summary>
+        ///     Add a rule to compare the full URLs (including query parameters) of the requests.
+        ///     Ex. http://example.com/path/to/resource?query=string in http://example.com/path/to/resource?query=string
+        /// </summary>
+        /// <param name="exact">
+        ///     If true, query parameters must be in the same exact order to match. If false, query parameter order
+        ///     doesn't matter.
+        /// </param>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByFullUrl(bool exact = false)
+        {
+            ByBaseUrl();
+            ByPath();
+            ByQuery(exact: exact);
             return this;
         }
 
@@ -97,68 +163,7 @@ namespace EasyVCR
             });
             return this;
         }
-
-        /// <summary>
-        ///     Add a rule to compare the entire requests.
-        ///     Note, this rule is very strict, and will fail if the requests are not identical (including duration).
-        ///     It is highly recommended to use the other rules to compare the requests.
-        /// </summary>
-        /// <returns>The same MatchRules object.</returns>
-        public MatchRules ByEverything()
-        {
-            By((received, recorded) =>
-            {
-                var receivedRequest = received.ToJson();
-                var recordedRequest = recorded.ToJson();
-                return receivedRequest.Equals(recordedRequest, StringComparison.OrdinalIgnoreCase);
-            });
-            return this;
-        }
-
-        /// <summary>
-        ///     Add a rule to compare the full URLs (including query parameters) of the requests.
-        /// </summary>
-        /// <param name="exact">
-        ///     If true, query parameters must be in the same exact order to match. If false, query parameter order
-        ///     doesn't matter.
-        /// </param>
-        /// <returns>The same MatchRules object.</returns>
-        public MatchRules ByFullUrl(bool exact = false)
-        {
-            if (exact)
-            {
-                By((received, recorded) =>
-                {
-                    if (received.Uri == null && recorded.Uri == null)
-                    {
-                        // how did you get here?
-                        return true;
-                    }
-
-                    if (received.Uri == null || recorded.Uri == null)
-                    {
-                        return false;
-                    }
-
-                    return received.Uri.Equals(recorded.Uri, StringComparison.OrdinalIgnoreCase);
-                });
-            }
-            else
-            {
-                ByBaseUrl();
-                By((received, recorded) =>
-                {
-                    var receivedQuery = new Uri(received.Uri ?? string.Empty).Query;
-                    var recordedQuery = new Uri(recorded.Uri ?? string.Empty).Query;
-                    var receivedQueryDict = HttpUtility.ParseQueryString(receivedQuery);
-                    var recordedQueryDict = HttpUtility.ParseQueryString(recordedQuery);
-                    return receivedQueryDict.Count == recordedQueryDict.Count && receivedQueryDict.AllKeys.All(key => receivedQueryDict[key] == recordedQueryDict[key]);
-                });
-            }
-
-            return this;
-        }
-
+        
         /// <summary>
         ///     Add a rule to compare a specific header of the requests.
         /// </summary>
@@ -206,16 +211,6 @@ namespace EasyVCR
         }
 
         /// <summary>
-        ///     Add a rule to compare the HTTP methods of the requests.
-        /// </summary>
-        /// <returns>The same MatchRules object.</returns>
-        public MatchRules ByMethod()
-        {
-            By((received, recorded) => received.Method.Equals(recorded.Method, StringComparison.OrdinalIgnoreCase));
-            return this;
-        }
-        
-        /// <summary>
         ///     Add a custom rule to compare two requests.
         /// </summary>
         /// <param name="rule">
@@ -228,6 +223,24 @@ namespace EasyVCR
             By(rule);
             return this;
         }
+        
+        /// <summary>
+        ///     Add a rule to compare the entire requests.
+        ///     Note, this rule is very strict, and will fail if the requests are not identical (including duration).
+        ///     It is highly recommended to use the other rules to compare the requests.
+        /// </summary>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByEverything()
+        {
+            By((received, recorded) =>
+            {
+                var receivedRequest = received.ToJson();
+                var recordedRequest = recorded.ToJson();
+                return receivedRequest.Equals(recordedRequest, StringComparison.OrdinalIgnoreCase);
+            });
+            return this;
+        }
+
 
         /// <summary>
         ///     Execute rules to determine if the received request matches the recorded request
