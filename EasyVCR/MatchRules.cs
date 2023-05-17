@@ -214,6 +214,20 @@ namespace EasyVCR
             By((received, recorded) => received.Method.Equals(recorded.Method, StringComparison.OrdinalIgnoreCase));
             return this;
         }
+        
+        /// <summary>
+        ///     Add a custom rule to compare two requests.
+        /// </summary>
+        /// <param name="rule">
+        ///     A <see cref="Func{Request, Request, TResult}"/> that takes in two <see cref="Request"/> objects and outputs a boolean.
+        ///     The first <see cref="Request"/> is the current pre-flight request, and the second is a previously-recorded request from the current cassette.
+        /// </param>
+        /// <returns>The same MatchRules object.</returns>
+        public MatchRules ByCustomRule(Func<Request, Request, bool> rule)
+        {
+            By(rule);
+            return this;
+        }
 
         /// <summary>
         ///     Execute rules to determine if the received request matches the recorded request
