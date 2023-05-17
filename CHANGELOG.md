@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## Next Release
+## v0.9.0 (2023-05-17)
 
 - Fix a bug where URLs were not being extracted correctly, potentially causing false matches when matching by URL
+- New match rules for matching by query parameters, by path or by custom user-defined rules
 
 ## v0.8.0 (2022-12-20)
 
