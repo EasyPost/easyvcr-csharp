@@ -36,7 +36,7 @@ namespace EasyVCR
         {
             _rules = new List<Func<Request, Request, bool>>();
         }
-        
+
         /// <summary>
         ///     Add a rule to compare the HTTP methods of the requests.
         /// </summary>
@@ -62,7 +62,7 @@ namespace EasyVCR
             });
             return this;
         }
-        
+
         /// <summary>
         ///     Add a rule to compare the paths of the requests.
         ///     Ex. /path/to/resource in http://example.com/path/to/resource?query=string
@@ -100,7 +100,7 @@ namespace EasyVCR
             });
             return this;
         }
-        
+
         /// <summary>
         ///     Add a rule to compare the full URLs (including query parameters) of the requests.
         ///     Ex. http://example.com/path/to/resource?query=string in http://example.com/path/to/resource?query=string
@@ -163,7 +163,7 @@ namespace EasyVCR
             });
             return this;
         }
-        
+
         /// <summary>
         ///     Add a rule to compare a specific header of the requests.
         /// </summary>
@@ -223,7 +223,7 @@ namespace EasyVCR
             By(rule);
             return this;
         }
-        
+
         /// <summary>
         ///     Add a rule to compare the entire requests.
         ///     Note, this rule is very strict, and will fail if the requests are not identical (including duration).
