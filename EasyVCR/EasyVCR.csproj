@@ -43,7 +43,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <SignAssembly>true</SignAssembly>
         <DelaySign>true</DelaySign>
-        <AssemblyOriginatorKeyFile>..\EasyPost.pub</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>..\EasyPostNETStrongNameSigning.pub</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <PropertyGroup>

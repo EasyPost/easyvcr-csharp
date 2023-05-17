@@ -11,97 +11,150 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v3
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            3.1.x
-            5.x.x
-            6.x.x
-            7.x.x
+          dotnet-version: 7.x.x
+
       - name: Set up dotnet tools
         run: make install-tools
-      - name: Check dotnet Style
+
+      - name: Check style with dotnet-format
         run: make lint
-  security:
-    runs-on: windows-2022
+
+  Roslyn_Static_Analysis:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            3.1.x
-            5.x.x
-            6.x.x
-            7.x.x
-      - name: Set up dotnet tools
-        run: make install-tools
-      - name: Run security analysis
-        run: make scan
-        # TODO: In the future, we can collect the output logs by enabling Code Scanning and using the pre-built GitHub Action: https://github.com/marketplace/actions/securitycodescan
-        # https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github#uploading-a-code-scanning-analysis-with-github-actions
-  coverage:
-    if: github.ref == 'refs/heads/master'
-    runs-on: windows-2022
+          dotnet-version: 7.x.x
+
+      - name: Restore NuGet Packages
+        run: make restore
+
+      # This Make step is configured to treat all warnings as errors, so it will fail if any warnings are found
+      - name: Run static analysis
+        run: make analyze
+
+  Security_Code_Scan:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            3.1.x
-            5.x.x
-            6.x.x
-            7.x.x
+          dotnet-version: 7.x.x
+
       - name: Set up dotnet tools and dependencies
         run: make install
+
+      - name: Run security analysis
+        run: make scan
+
+  Coverage_Requirements:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x.x
+
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
+      - name: Check if test suite coverage meets requirements
+        run: make coverage-check
+
+  Upload_Coverage_Report:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
       - name: Generate coverage report
         run: make coverage
+
       - name: Upload lcov coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
           path-to-lcov: coveragereport/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  Publish_Docs:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x.x
+
+      - name: Install docfx
+        run: make install-tools
+
+      - name: Generate docs
+        run: make docs
+
+      - name: Deploy docs
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_site
+
   NET_Tests:
     # derived from https://dev.to/felipetofoli/github-actions-for-net-full-framework-build-and-test-299h
     runs-on: windows-2022
+    env:
+      EASYPOST_TEST_API_KEY: "123"
+      EASYPOST_PROD_API_KEY: "123"
     strategy:
       matrix:
-        name: [ 'net462', 'netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0' ]
+        name: [ 'NetStandard20', 'NetCore31', 'Net50', 'Net60', 'Net70' ]
         include:
-          - name: net462
-            # This is really a test of .NET Standard, a bridge between .NET Framework and .NET, targeting .NET Framework 4.6.2
+          - name: NetStandard20
+            # can't run tests on .NET Standard, it's just a bridge between .NET Framework and .NET.
+            # So we'll target .NET Framework 4.6.2
             # More notes at the bottom of this file
-            # Name chosen so we don't have to change the names of the required tests on GitHub Actions
             framework: net462
-          - name: netcoreapp3.1
+          - name: NetCore31
             framework: netcoreapp3.1
-          - name: net5.0
+          - name: Net50
             framework: net5.0
-          - name: net6.0
+          - name: Net60
             framework: net6.0
-          - name: net7.0
+          - name: Net70
             framework: net7.0
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
+          # .NET 5 is deprecated and removed from GitHub Actions, we need to manually install it
           dotnet-version: |
-            3.1.x
             5.x.x
-            6.x.x
             7.x.x
-        # Install MSBuild, used to build the test project
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1.2
-        # Install NuGet.exe to restore required NuGet packages
+
       - name: Setup Nuget
         uses: NuGet/setup-nuget@v1.1.1
-        # Load NuGet package cache
+
       - name: Load NuGet package cache
         uses: actions/cache@v3
         with:
@@ -109,68 +162,90 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ matrix.framework }}-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-        # Restore required NuGet packages
+
       - name: Restore NuGet Packages
         run: make restore
-        # Run the framework-specific tests
+
+        # Pull in fixtures submodule
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
+        # Run the unit tests in a specific framework (verify that the library works in that framework)
       - name: Run Tests
         run: make test-fw fw=${{ matrix.framework }}
-  Compatibility_Tests:
+
+  FSharp_Compatibility:
     runs-on: windows-2022
-    strategy:
-      matrix:
-        lang: [ 'VB', 'FSharp' ]
-        include:
-          - lang: VB
-            ext: vbproj
-          - lang: FSharp
-            ext: fsproj
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: |
-            3.1.x
-            5.x.x
-            6.x.x
-            7.x.x
-        # Set the project name, based on platform version currently selected
-      - name: Set up variables
-        id: test_project
-        run: echo "::set-output name=test_file::EasyVCR.Tests.${{ matrix.lang }}"
-        # Install MSBuild, used to build the test project
+          dotnet-version: 7.x.x
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1.2
-        # Install NuGet.exe to restore required NuGet packages
+
       - name: Setup Nuget
         uses: NuGet/setup-nuget@v1.1.1
-        # Install Visual Studio's console test application, to execute tests
+
       - name: Setup VSTest
         uses: darenm/Setup-VSTest@v1.2
-        # Load NuGet package cache
-      - name: Load NuGet package cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ matrix.framework }}-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-        # Restore required NuGet packages
+
       - name: Restore NuGet Packages
         run: make restore
+
+        # Pull in fixtures submodule
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
         # Build the test project
       - name: Build Solution
-        run: msbuild ${{ steps.test_project.outputs.test_file }}\${{ steps.test_project.outputs.test_file }}.${{ matrix.ext }} /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
+        run: msbuild EasyVCR.Tests.FSharp\EasyVCR.Tests.FSharp.fsproj /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
+
+  Visual_Basic_Compatibility:
+    runs-on: windows-2022
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.x.x
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1.2
+
+      - name: Setup Nuget
+        uses: NuGet/setup-nuget@v1.1.1
+
+      - name: Setup VSTest
+        uses: darenm/Setup-VSTest@v1.2
+
+      - name: Restore NuGet Packages
+        run: make restore
+
+        # Pull in fixtures submodule
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
+        # Build the test project
+      - name: Build Solution
+        run: msbuild EasyVCR.Tests.VB\EasyVCR.Tests.VB.vbproj /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
+
 
 # .NET Standard notes:
 # - NET Standard 2.0 is compatible with minimum .NET Framework 4.6.1: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
 # - NET Framework 4.6.1 is EOL after April 26, 2022, due to its security concerns (was affected by the SHA-1 crack): https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework
 # - GitHub's Windows 2022 runner only supports minimum .NET Framework 4.6.2 anyway: https://github.com/actions/virtual-environments/issues/5055#issuecomment-1040757930
 # - .NET Standard is not a framework, but a set of shared APIs between the old .NET Framework and new .NET/.NET Core
-# - `EasyVCR` targets .NET Standard 2.0, meaning it is compatible with specific versions of both .NET and .NET Framework: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
+# - `EasyPost` targets .NET Standard 2.0, meaning it is compatible with specific versions of both .NET and .NET Framework: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
 # - When you want to actually run code, however, you can't run it in .NET Standard. You have to run it in either .NET or .NET Framework: https://stackoverflow.com/a/48885500/13343799
-# - So, while `EasyVCR` targets .NET Standard 2.0, `EasyVCR.Tests`, the code we're actually executing, targets .NET Framework 4.6.2
+# - So, while `EasyPost` targets .NET Standard 2.0, `EasyVCR.Tests`, the code we're actually executing, targets .NET Framework 4.6.2
 # - By extension, this is ensuring we are testing that the `EasyVCR` source code can run in a .NET Framework environment
