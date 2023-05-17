@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using EasyVCR.Handlers;
+using EasyVCR.RequestElements;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestSharp;
 // ReSharper disable InconsistentNaming
@@ -387,6 +388,38 @@ namespace EasyVCR.Tests
             });
 
             // should fail since we're strictly in replay mode and there's no exact match
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2));
+        }
+
+        [TestMethod]
+        public async Task TestCustomMatchRule()
+        {
+            var cassette = TestUtils.GetCassette("test_custom_match_rule");
+            cassette.Erase(); // Erase cassette before recording
+
+            var bodyData1 = new StringContent("{\"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\"}");
+            var bodyData2 = new StringContent("{\"name\": \"Different Name\",\n    \"company\": \"EasyPost\"}");
+
+            // record baseline request first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+
+            // try to replay the request with no custom match rule
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings()
+            {
+                MatchRules = new MatchRules(),
+            });
+
+            // should pass since it passes the default match rules
+            await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+
+            // try to replay the request with a custom match rule
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
+            {
+                MatchRules = new MatchRules().ByCustomRule(new Func<Request, Request, bool>((received, recorded) => false)), // always return false
+            });
+
+            // should fail since the custom match rule always returns false and there's never a match
             await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2));
         }
 
