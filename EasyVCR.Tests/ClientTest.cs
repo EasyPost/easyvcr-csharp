@@ -438,7 +438,7 @@ namespace EasyVCR.Tests
             // try to replay the request with different body data, but ignoring the differences
             var ignoreElements = new List<CensorElement>
             {
-                new CensorElement("name", false)
+                new KeyCensorElement("name", false)
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
             {
@@ -687,6 +687,34 @@ namespace EasyVCR.Tests
             var pageNode = xmlDocument.SelectSingleNode("//page");
             Assert.IsNotNull(pageNode);
             Assert.AreEqual(censorString, pageNode.InnerText);
+        }
+
+        [TestMethod]
+        public async Task TestRawCensoring()
+        {
+            var cassette = TestUtils.GetCassette("test_raw_censors");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            const string censorString = "censored-by-test";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(new[] { new RegexCensorElement("^.*\\.", false) }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetRawDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var rawData = await fakeDataService.GetRawData();
+
+            // check that the raw data was censored
+            Assert.IsNotNull(rawData);
+            Assert.IsTrue(rawData.Contains(censorString));
         }
 
         private static async Task<string?> GetJsonDataRequest(Cassette cassette, Mode mode)

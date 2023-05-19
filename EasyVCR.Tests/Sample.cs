@@ -43,8 +43,8 @@ namespace EasyVCR.Tests
         {
             var bodyElementsToIgnoreDuringMatch = new List<CensorElement>
             {
-                new CensorElement("name", true),
-                new CensorElement("phone", false)
+                new KeyCensorElement("name", true),
+                new KeyCensorElement("phone", false),
             };
             var advancedSettings = new AdvancedSettings
             {
