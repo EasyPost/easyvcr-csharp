@@ -656,7 +656,7 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }
-        
+
         [TestMethod]
         public async Task TestXmlCensoring()
         {
@@ -679,7 +679,7 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var xmlData = await fakeDataService.GetXmlData();
-            
+
             // check that the xml data was censored
             Assert.IsNotNull(xmlData);
             var xmlDocument = new XmlDocument();

@@ -364,7 +364,7 @@ namespace EasyVCR
         /// <param name="elementsToCensor">List of elements to censor.</param>
         /// <returns>A censored raw text string.</returns>
         public static string CensorTextData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensor)
-        { 
+        {
             if (elementsToCensor.Count == 0)
             {
                 // short circuit if there are no censors to apply
@@ -387,7 +387,7 @@ namespace EasyVCR
                         break;
                 }
             }
-            
+
             return censoredData;
         }
 

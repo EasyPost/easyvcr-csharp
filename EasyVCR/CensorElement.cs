@@ -12,7 +12,7 @@ namespace EasyVCR
         ///     Whether the name is case-sensitive.
         /// </summary>
         protected bool CaseSensitive { get; }
-        
+
         /// <summary>
         ///     Value to censor.
         /// </summary>
@@ -53,7 +53,7 @@ namespace EasyVCR
         public TextCensorElement(string value, bool caseSensitive) : base(value, caseSensitive)
         {
         }
-        
+
         /// <summary>
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
@@ -63,7 +63,7 @@ namespace EasyVCR
         {
             return CaseSensitive ? Value.Equals(value) : Value.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
-        
+
         /// <summary>
         ///     Replace the provided value with the provided replacement if it matches this censor element.
         ///     Otherwise, return the value as-is.
@@ -90,7 +90,7 @@ namespace EasyVCR
         public KeyCensorElement(string key, bool caseSensitive) : base(key, caseSensitive)
         {
         }
-        
+
         /// <summary>
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
