@@ -198,7 +198,7 @@ namespace EasyVCR
                     case ContentType.Html:
                         return body; // We can't censor plaintext bodies or HTML bodies.
                     case ContentType.Xml:
-                        return body; // XML parsing is not supported yet, so we can't censor XML bodies.
+                        return CensorXmlData(body, _censorText, _bodyElementsToCensor);
                     case ContentType.Json:
                         return CensorJsonData(body, _censorText, _bodyElementsToCensor);
                     default:
