@@ -17,10 +17,9 @@ namespace EasyVCR.Tests
         #endregion
     }
 
-    public abstract class FakeDataService
+    public class FakeDataService
     {
         private readonly EasyVCRHttpClient? _client;
-        private readonly string? _format;
         private readonly VCR? _vcr;
 
         public EasyVCRHttpClient Client
@@ -35,39 +34,40 @@ namespace EasyVCR.Tests
             }
         }
 
-        protected FakeDataService(string format, VCR vcr)
+        public FakeDataService(VCR vcr)
         {
-            _format = format;
             _vcr = vcr;
         }
 
-        protected FakeDataService(string format, EasyVCRHttpClient client)
+        public FakeDataService(EasyVCRHttpClient client)
         {
-            _format = format;
             _client = client;
         }
+        
+        public static string JsonDataUrl => "https://api.ipify.org/";
 
-        public async Task<IPAddressData?> GetIPAddressData()
+        public static string XmlDataUrl => "http://restapi.adequateshop.com/api/Traveler";
+        
+        public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {
-            var response = await GetIPAddressDataRawResponse();
-            return Convert(await response.Content.ReadAsStringAsync());
+            return await Client.GetAsync(JsonDataUrl);
         }
-
-        public async Task<HttpResponseMessage> GetIPAddressDataRawResponse()
+        
+        public async Task<string?> GetJsonData()
         {
-            return await Client.GetAsync(GetPreparedIPAddressDataUrl(_format));
+            var response = await GetJsonDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
         }
-
-        protected abstract IPAddressData Convert(string responseBody);
-
-        public static string GetPreparedIPAddressDataUrl(string? format)
+        
+        public async Task<HttpResponseMessage> GetXmlDataRawResponse()
         {
-            return $"{GetIPAddressDataUrl()}?format={format}";
+            return await Client.GetAsync(XmlDataUrl);
         }
-
-        public static string GetIPAddressDataUrl()
+        
+        public async Task<string?> GetXmlData()
         {
-            return "https://api.ipify.org/";
+            var response = await GetXmlDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }
