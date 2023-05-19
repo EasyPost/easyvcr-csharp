@@ -57,7 +57,7 @@ namespace EasyVCR.InternalUtilities.JSON
             {
                 return null;
             }
-
+            
             XNode? node = JsonConvert.DeserializeXNode(json);
             return node?.ToString();
         }

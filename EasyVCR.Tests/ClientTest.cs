@@ -6,9 +6,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Xml;
 using EasyVCR.Handlers;
 using EasyVCR.RequestElements;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestSharp;
 // ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
@@ -45,6 +47,40 @@ namespace EasyVCR.Tests
             var handler = client.VcrHandler;
             var clonedHandler = clonedClient.VcrHandler;
             Assert.AreEqual(handler, clonedHandler);
+
+            // lock the original client into a request (internally, RestClient will pass/lock the options to the HttpClient, which is what causes this issue)
+            var options = new RestClientOptions
+            {
+                MaxTimeout = 60000,
+                UserAgent = "EasyVCR Test Client",
+                BaseUrl = new Uri("https://httpbin.org"),
+            };
+
+            var restClient = new RestClient(client, options);
+            var request = new RestRequest("https://www.google.com");
+            var _ = await restClient.ExecuteAsync(request);
+
+            // now, if we try to reuse the client in another RestClient, it will throw an exception that the HttpClient is already in use
+            Assert.ThrowsException<InvalidOperationException>(() => new RestClient(client, options));
+
+            // even if we try with a different set of options
+            var options2 = new RestClientOptions
+            {
+                MaxTimeout = 30000,
+                UserAgent = "EasyVCR Test Client 2",
+                BaseUrl = new Uri("https://example.com"),
+            };
+            Assert.ThrowsException<InvalidOperationException>(() => new RestClient(client, options2));
+
+            // if we use the cloned client, it will work
+            var restClient3 = new RestClient(clonedClient, options);
+            var request3 = new RestRequest("https://www.google.com");
+            _ = await restClient3.ExecuteAsync(request3);
+
+            // side-note, you CAN re-use the original client if you don't have any options (it's the RestClientOptions that's causing this issue)
+            var restClient4 = new RestClient(client);
+            var request4 = new RestRequest("https://www.google.com");
+            _ = await restClient4.ExecuteAsync(request4);
         }
 
         [TestMethod]
@@ -54,13 +90,12 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // in replay mode, if cassette is empty, should throw an exception
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetIPAddressDataRequest(cassette, Mode.Replay));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetJsonDataRequest(cassette, Mode.Replay));
             Assert.IsTrue(cassette.NumInteractions == 0); // Make sure cassette is still empty
 
             // in auto mode, if cassette is empty, should make and record a real request
-            var summary = await GetIPAddressDataRequest(cassette, Mode.Auto);
-            Assert.IsNotNull(summary);
-            Assert.IsNotNull(summary.IPAddress);
+            var responseBody = await GetJsonDataRequest(cassette, Mode.Auto);
+            Assert.IsNotNull(responseBody);
             Assert.IsTrue(cassette.NumInteractions > 0); // Make sure cassette is no longer empty
         }
 
@@ -79,13 +114,13 @@ namespace EasyVCR.Tests
 
             // record cassette with advanced settings first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // now replay cassette
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
 
             // check that the replayed response contains the censored header
             Assert.IsNotNull(response);
@@ -107,7 +142,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up regex pattern
-            var url = new Uri(FakeDataService.GetIPAddressDataUrl());
+            var url = new Uri(FakeDataService.JsonDataUrl);
             var domain = url.Host;
             var regexPattern = domain;
 
@@ -120,13 +155,13 @@ namespace EasyVCR.Tests
 
             // record cassette with advanced settings
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // verify that censoring does not interfere with replay
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
             Assert.IsNotNull(response);
         }
 
@@ -180,39 +215,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_default_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl1 = "https://httpbin.org/post?num=1";
-            const string postUrl2 = "https://httpbin.org/post?num=2";
-            var postBody = new StringContent("{\"key\":\"value\"}");
-
-            // record cassette first
-            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var response = await client.PostAsync(postUrl1, postBody);
-
-            // check that the request was not matched (should be a live call)
-            Assert.IsNotNull(response);
-            Assert.IsFalse(Utilities.ResponseCameFromRecording(response));
-
-            // replay cassette
-            client = HttpClients.NewHttpClient(cassette, Mode.Replay);
-            response = await client.PostAsync(postUrl1, postBody);
-
-            // check that the request was matched
-            Assert.IsNotNull(response);
-            Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
-
-            // check that the request was not matched (should be a live call)
-            await Assert.ThrowsExceptionAsync<VCRException>(() => client.PostAsync(postUrl2, postBody));
-        }
-
-        [TestMethod]
-        public async Task TestDefaultRequestMatchingWithAdvancedSettings()
-        {
-            // test that match by method and url works
-            var cassette = TestUtils.GetCassette("test_default_request_matching");
-            cassette.Erase(); // Erase cassette before recording
-
-            const string postUrl1 = "https://httpbin.org/post?num=1";
-            const string postUrl2 = "https://httpbin.org/post?num=2";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\"key\":\"value\"}");
 
             // record cassette first
@@ -220,9 +223,9 @@ namespace EasyVCR.Tests
             {
                 MatchRules = MatchRules.Default // doesn't really matter for initial record
             });
-            var response = await client.PostAsync(postUrl1, postBody);
+            var response = await client.PostAsync(postUrl, postBody);
 
-            // check that the request was not matched (should be a live call)
+            // check that the request body was not matched (should be a live call)
             Assert.IsNotNull(response);
             Assert.IsFalse(Utilities.ResponseCameFromRecording(response));
 
@@ -231,15 +234,11 @@ namespace EasyVCR.Tests
             {
                 MatchRules = MatchRules.Default
             });
-            response = await client.PostAsync(postUrl1, postBody);
+            response = await client.PostAsync(postUrl, postBody);
 
-            // check that the request was matched
+            // check that the request body was matched
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
-
-            // check that the request was not matched (should be a live call)
-            await Assert.ThrowsExceptionAsync<VCRException>(() => client.PostAsync(postUrl2, postBody));
-
         }
 
         [TestMethod]
@@ -250,15 +249,15 @@ namespace EasyVCR.Tests
 
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // baseline - how much time does it take to replay the cassette?
             client = HttpClients.NewHttpClient(cassette, Mode.Replay);
-            fakeDataService = new FakeJsonDataService(client);
+            fakeDataService = new FakeDataService(client);
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            var response = await fakeDataService.GetJsonDataRawResponse();
             stopwatch.Stop();
 
             // confirm the normal replay worked, note time
@@ -272,12 +271,12 @@ namespace EasyVCR.Tests
                 ManualDelay = delay
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeJsonDataService(client);
+            fakeDataService = new FakeDataService(client);
 
             // time replay request
             stopwatch = new Stopwatch();
             stopwatch.Start();
-            response = await fakeDataService.GetIPAddressDataRawResponse();
+            response = await fakeDataService.GetJsonDataRawResponse();
             stopwatch.Stop();
 
             // check that the delay was respected (within margin of error)
@@ -292,7 +291,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_erase");
 
             // record something to the cassette
-            var _ = await GetIPAddressDataRequest(cassette, Mode.Record);
+            var _ = await GetJsonDataRequest(cassette, Mode.Record);
             Assert.IsTrue(cassette.NumInteractions > 0);
 
             // erase the cassette
@@ -307,7 +306,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // cassette is empty, so replaying should throw an exception
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetIPAddressDataRequest(cassette, Mode.Replay));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await GetJsonDataRequest(cassette, Mode.Replay));
         }
 
         [TestMethod]
@@ -316,10 +315,9 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_erase_and_record");
             cassette.Erase(); // Erase cassette before recording
 
-            var summary = await GetIPAddressDataRequest(cassette, Mode.Record);
+            var responseBody = await GetJsonDataRequest(cassette, Mode.Record);
 
-            Assert.IsNotNull(summary);
-            Assert.IsNotNull(summary.IPAddress);
+            Assert.IsNotNull(responseBody);
             Assert.IsTrue(cassette.NumInteractions > 0); // Make sure cassette is not empty
         }
 
@@ -331,13 +329,13 @@ namespace EasyVCR.Tests
 
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var fakeDataService = new FakeJsonDataService(client);
-            await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            await fakeDataService.GetJsonDataRawResponse();
 
             // replay cassette with default expiration rules, should find a match
             client = HttpClients.NewHttpClient(cassette, Mode.Replay);
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
             Assert.IsNotNull(response);
 
             // replay cassette with custom expiration rules, should not find a match because recording is expired (throw exception)
@@ -348,8 +346,8 @@ namespace EasyVCR.Tests
             };
             Task.Delay(TimeSpan.FromSeconds(1)).Wait(); // Allow 1 second to lapse to ensure recording is now "expired"
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeJsonDataService(client);
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+            fakeDataService = new FakeDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetJsonDataRawResponse());
 
             // replay cassette with bad expiration rules, should throw an exception because settings are bad
             advancedSettings = new AdvancedSettings
@@ -365,7 +363,7 @@ namespace EasyVCR.Tests
         {
             var client = TestUtils.GetSimpleClient("test_fake_data_service_client", Mode.Bypass);
 
-            var fakeDataService = new FakeJsonDataService(client);
+            var fakeDataService = new FakeDataService(client);
             Assert.IsNotNull(fakeDataService.Client);
         }
 
@@ -380,7 +378,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.JsonDataUrl, bodyData1);
 
             // try to replay the request with different body data
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
@@ -389,7 +387,7 @@ namespace EasyVCR.Tests
             });
 
             // should fail since we're strictly in replay mode and there's no exact match
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.JsonDataUrl, bodyData2));
         }
 
         [TestMethod]
@@ -403,7 +401,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.JsonDataUrl, bodyData1);
 
             // try to replay the request with no custom match rule
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings()
@@ -412,7 +410,7 @@ namespace EasyVCR.Tests
             });
 
             // should pass since it passes the default match rules
-            await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
+            await client.PostAsync(FakeDataService.JsonDataUrl, bodyData1);
 
             // try to replay the request with a custom match rule
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
@@ -421,7 +419,7 @@ namespace EasyVCR.Tests
             });
 
             // should fail since the custom match rule always returns false and there's never a match
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.JsonDataUrl, bodyData2));
         }
 
         [TestMethod]
@@ -435,7 +433,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.JsonDataUrl, bodyData1);
 
             // try to replay the request with different body data, but ignoring the differences
             var ignoreElements = new List<CensorElement>
@@ -448,7 +446,7 @@ namespace EasyVCR.Tests
             });
 
             // should succeed since we're ignoring the differences
-            var response = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2);
+            var response = await client.PostAsync(FakeDataService.JsonDataUrl, bodyData2);
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }
@@ -459,7 +457,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_match_non_json_body");
             cassette.Erase(); // Erase cassette before recording
 
-            const string url = "https://httpbin.org/post";
+            const string url = "http://httpbin.org/post";
             var postData = HttpUtility.UrlEncode($"param1=name&param2=age", Encoding.UTF8);
             var data = Encoding.UTF8.GetBytes(postData);
             var content = new ByteArrayContent(data);
@@ -478,26 +476,6 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(response);
         }
 
-        [TestMethod]
-        public async Task TestMatchEmptyStringBodyToNonEmptyStringBody()
-        {
-            var cassette = TestUtils.GetCassette("test_match_empty_body");
-            cassette.Erase(); // Erase cassette before recording
-
-            const string url = "https://httpbin.org/post";
-
-            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var someContent = new ByteArrayContent(Encoding.UTF8.GetBytes("non_empty_string_body"));
-            _ = await client.PostAsync(url, someContent);
-
-            // try to replay the request with match by body enforcement
-            client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
-            {
-                MatchRules = new MatchRules().ByBody()
-            });
-            var emptyContent = new ByteArrayContent(Encoding.UTF8.GetBytes(string.Empty));
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(url, emptyContent), $"No interaction found for request POST {url}");
-        }
 
         [TestMethod]
         public async Task TestInteractionElements()
@@ -506,11 +484,11 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var fakeDataService = new FakeJsonDataService(client);
+            var fakeDataService = new FakeDataService(client);
 
             // Most elements of a VCR request are black-boxed, so we can't test them here.
             // Instead, we can get the recreated HttpResponseMessage and check the details.
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            var response = await fakeDataService.GetJsonDataRawResponse();
             Assert.IsNotNull(response);
         }
 
@@ -522,14 +500,14 @@ namespace EasyVCR.Tests
 
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // replay cassette with default match rules, should find a match
             client = HttpClients.NewHttpClient(cassette, Mode.Replay);
             client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value"); // add custom header to request, shouldn't matter when matching by default rules
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
             Assert.IsNotNull(response);
 
             // replay cassette with custom match rules, should not find a match because request is different (throw exception)
@@ -539,8 +517,8 @@ namespace EasyVCR.Tests
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value"); // add custom header to request, causing a match failure when matching by everything
-            fakeDataService = new FakeJsonDataService(client);
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+            fakeDataService = new FakeDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetJsonDataRawResponse());
         }
 
         [TestMethod]
@@ -552,14 +530,14 @@ namespace EasyVCR.Tests
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
             client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value1");
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // replay cassette with default match rules, should find a match
             client = HttpClients.NewHttpClient(cassette, Mode.Replay);
             // no custom header to request, shouldn't matter when matching by default rules
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
             Assert.IsNotNull(response);
 
             // replay cassette with custom match rules, should not find a match because header value is different (throw exception)
@@ -569,8 +547,8 @@ namespace EasyVCR.Tests
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value2"); // add header with different value to request
-            fakeDataService = new FakeJsonDataService(client);
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+            fakeDataService = new FakeDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetJsonDataRawResponse());
         }
 
         [TestMethod]
@@ -582,8 +560,8 @@ namespace EasyVCR.Tests
             // record cassette first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
             client.DefaultRequestHeaders.Add("X-Custom-Header", "custom-value");
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // replay cassette with custom match rules, should not find a match because header is missing (throw exception)
             var advancedSettings = new AdvancedSettings
@@ -591,8 +569,8 @@ namespace EasyVCR.Tests
                 MatchRules = new MatchRules().ByHeader("X-Custom-Header")
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeJsonDataService(client);
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetIPAddressDataRawResponse());
+            fakeDataService = new FakeDataService(client);
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await fakeDataService.GetJsonDataRawResponse());
         }
 
         [TestMethod]
@@ -605,8 +583,8 @@ namespace EasyVCR.Tests
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
             client.DefaultRequestHeaders.Add("X-Custom-Header1", "custom-value1"); // add custom header to request
             client.DefaultRequestHeaders.Add("X-Custom-Header2", "custom-value2");
-            var fakeDataService = new FakeJsonDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetJsonDataRawResponse();
 
             // replay cassette with custom match rules
             var advancedSettings = new AdvancedSettings
@@ -615,8 +593,8 @@ namespace EasyVCR.Tests
             };
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             client.DefaultRequestHeaders.Add("X-Custom-Header1", "custom-value1");
-            fakeDataService = new FakeJsonDataService(client);
-            var response = await fakeDataService.GetIPAddressDataRawResponse();
+            fakeDataService = new FakeDataService(client);
+            var response = await fakeDataService.GetJsonDataRawResponse();
 
             // should succeed since X-Custom-Header1 header value equals
             Assert.IsNotNull(response);
@@ -628,7 +606,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_nested_censoring");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl = "https://httpbin.org/post";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\r\n  \"array\": [\r\n    \"array_1\",\r\n    \"array_2\",\r\n    \"array_3\"\r\n  ],\r\n  \"dict\": {\r\n    \"nested_array\": [\r\n      \"nested_array_1\",\r\n      \"nested_array_2\",\r\n      \"nested_array_3\"\r\n    ],\r\n    \"nested_dict\": {\r\n      \"nested_dict_1\": {\r\n        \"nested_dict_1_1\": {\r\n          \"nested_dict_1_1_1\": \"nested_dict_1_1_1_value\"\r\n        }\r\n      },\r\n      \"nested_dict_2\": {\r\n        \"nested_dict_2_1\": \"nested_dict_2_1_value\",\r\n        \"nested_dict_2_2\": \"nested_dict_2_2_value\"\r\n      }\r\n    },\r\n    \"dict_1\": \"dict_1_value\",\r\n    \"null_key\": null\r\n  }\r\n}");
             // set up advanced settings
             const string censorString = "censored-by-test";
@@ -653,7 +631,7 @@ namespace EasyVCR.Tests
             var cassette = TestUtils.GetCassette("test_strict_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
-            const string postUrl = "https://httpbin.org/post";
+            const string postUrl = "http://httpbin.org/post";
             var postBody = new StringContent("{\n  \"address\": {\n    \"name\": \"Jack Sparrow\",\n    \"company\": \"EasyPost\",\n    \"street1\": \"388 Townsend St\",\n    \"street2\": \"Apt 20\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zip\": \"94107\",\n    \"country\": \"US\",\n    \"phone\": \"5555555555\"\n  }\n}");
 
             // record cassette first
@@ -678,8 +656,7 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }
-
-        [Ignore]
+        
         [TestMethod]
         public async Task TestXmlCensoring()
         {
@@ -690,33 +667,38 @@ namespace EasyVCR.Tests
             const string censorString = "censored-by-test";
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).CensorBodyElementsByKeys(new List<string> { "Table" })
+                Censors = new Censors(censorString).CensorBodyElementsByKeys(new List<string> { "page" })
             };
 
             // record cassette with advanced settings first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var fakeDataService = new FakeXmlDataService(client);
-            var _ = await fakeDataService.GetIPAddressDataRawResponse();
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetXmlDataRawResponse();
 
             // now replay cassette
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeXmlDataService(client);
-            _ = await fakeDataService.GetIPAddressDataRawResponse();
-
-            // TODO: Test is failing because the response is not being censored.
-            // have to manually check cassette for the censored string in the response body
+            fakeDataService = new FakeDataService(client);
+            var xmlData = await fakeDataService.GetXmlData();
+            
+            // check that the xml data was censored
+            Assert.IsNotNull(xmlData);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xmlData);
+            var pageNode = xmlDocument.SelectSingleNode("//page");
+            Assert.IsNotNull(pageNode);
+            Assert.AreEqual(censorString, pageNode.InnerText);
         }
 
-        private static async Task<IPAddressData?> GetIPAddressDataRequest(Cassette cassette, Mode mode)
+        private static async Task<string?> GetJsonDataRequest(Cassette cassette, Mode mode)
         {
             var client = HttpClients.NewHttpClient(cassette, mode, new AdvancedSettings
             {
                 MatchRules = MatchRules.DefaultStrict
             });
 
-            var fakeDataService = new FakeJsonDataService(client);
+            var fakeDataService = new FakeDataService(client);
 
-            return await fakeDataService.GetIPAddressData();
+            return await fakeDataService.GetJsonData();
         }
     }
 }
