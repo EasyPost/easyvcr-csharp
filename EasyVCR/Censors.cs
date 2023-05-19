@@ -78,7 +78,7 @@ namespace EasyVCR
         {
             foreach (var key in elementKeys)
             {
-                _bodyElementsToCensor.Add(new CensorElement(key, caseSensitive));
+                _bodyElementsToCensor.Add(new KeyCensorElement(key, caseSensitive));
             }
 
             return this;
@@ -107,7 +107,7 @@ namespace EasyVCR
         {
             foreach (var key in headerKeys)
             {
-                _headersToCensor.Add(new CensorElement(key, caseSensitive));
+                _headersToCensor.Add(new KeyCensorElement(key, caseSensitive));
             }
 
             return this;
@@ -134,7 +134,7 @@ namespace EasyVCR
         {
             foreach (var key in parameterKeys)
             {
-                _queryParamsToCensor.Add(new CensorElement(key, caseSensitive));
+                _queryParamsToCensor.Add(new KeyCensorElement(key, caseSensitive));
             }
 
             return this;
@@ -196,7 +196,7 @@ namespace EasyVCR
                 {
                     case ContentType.Text:
                     case ContentType.Html:
-                        return body; // We can't censor plaintext bodies or HTML bodies.
+                        return CensorTextData(body, _censorText, _bodyElementsToCensor);
                     case ContentType.Xml:
                         return CensorXmlData(body, _censorText, _bodyElementsToCensor);
                     case ContentType.Json:
@@ -357,10 +357,45 @@ namespace EasyVCR
         }
 
         /// <summary>
+        ///     Apply censors to a raw text string.
+        /// </summary>
+        /// <param name="data">Raw text string to apply censors to.</param>
+        /// <param name="censorText">Text to use to replace censored elements.</param>
+        /// <param name="elementsToCensor">List of elements to censor.</param>
+        /// <returns>A censored raw text string.</returns>
+        public static string CensorTextData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensor)
+        { 
+            if (elementsToCensor.Count == 0)
+            {
+                // short circuit if there are no censors to apply
+                return data;
+            }
+
+            var censoredData = data;
+            foreach (var censorElement in elementsToCensor)
+            {
+                switch (censorElement)
+                {
+                    // we cannot process KeyCensorElements in raw text/html
+                    case KeyCensorElement _:
+                        continue;
+                    case RegexCensorElement regexCensorElement:
+                        censoredData = regexCensorElement.MatchAndReplaceAsNeeded(censoredData, censorText);
+                        break;
+                    case TextCensorElement textCensorElement:
+                        censoredData = textCensorElement.MatchAndReplaceAsNeeded(censoredData, censorText);
+                        break;
+                }
+            }
+            
+            return censoredData;
+        }
+
+        /// <summary>
         ///     Apply censors to a JSON string.
         /// </summary>
         /// <param name="data">JSON string to apply censors to.</param>
-        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="censorText">Text to use to replace censored elements.</param>
         /// <param name="elementsToCensors">List of elements to censor.</param>
         /// <returns>A censored JSON string.</returns>
         public static string CensorJsonData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
@@ -392,7 +427,7 @@ namespace EasyVCR
         ///     Apply censors to an XML string.
         /// </summary>
         /// <param name="data">XML string to apply censors to.</param>
-        /// <param name="censorText">Test to use to replace censored elements.</param>
+        /// <param name="censorText">Text to use to replace censored elements.</param>
         /// <param name="elementsToCensors">List of elements to censor.</param>
         /// <returns>A censored XML string.</returns>
         public static string CensorXmlData(string data, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)

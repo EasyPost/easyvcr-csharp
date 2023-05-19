@@ -48,6 +48,8 @@ namespace EasyVCR.Tests
 
         public static string XmlDataUrl => "http://restapi.adequateshop.com/api/Traveler";
         
+        public static string RawDataUrl => "https://api.ipify.org/?format=xml";
+        
         public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {
             return await Client.GetAsync(JsonDataUrl);
@@ -67,6 +69,17 @@ namespace EasyVCR.Tests
         public async Task<string?> GetXmlData()
         {
             var response = await GetXmlDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
+        }
+        
+        public async Task<HttpResponseMessage> GetRawDataRawResponse()
+        {
+            return await Client.GetAsync(RawDataUrl);
+        }
+        
+        public async Task<string?> GetRawData()
+        {
+            var response = await GetRawDataRawResponse();
             return await response.Content.ReadAsStringAsync();
         }
     }
