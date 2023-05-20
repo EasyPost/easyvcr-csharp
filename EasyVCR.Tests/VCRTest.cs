@@ -18,9 +18,13 @@ namespace EasyVCR.Tests
             // refer to ClientTest.cs for individual per-settings tests
 
             const string censorString = "censored-by-test";
+            var headerCensors = new List<KeyCensorElement>
+            {
+                new("Date", true),
+            };
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).CensorHeadersByKeys(new List<string> { "Date" })
+                Censors = new Censors(censorString).CensorHeaders(headerCensors),
             };
 
             var vcr = new VCR(advancedSettings);

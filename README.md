@@ -80,9 +80,18 @@ using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
 
-var censors = new Censors().CensorHeadersByKeys(new List<string> { "Authorization" }) // Hide the Authorization header
-censors.CensorBodyElementsByKeys(new List<CensorElement> { new CensorElement("table", true) }); // Hide the table element (case sensitive) in the request and response body
-censors.CensorPathElementsByPatterns(new List<string> { ".*\\d{4}.*" }); // Hide any path element that contains 4 digits
+var headerCensors = new List<KeyCensorElement> {
+    new("Authorization", false), // Hide the Authorization header
+};
+var bodyCensors = new List<KeyCensorElement> {
+    new("table", true), // Hide the table element (case sensitive) in the request and response body
+};
+var pathCensors = new List<PatternCensorElement> {
+    new(".*\\d{4}.*"), // Hide any path element that contains 4 digits
+};
+var censors = new Censors().CensorHeaders(headerCensors)
+                           .CensorBodyElements(bodyCensors)
+                           .CensorPathElements(pathCensors);
 
 var advancedOptions = new AdvancedOptions()
 {
@@ -216,9 +225,12 @@ request made using the VCR's HttpClient.
 ```csharp
 using EasyVCR;
 
+var queryParameterCensors = new List<KeyCensorElement> {
+    new("api_key", true), // Hide the api_key query parameter
+};
 var advancedSettings = new AdvancedSettings
 {
-    Censors = new Censors().CensorQueryParametersByKeys(new List<string> { "api_key" }) // hide the api_key query parameter
+    Censors = new Censors().CensorQueryParameters(queryParameterCensors)
 };
 
 // Create a VCR with the advanced settings applied

@@ -1,14 +1,19 @@
 # CHANGELOG
 
-## v0.11.0 (2024-06-06)
+## Next Release
 
-- Add missing .NET 8.0 DLLs to the NuGet package
-
-## v0.10.0 (2024-02-09)
-
-- Add .NET 8.0 support
-- `AdvancedSettings` uses `MatchRules.Default` instead of a new instance of `MatchRules` if not provided during construction
-- Fix `NullReferenceException` when trying to match by body with a null body (`refit` compatibility)
+- Add support for censoring XML, HTML and plain text bodies
+- [BREAKING CHANGE] `CensorElement` now abstract base class, cannot be used directly
+  - Three types of `CensorElement` options available:
+    - `KeyCensorElement`: Censor the value of a specified key (will be ignored if used for plain text/HTML data)
+    - `RegexCensorElement`: Censor any string that matches a specified regex pattern (will check the value of a key-value pair if used for JSON/XML data)
+    - `TextCensorElement`: Censor a specified string (will check the value of a key-value pair if used for JSON/XML data; requires the whole body to match the specified string if used for plain text/HTML data)
+  - Body censoring: `KeyCensorElement` (recommended for JSON/XML if key is known), `TextCensorElement` (recommended for JSON/XML if value is known), and `RegexCensorElement` (recommended for plain text/HTML)
+  - Path element censoring: Use `RegexCensorElement`
+  - Query parameter censoring: Use `KeyCensorElement`
+  - Header censoring: Use `KeyCensorElement`
+- [BREAKING CHANGE] `CensorHeadersByKeys`, `CensorBodyElementsByKeys`, `CensorQueryParametersByKeys` and `CensorPathElementsByPatterns` removed
+  - Use `CensorHeaders`, `CensorBodyElements`, `CensorQueryParameters` and `CensorPathElements` instead
 
 ## v0.9.0 (2023-05-17)
 

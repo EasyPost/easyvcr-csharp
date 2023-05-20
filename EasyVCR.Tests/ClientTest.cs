@@ -107,9 +107,10 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             const string censorString = "censored-by-test";
+            var headerCensors = new List<KeyCensorElement> { new KeyCensorElement("Date", false) };
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).CensorHeadersByKeys(new List<string> { "Date" })
+                Censors = new Censors(censorString).CensorHeaders(headerCensors),
             };
 
             // record cassette with advanced settings first
@@ -148,9 +149,10 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             const string censorString = "censored-by-test";
+            var pathCensors = new List<RegexCensorElement> { new RegexCensorElement(regexPattern, false) };
             var advancedSettings = new AdvancedSettings
             {
-                Censors = new Censors(censorString).CensorPathElementsByPatterns(new List<string> { regexPattern })
+                Censors = new Censors(censorString).CensorPathElements(pathCensors),
             };
 
             // record cassette with advanced settings
@@ -611,7 +613,14 @@ namespace EasyVCR.Tests
             // set up advanced settings
             const string censorString = "censored-by-test";
             var censors = new Censors(censorString);
-            censors.CensorBodyElementsByKeys(new List<string> { "nested_dict_1_1_1", "nested_dict_2_2", "nested_array", "null_key" });
+            var bodyCensors = new List<KeyCensorElement>
+            {
+                new KeyCensorElement("nested_dict_1_1_1", false),
+                new KeyCensorElement("nested_dict_2_2", false),
+                new KeyCensorElement("nested_array", false),
+                new KeyCensorElement("null_key", false),
+            };
+            censors.CensorBodyElements(bodyCensors);
             var advancedSettings = new AdvancedSettings
             {
                 Censors = censors
@@ -657,71 +666,11 @@ namespace EasyVCR.Tests
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }
 
-        [TestMethod]
-        public async Task TestXmlCensoring()
-        {
-            var cassette = TestUtils.GetCassette("test_xml_censors");
-            cassette.Erase(); // Erase cassette before recording
-
-            // set up advanced settings
-            const string censorString = "censored-by-test";
-            var advancedSettings = new AdvancedSettings
-            {
-                Censors = new Censors(censorString).CensorBodyElementsByKeys(new List<string> { "page" })
-            };
-
-            // record cassette with advanced settings first
-            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var fakeDataService = new FakeDataService(client);
-            var _ = await fakeDataService.GetXmlDataRawResponse();
-
-            // now replay cassette
-            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeDataService(client);
-            var xmlData = await fakeDataService.GetXmlData();
-
-            // check that the xml data was censored
-            Assert.IsNotNull(xmlData);
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(xmlData);
-            var pageNode = xmlDocument.SelectSingleNode("//page");
-            Assert.IsNotNull(pageNode);
-            Assert.AreEqual(censorString, pageNode.InnerText);
-        }
-
-        [TestMethod]
-        public async Task TestRawCensoring()
-        {
-            var cassette = TestUtils.GetCassette("test_raw_censors");
-            cassette.Erase(); // Erase cassette before recording
-
-            // set up advanced settings
-            const string censorString = "censored-by-test";
-            var advancedSettings = new AdvancedSettings
-            {
-                Censors = new Censors(censorString).CensorBodyElements(new[] { new RegexCensorElement("^.*\\.", false) }),
-            };
-
-            // record cassette with advanced settings first
-            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
-            var fakeDataService = new FakeDataService(client);
-            var _ = await fakeDataService.GetRawDataRawResponse();
-
-            // now replay cassette
-            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
-            fakeDataService = new FakeDataService(client);
-            var rawData = await fakeDataService.GetRawData();
-
-            // check that the raw data was censored
-            Assert.IsNotNull(rawData);
-            Assert.IsTrue(rawData.Contains(censorString));
-        }
-
         private static async Task<string?> GetJsonDataRequest(Cassette cassette, Mode mode)
         {
             var client = HttpClients.NewHttpClient(cassette, mode, new AdvancedSettings
             {
-                MatchRules = MatchRules.DefaultStrict
+                MatchRules = MatchRules.DefaultStrict,
             });
 
             var fakeDataService = new FakeDataService(client);

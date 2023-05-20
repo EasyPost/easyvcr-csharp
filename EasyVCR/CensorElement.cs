@@ -14,7 +14,7 @@ namespace EasyVCR
         protected bool CaseSensitive { get; }
 
         /// <summary>
-        ///     Value to censor.
+        ///     Value to look for.
         /// </summary>
         protected string Value { get; }
 
@@ -33,11 +33,9 @@ namespace EasyVCR
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
         /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal virtual bool Matches(string value)
-        {
-            return CaseSensitive ? Value.Equals(value) : Value.Equals(value, StringComparison.OrdinalIgnoreCase);
-        }
+        internal abstract bool Matches(string value, string? key = null);
     }
 
     /// <summary>
@@ -58,9 +56,11 @@ namespace EasyVCR
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
         /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value)
+        internal override bool Matches(string value, string? key = null)
         {
+            // we only care about the value here
             return CaseSensitive ? Value.Equals(value) : Value.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -94,10 +94,12 @@ namespace EasyVCR
         /// <summary>
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
-        /// <param name="key">The name to check.</param>
+        /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string key)
+        internal override bool Matches(string value, string? key = null)
         {
+            // we only care about the key here
             return CaseSensitive ? Value.Equals(key) : Value.Equals(key, StringComparison.OrdinalIgnoreCase);
         }
     }
@@ -144,9 +146,11 @@ namespace EasyVCR
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
         /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value)
+        internal override bool Matches(string value, string? key = null)
         {
+            // we only care about the value here
             var options = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Singleline;
             if (!CaseSensitive)
             {

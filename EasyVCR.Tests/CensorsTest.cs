@@ -1,4 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EasyVCR.Tests
@@ -200,6 +204,338 @@ namespace EasyVCR.Tests
             var result = censors.ApplyPathElementsCensors(url);
 
             Assert.AreEqual(url, result);
+        }
+        
+        /// <summary>
+        ///     Test TextCensorElement works for XML bodies
+        /// </summary>
+        [TestMethod]
+        public async Task TestTextCensorOnXml()
+        {
+            var cassette = TestUtils.GetCassette("test_text_censor_on_xml");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the word "r/ProgrammerHumor"
+                        new TextCensorElement("r/ProgrammerHumor", false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetXmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var xmlData = await fakeDataService.GetXmlData();
+            
+            Assert.IsNotNull(xmlData);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xmlData);
+            
+            // word "r/ProgrammerHumor" should be censored
+            // for testing purposes, we know this is the "label" property of the "category" node under "feed"
+            var categoryNode = xmlDocument.FirstChild?.FirstChild;
+            Assert.IsNotNull(categoryNode);
+            Assert.AreEqual(censorString, categoryNode.Attributes["label"].Value);
+        }
+        
+        /// <summary>
+        ///     Test KeyCensorElement works for XML bodies
+        /// </summary>
+        [TestMethod]
+        public async Task TestKeyCensorOnXml()
+        {
+            var cassette = TestUtils.GetCassette("test_key_censor_on_xml");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the value of the "title" key
+                        new KeyCensorElement("title", false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetXmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var xmlData = await fakeDataService.GetXmlData();
+            
+            Assert.IsNotNull(xmlData);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xmlData);
+            
+            // whole value of "title" key should be censored
+            var nodes = xmlDocument.SelectNodes("//title");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.InnerText);
+            }
+        }
+        
+        /// <summary>
+        ///     Test RegexCensorElement works for XML bodies
+        /// </summary>
+        [TestMethod]
+        public async Task TestRegexCensorOnXml()
+        {
+            var cassette = TestUtils.GetCassette("test_regex_censor_on_xml");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor any value that looks like an date stamp
+                        new RegexCensorElement(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetXmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var xmlData = await fakeDataService.GetXmlData();
+            
+            Assert.IsNotNull(xmlData);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xmlData);
+
+            // all values that look like urls should be censored
+            // for testing purposes, we know this is stored in the "uri" nodes
+            var nodes = xmlDocument.SelectNodes("//uri");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.InnerText);
+            }
+        }
+
+        [Ignore("Hard to test")]
+        [TestMethod]
+        public async Task TestTextCensorOnHtml()
+        {
+            // TextCensorHTML censors the whole text in the HTML body
+            // Would need an HTML page with a small body to test this
+            Assert.Fail();
+        }
+        
+        [Ignore("Can't use KeyCensorElement on HTML bodies")]
+        [TestMethod]
+        public async Task TestKeyCensorOnHtml()
+        {
+            Assert.Fail("Can't use KeyCensorElement on HTML bodies");
+        }
+
+        [TestMethod]
+        public async Task TestRegexCensorOnHtml()
+        {
+            var cassette = TestUtils.GetCassette("test_regex_censor_on_html");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            const string pattern = "<head>.*</head>";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the pattern
+                        new RegexCensorElement(pattern, false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetHtmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var textData = await fakeDataService.GetHtmlData();
+            
+            Assert.IsNotNull(textData);
+            
+            // censored pattern should no longer exist, and censor string should exist
+            Assert.IsFalse(Regex.IsMatch(textData, pattern));
+            Assert.IsTrue(textData.Contains(censorString));
+        }
+        
+        /// <summary>
+        ///     Test TextCensorElement works for plain text bodies
+        /// </summary>
+        [TestMethod]
+        public async Task TestTextCensorOnText()
+        {
+            var cassette = TestUtils.GetCassette("test_text_censor_on_text");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            const string textToCensor = "# UGAArchive\nArchives of projects I did as a student at The University of Georgia\n";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the text
+                        new TextCensorElement(textToCensor, false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetRawDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var textData = await fakeDataService.GetRawData();
+            
+            Assert.IsNotNull(textData);
+            
+            // censored word should no longer exist, and censor string should exist
+            Assert.IsFalse(textData.Contains(textToCensor));
+            Assert.IsTrue(textData.Contains(censorString));
+        }
+
+        [Ignore("Can't use KeyCensorElement on plain text bodies")]
+        [TestMethod]
+        public async Task TestKeyCensorOnText()
+        {
+            Assert.Fail("Can't use KeyCensorElement on plain text bodies");
+        }
+        
+        /// <summary>
+        ///     Test RegexCensorElement works for plain text bodies
+        /// </summary>
+        [TestMethod]
+        public async Task TestRegexCensorOnText()
+        {
+            var cassette = TestUtils.GetCassette("test_regex_censor_on_text");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            const string pattern = "^# UGAArchive";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the pattern
+                        new RegexCensorElement(pattern, false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetRawDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var textData = await fakeDataService.GetRawData();
+            
+            Assert.IsNotNull(textData);
+            
+            // censored pattern should no longer exist, and censor string should exist
+            Assert.IsFalse(Regex.IsMatch(textData, pattern));
+            Assert.IsTrue(textData.Contains(censorString));
+        }
+
+        /// <summary>
+        ///     Test that we can mix and match censor elements
+        /// </summary>
+        [TestMethod]
+        public async Task TestMixAndMatchCensorElements()
+        {
+            var cassette = TestUtils.GetCassette("test_mix_and_match_censor_elements");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the word "r/ProgrammerHumor"
+                        new TextCensorElement("r/ProgrammerHumor", false),
+                        // censor the value of the "title" key
+                        new KeyCensorElement("title", false), 
+                        // censor any value that looks like an date stamp
+                        new RegexCensorElement(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetXmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var xmlData = await fakeDataService.GetXmlData();
+
+            // check that the xml data was censored
+            Assert.IsNotNull(xmlData);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xmlData);
+            
+            // word "r/ProgrammerHumor" should be censored
+            // for testing purposes, we know this is the "label" property of the "category" node under "feed"
+            var categoryNode = xmlDocument.FirstChild?.FirstChild;
+            Assert.IsNotNull(categoryNode);
+            Assert.AreEqual(censorString, categoryNode.Attributes["label"].Value);
+
+            // whole value of "title" key should be censored
+            var nodes = xmlDocument.SelectNodes("//title");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.InnerText);
+            }
+
+            // all values that look like urls should be censored
+            // for testing purposes, we know this is stored in the "uri" nodes
+            nodes = xmlDocument.SelectNodes("//uri");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.InnerText);
+            }
         }
     }
 }
