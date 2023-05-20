@@ -44,14 +44,17 @@ namespace EasyVCR.Tests
             _client = client;
         }
 
-        public static string JsonDataUrl => "https://api.ipify.org/";
+        public static string JsonDataUrl => "https://www.reddit.com/r/ProgrammerHumor.json";
 
-        public static string XmlDataUrl => "http://restapi.adequateshop.com/api/Traveler";
+        public static string XmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor.rss";
+        
+        public static string HtmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor";
 
-        public static string RawDataUrl => "https://api.ipify.org/?format=xml";
+        public static string RawDataUrl => "https://raw.githubusercontent.com/nwithan8/UGAArchive/main/README.md";
 
         public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
             return await Client.GetAsync(JsonDataUrl);
         }
 
@@ -63,12 +66,25 @@ namespace EasyVCR.Tests
 
         public async Task<HttpResponseMessage> GetXmlDataRawResponse()
         {
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
             return await Client.GetAsync(XmlDataUrl);
         }
 
         public async Task<string?> GetXmlData()
         {
             var response = await GetXmlDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
+        }
+        
+        public async Task<HttpResponseMessage> GetHtmlDataRawResponse()
+        {
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
+            return await Client.GetAsync(HtmlDataUrl);
+        }
+        
+        public async Task<string?> GetHtmlData()
+        {
+            var response = await GetHtmlDataRawResponse();
             return await response.Content.ReadAsStringAsync();
         }
 
