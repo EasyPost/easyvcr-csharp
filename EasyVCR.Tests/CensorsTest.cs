@@ -205,7 +205,7 @@ namespace EasyVCR.Tests
 
             Assert.AreEqual(url, result);
         }
-        
+
         /// <summary>
         ///     Test TextCensorElement works for XML bodies
         /// </summary>
@@ -236,18 +236,18 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var xmlData = await fakeDataService.GetXmlData();
-            
+
             Assert.IsNotNull(xmlData);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
-            
+
             // word "r/ProgrammerHumor" should be censored
             // for testing purposes, we know this is the "label" property of the "category" node under "feed"
             var categoryNode = xmlDocument.FirstChild?.FirstChild;
             Assert.IsNotNull(categoryNode);
             Assert.AreEqual(censorString, categoryNode.Attributes["label"].Value);
         }
-        
+
         /// <summary>
         ///     Test KeyCensorElement works for XML bodies
         /// </summary>
@@ -278,11 +278,11 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var xmlData = await fakeDataService.GetXmlData();
-            
+
             Assert.IsNotNull(xmlData);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
-            
+
             // whole value of "title" key should be censored
             var nodes = xmlDocument.SelectNodes("//title");
             Assert.IsNotNull(nodes);
@@ -291,7 +291,7 @@ namespace EasyVCR.Tests
                 Assert.AreEqual(censorString, node.InnerText);
             }
         }
-        
+
         /// <summary>
         ///     Test RegexCensorElement works for XML bodies
         /// </summary>
@@ -322,7 +322,7 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var xmlData = await fakeDataService.GetXmlData();
-            
+
             Assert.IsNotNull(xmlData);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
@@ -345,7 +345,7 @@ namespace EasyVCR.Tests
             // Would need an HTML page with a small body to test this
             Assert.Fail();
         }
-        
+
         [Ignore("Can't use KeyCensorElement on HTML bodies")]
         [TestMethod]
         public async Task TestKeyCensorOnHtml()
@@ -381,14 +381,14 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var textData = await fakeDataService.GetHtmlData();
-            
+
             Assert.IsNotNull(textData);
-            
+
             // censored pattern should no longer exist, and censor string should exist
             Assert.IsFalse(Regex.IsMatch(textData, pattern));
             Assert.IsTrue(textData.Contains(censorString));
         }
-        
+
         /// <summary>
         ///     Test TextCensorElement works for plain text bodies
         /// </summary>
@@ -420,9 +420,9 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var textData = await fakeDataService.GetRawData();
-            
+
             Assert.IsNotNull(textData);
-            
+
             // censored word should no longer exist, and censor string should exist
             Assert.IsFalse(textData.Contains(textToCensor));
             Assert.IsTrue(textData.Contains(censorString));
@@ -434,7 +434,7 @@ namespace EasyVCR.Tests
         {
             Assert.Fail("Can't use KeyCensorElement on plain text bodies");
         }
-        
+
         /// <summary>
         ///     Test RegexCensorElement works for plain text bodies
         /// </summary>
@@ -466,9 +466,9 @@ namespace EasyVCR.Tests
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
             fakeDataService = new FakeDataService(client);
             var textData = await fakeDataService.GetRawData();
-            
+
             Assert.IsNotNull(textData);
-            
+
             // censored pattern should no longer exist, and censor string should exist
             Assert.IsFalse(Regex.IsMatch(textData, pattern));
             Assert.IsTrue(textData.Contains(censorString));
@@ -513,7 +513,7 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(xmlData);
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
-            
+
             // word "r/ProgrammerHumor" should be censored
             // for testing purposes, we know this is the "label" property of the "category" node under "feed"
             var categoryNode = xmlDocument.FirstChild?.FirstChild;

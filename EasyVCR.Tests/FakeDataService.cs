@@ -47,7 +47,7 @@ namespace EasyVCR.Tests
         public static string JsonDataUrl => "https://www.reddit.com/r/ProgrammerHumor.json";
 
         public static string XmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor.rss";
-        
+
         public static string HtmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor";
 
         public static string RawDataUrl => "https://raw.githubusercontent.com/nwithan8/UGAArchive/main/README.md";
@@ -75,13 +75,13 @@ namespace EasyVCR.Tests
             var response = await GetXmlDataRawResponse();
             return await response.Content.ReadAsStringAsync();
         }
-        
+
         public async Task<HttpResponseMessage> GetHtmlDataRawResponse()
         {
             Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
             return await Client.GetAsync(HtmlDataUrl);
         }
-        
+
         public async Task<string?> GetHtmlData()
         {
             var response = await GetHtmlDataRawResponse();

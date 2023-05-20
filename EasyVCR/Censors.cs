@@ -39,10 +39,10 @@ namespace EasyVCR
 
                 var headerCensors = Defaults.CredentialHeadersToHide.Select(header => new KeyCensorElement(header, false)).ToList();
                 censors.CensorHeaders(headerCensors);
-                
+
                 var queryParamCensors = Defaults.CredentialParametersToHide.Select(queryParam => new KeyCensorElement(queryParam, false)).ToList();
                 censors.CensorQueryParameters(queryParamCensors);
-                
+
                 var bodyElementCensors = Defaults.CredentialParametersToHide.Select(bodyElement => new KeyCensorElement(bodyElement, false)).ToList();
                 censors.CensorBodyElements(bodyElementCensors);
 
@@ -248,7 +248,7 @@ namespace EasyVCR
                             // short circuit if key is null
                             continue;
                         }
-                        
+
                         var foundValue = queryParameters[key];
                         censoredQueryParameters.Add(key, ElementShouldBeCensored(foundValue: foundValue, foundKey: key, _queryParamsToCensor) ? _censorText : queryParameters[key]);
                     }
@@ -546,7 +546,7 @@ namespace EasyVCR
                 // short circuit if the value is not a string
                 return false;
             }
-            
+
             return elementsToCensor.Count != 0 && elementsToCensor.Any(element => element.Matches(value: (string)foundValue, key: foundKey));
         }
 
