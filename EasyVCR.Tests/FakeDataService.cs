@@ -72,7 +72,7 @@ namespace EasyVCR.Tests
 
         public static string GetPostManPostEchoServiceUrl()
         {
-            return "https://postman-echo.com/post";
+            return "http://httpbin.org/post";
         }
     }
 }
