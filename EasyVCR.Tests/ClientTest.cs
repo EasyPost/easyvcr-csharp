@@ -209,13 +209,14 @@ namespace EasyVCR.Tests
         }
 
         [TestMethod]
-        public async Task TestDefaultRequestMatching()
+        public async Task TestDefaultRequestMatchingWithAdvancedSettings()
         {
             // test that match by method and url works
             var cassette = TestUtils.GetCassette("test_default_request_matching");
             cassette.Erase(); // Erase cassette before recording
 
             const string postUrl = "http://httpbin.org/post";
+            const string postUrl2 = "http://httpbin.org/post?q=a";
             var postBody = new StringContent("{\"key\":\"value\"}");
 
             // record cassette first
@@ -225,7 +226,7 @@ namespace EasyVCR.Tests
             });
             var response = await client.PostAsync(postUrl, postBody);
 
-            // check that the request body was not matched (should be a live call)
+            // check that the request was not matched (should be a live call)
             Assert.IsNotNull(response);
             Assert.IsFalse(Utilities.ResponseCameFromRecording(response));
 
@@ -236,9 +237,44 @@ namespace EasyVCR.Tests
             });
             response = await client.PostAsync(postUrl, postBody);
 
-            // check that the request body was matched
+            // check that the request was matched
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
+
+            // check that the request was not matched (should be a live call)
+            await Assert.ThrowsExceptionAsync<VCRException>(() => client.PostAsync(postUrl2, postBody));
+
+        }
+
+        [TestMethod]
+        public async Task TestDefaultRequestMatching()
+        {
+            // test that match by method and url works
+            var cassette = TestUtils.GetCassette("test_default_request_matching");
+            cassette.Erase(); // Erase cassette before recording
+
+            const string postUrl = "http://httpbin.org/post";
+            const string postUrl2 = "http://httpbin.org/post?q=a";
+            var postBody = new StringContent("{\"key\":\"value\"}");
+
+            // record cassette first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record);
+            var response = await client.PostAsync(postUrl, postBody);
+
+            // check that the request was not matched (should be a live call)
+            Assert.IsNotNull(response);
+            Assert.IsFalse(Utilities.ResponseCameFromRecording(response));
+
+            // replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay);
+            response = await client.PostAsync(postUrl, postBody);
+
+            // check that the request was matched
+            Assert.IsNotNull(response);
+            Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
+
+            // check that the request was not matched (should be a live call)
+            await Assert.ThrowsExceptionAsync<VCRException>(() => client.PostAsync(postUrl2, postBody));
         }
 
         [TestMethod]
