@@ -379,7 +379,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
 
             // try to replay the request with different body data
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
@@ -388,7 +388,7 @@ namespace EasyVCR.Tests
             });
 
             // should fail since we're strictly in replay mode and there's no exact match
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2));
         }
 
         [TestMethod]
@@ -402,7 +402,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
 
             // try to replay the request with no custom match rule
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings()
@@ -411,7 +411,7 @@ namespace EasyVCR.Tests
             });
 
             // should pass since it passes the default match rules
-            await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+            await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
 
             // try to replay the request with a custom match rule
             client = HttpClients.NewHttpClient(cassette, Mode.Replay, new AdvancedSettings
@@ -420,7 +420,7 @@ namespace EasyVCR.Tests
             });
 
             // should fail since the custom match rule always returns false and there's never a match
-            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2));
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2));
         }
 
         [TestMethod]
@@ -434,7 +434,7 @@ namespace EasyVCR.Tests
 
             // record baseline request first
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var _ = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData1);
+            var _ = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData1);
 
             // try to replay the request with different body data, but ignoring the differences
             var ignoreElements = new List<CensorElement>
@@ -447,7 +447,7 @@ namespace EasyVCR.Tests
             });
 
             // should succeed since we're ignoring the differences
-            var response = await client.PostAsync(FakeDataService.GetPreparedIPAddressDataUrl("json"), bodyData2);
+            var response = await client.PostAsync(FakeDataService.GetPostManPostEchoServiceUrl(), bodyData2);
             Assert.IsNotNull(response);
             Assert.IsTrue(Utilities.ResponseCameFromRecording(response));
         }

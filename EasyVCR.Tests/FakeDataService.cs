@@ -58,16 +58,21 @@ namespace EasyVCR.Tests
             return await Client.GetAsync(GetPreparedIPAddressDataUrl(_format));
         }
 
-        protected abstract IPAddressData Convert(string responseBody);
-
         public static string GetPreparedIPAddressDataUrl(string? format)
         {
             return $"{GetIPAddressDataUrl()}?format={format}";
         }
 
+        protected abstract IPAddressData Convert(string responseBody);
+
         public static string GetIPAddressDataUrl()
         {
             return "https://api.ipify.org/";
+        }
+
+        public static string GetPostManPostEchoServiceUrl()
+        {
+            return "http://httpbin.org/post";
         }
     }
 }
