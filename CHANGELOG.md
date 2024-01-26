@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Next Release 
+
+- Add .NET 8.0 support
+
 ## v0.9.0 (2023-05-17)
 
 - Fix a bug where URLs were not being extracted correctly, potentially causing false matches when matching by URL
