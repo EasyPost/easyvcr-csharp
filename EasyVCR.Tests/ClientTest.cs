@@ -207,7 +207,7 @@ namespace EasyVCR.Tests
             Assert.IsNotNull(vcrHandler);
             Assert.IsNotNull(vcrHandler.InnerHandler);
         }
-        
+
         [TestMethod]
         public async Task TestDefaultRequestMatching()
         {
@@ -660,7 +660,7 @@ namespace EasyVCR.Tests
 
             // NOTE: Have to manually check the cassette
         }
-        
+
         [TestMethod]
         public async Task TestStrictRequestMatching()
         {
