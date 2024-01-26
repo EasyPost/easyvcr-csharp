@@ -43,7 +43,7 @@ namespace EasyVCR.Handlers
             _mode = mode;
             _censors = advancedSettings?.Censors ?? new Censors();
             _interactionConverter = advancedSettings?.InteractionConverter ?? new DefaultInteractionConverter();
-            _matchRules = advancedSettings?.MatchRules ?? new MatchRules();
+            _matchRules = advancedSettings?.MatchRules ?? MatchRules.Default;
             _useOriginalDelay = advancedSettings?.SimulateDelay ?? false;
             _delay = advancedSettings?.ManualDelayTimeSpan ?? TimeSpan.Zero;
             _validTimeFrame = advancedSettings?.ValidTimeFrame ?? TimeFrame.Forever;
