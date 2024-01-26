@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Next Release
+## v0.10.0 (2024-02-09)
 
 - Add .NET 8.0 support
 - `AdvancedSettings` uses `MatchRules.Default` instead of a new instance of `MatchRules` if not provided during construction
