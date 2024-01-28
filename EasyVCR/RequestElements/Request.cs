@@ -38,7 +38,7 @@ namespace EasyVCR.RequestElements
         /// </summary>
         [JsonProperty("Method")]
         public string Method { get; set; }
-        
+
         /// <summary>
         ///     The request headers of the request.
         /// </summary>
