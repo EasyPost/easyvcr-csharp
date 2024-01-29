@@ -15,7 +15,7 @@ namespace EasyVCR.RequestElements
         ///     The body of the request.
         /// </summary>
         [JsonProperty("Body")]
-        internal string? Body { get; set; }
+        public string? Body { get; set; }
 
         /// <summary>
         ///     The content type of the body of the response.
@@ -31,22 +31,25 @@ namespace EasyVCR.RequestElements
         ///     The content headers of the request.
         /// </summary>
         [JsonProperty("ContentHeaders")]
-        internal IDictionary<string, string>? ContentHeaders { get; set; }
+        public IDictionary<string, string>? ContentHeaders { get; set; }
+
         /// <summary>
         ///     The method of the request.
         /// </summary>
         [JsonProperty("Method")]
-        internal string Method { get; set; }
+        public string Method { get; set; }
+
         /// <summary>
         ///     The request headers of the request.
         /// </summary>
         [JsonProperty("RequestHeaders")]
-        internal IDictionary<string, string> RequestHeaders { get; set; }
+        public IDictionary<string, string> RequestHeaders { get; set; }
+
         /// <summary>
         ///    The URL of the request.
         /// </summary>
         [JsonProperty("Uri")]
-        internal string? Uri { get; set; }
+        public string? Uri { get; set; }
 
         /// <summary>
         ///     The content type of the body of the response (string).

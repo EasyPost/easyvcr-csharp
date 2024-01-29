@@ -13,7 +13,7 @@ namespace EasyVCR.Handlers
     ///     A handler that records and replays HTTP requests and responses.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    internal class VCRHandler : DelegatingHandler
+    public class VCRHandler : DelegatingHandler
     {
         private readonly Cassette _cassette;
 
