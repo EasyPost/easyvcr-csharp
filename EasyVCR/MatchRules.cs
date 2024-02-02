@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using EasyVCR.InternalUtilities;
 using EasyVCR.RequestElements;
 using JsonSerialization = EasyVCR.InternalUtilities.JSON.Serialization;
 using XmlSerialization = EasyVCR.InternalUtilities.XML.Serialization;
@@ -132,7 +133,7 @@ namespace EasyVCR
                     return true;
 
                 if (received.Body == null || recorded.Body == null)
-                    // one has a null body, so they don't match
+                    // one has a null body, the other does not, so they don't match
                     return false;
 
                 var receivedBody = received.Body;
@@ -155,11 +156,24 @@ namespace EasyVCR
                     // not JSON, using the string as it is
                 }
 
+                if (receivedBody.IsEmptyStringOrNull())
+                    // short-cut if the received body is empty
+                    receivedBody = null;
+
+                if (recordedBody.IsEmptyStringOrNull())
+                    // short-cut if the recorded body is empty
+                    recordedBody = null;
+
                 if (receivedBody == null && recordedBody == null)
                     // both have empty string bodies, so they match
                     return true;
 
-                return (receivedBody ?? "").Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
+                if (receivedBody == null || recordedBody == null)
+                    // one has a null body, the other does not, so they don't match
+                    return false;
+
+                // if the bodies are not null, then we can compare them
+                return receivedBody.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
         }
