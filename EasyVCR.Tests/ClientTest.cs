@@ -512,7 +512,7 @@ namespace EasyVCR.Tests
             var response = await client.PostAsync(url, content);
             Assert.IsNotNull(response);
         }
-        
+
         [TestMethod]
         public async Task TestMatchEmptyStringBodyToNonEmptyStringBody()
         {
@@ -520,8 +520,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             const string url = "https://httpbin.org/post";
-    
-            // record baseline request first
+
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
             var someContent = new ByteArrayContent(Encoding.UTF8.GetBytes("whatevs"));
             _ = await client.PostAsync(url, someContent);
@@ -534,7 +533,7 @@ namespace EasyVCR.Tests
             var emptyContent = new ByteArrayContent(Encoding.UTF8.GetBytes(string.Empty));
             Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(url, emptyContent), "No interaction found for request POST https://httpbin.org/post");
         }
-        
+
 
 
         [TestMethod]
