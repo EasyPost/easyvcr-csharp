@@ -159,7 +159,7 @@ namespace EasyVCR
                     // both have empty string bodies, so they match
                     return true;
 
-                return receivedBody!.Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
+                return (receivedBody ?? "").Equals(recordedBody, StringComparison.OrdinalIgnoreCase);
             });
             return this;
         }
