@@ -4,6 +4,7 @@
 
 - Add .NET 8.0 support
 - `AdvancedSettings` uses `MatchRules.Default` instead of a new instance of `MatchRules` if not provided during construction
+- Fix `NullReferenceException` when trying to match by body with a null body (`refit` compatibility)
 
 ## v0.9.0 (2023-05-17)
 
