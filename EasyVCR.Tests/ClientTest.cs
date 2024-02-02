@@ -522,7 +522,7 @@ namespace EasyVCR.Tests
             const string url = "https://httpbin.org/post";
 
             var client = HttpClients.NewHttpClient(cassette, Mode.Record);
-            var someContent = new ByteArrayContent(Encoding.UTF8.GetBytes("whatevs"));
+            var someContent = new ByteArrayContent(Encoding.UTF8.GetBytes("non_empty_string_body"));
             _ = await client.PostAsync(url, someContent);
 
             // try to replay the request with match by body enforcement
@@ -531,10 +531,8 @@ namespace EasyVCR.Tests
                 MatchRules = new MatchRules().ByBody()
             });
             var emptyContent = new ByteArrayContent(Encoding.UTF8.GetBytes(string.Empty));
-            Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(url, emptyContent), "No interaction found for request POST https://httpbin.org/post");
+            await Assert.ThrowsExceptionAsync<VCRException>(async () => await client.PostAsync(url, emptyContent), $"No interaction found for request POST {url}");
         }
-
-
 
         [TestMethod]
         public async Task TestInteractionElements()
