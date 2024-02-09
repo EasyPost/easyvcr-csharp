@@ -1,7 +1,7 @@
 ﻿// This test checks that EasyVCR C# code can be used in F#.
-// This test project is running on .NET 6.0, although a success here should mean a success in all versions of .NET.'
+// This test project is running on the latest .NET, although a success here should mean a success in all versions of .NET.'
 
-namespace EasyVCR.Tests.FSharp
+namespace EasyVCR.Compatibility.FSharp
 
 open Xunit
 

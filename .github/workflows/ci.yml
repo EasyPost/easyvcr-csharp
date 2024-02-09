@@ -169,7 +169,7 @@ jobs:
 
         # Build the test project
       - name: Build Solution
-        run: msbuild EasyVCR.Tests.FSharp\EasyVCR.Tests.FSharp.fsproj /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
+        run: make fs-compat-test fw=net8.0  # Always run compatibility tests on the latest framework
 
   Visual_Basic_Compatibility:
     runs-on: windows-2022
@@ -202,7 +202,7 @@ jobs:
 
         # Build the test project
       - name: Build Solution
-        run: msbuild EasyVCR.Tests.VB\EasyVCR.Tests.VB.vbproj /p:platform="Any CPU" /p:configuration="Debug" /p:outputPath="bin/Test" /p:target="Rebuild" -restore
+        run: make vb-compat-test fw=net8.0  # Always run compatibility tests on the latest framework
 
 
 # .NET Standard notes:
