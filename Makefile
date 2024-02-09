@@ -118,4 +118,4 @@ fs-compat-test:
 vb-compat-test:
 	dotnet test EasyVCR.Compatibility.VB/EasyVCR.Compatibility.VB.vbproj -f ${fw} -restore
 
-.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs install-tools install lint lint-fix lint-scripts publish release restore scan setup-win setup-unix test test-fw
+.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs install-tools install lint lint-fix lint-scripts publish release restore scan setup-win setup-unix test test-fw fs-compat-test vb-compat-test
