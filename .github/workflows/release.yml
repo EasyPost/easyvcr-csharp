@@ -70,7 +70,9 @@ jobs:
       - name: Publish to NuGet
         run: make publish key=${{ secrets.NUGET_API_KEY }}
 
+      # If triggered by a release, upload the NuGet package to the release
       - name: Upload NuGet package to release
+        if: github.event_name == 'release'
         uses: AButler/upload-release-assets@v3.0
         with:
           files: "*.nupkg"
