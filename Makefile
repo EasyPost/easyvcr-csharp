@@ -37,20 +37,12 @@ coverage-check:
 docs:
 	dotnet tool run docfx docs/docfx.json
 
-## format - Formats the project
-format:
-	dotnet tool run dotnet-format --no-restore
-
 ## install-tools - Install required dotnet tools
 install-tools:
 	dotnet new tool-manifest || exit 0
 	dotnet tool install --local security-scan --version 5.6.3 || exit 0
 	dotnet tool install --local dotnet-format || exit 0
 	dotnet tool install --local docfx --version 2.60.2 || exit 0
-
-## install-release-tools - Install required tools for release
-install-release-tools:
-	bash scripts/unix/install_osslsigncode.sh
 
 ## install - Install requirements
 install: | install-tools
@@ -64,22 +56,27 @@ lint:
     # Lint the source code by building with the "Linting" configuration (will trigger StyleCop)
 	dotnet build EasyVCR/EasyVCR.csproj -c "Linting" -t:Rebuild -restore -p:EnforceCodeStyleInBuild=true
 
+## lint-fix - Formats the project
+lint-fix:
+	dotnet tool run dotnet-format --no-restore
+
 ## lint-scripts - Lint and validate the Batch scripts (Windows only)
 lint-scripts:
 	scripts\win\lint_scripts.bat
 
-## prep-release - Build, sign and package the project for distribution, signing with the provided certificate
+## publish - Publish the project to NuGet
 # @parameters:
-# sncert= - The strong-name certificate to use for signing the built assets.
-# cert= - The authenticity certificate to use for signing the built assets.
-# pass= - The password for the authenticity certificate.
-prep-release:
-	bash scripts/unix/build_release_nuget.sh EasyVCR ${sncert} ${cert} ${pass} Release
+# key= - The NuGet API key to use for publishing.
+# ref: https://learn.microsoft.com/en-us/nuget/reference/cli-reference/cli-ref-push
+publish:
+	# Verify that no extraneous .nupkg files exist
+	dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${key} --skip-duplicate
 
 ## release - Cuts a release for the project on GitHub (requires GitHub CLI)
 # tag = The associated tag title of the release
+# target = Target branch or full commit SHA
 release:
-	gh release create ${tag} *.nupkg
+	gh release create ${tag} --target ${target}
 
 ## restore - Restore the project
 restore:
@@ -107,6 +104,18 @@ test:
 # fw= - The framework to build for.
 test-fw:
     # Note, running .NET Framework tests on a non-Windows machine may cause issues: https://xunit.net/docs/getting-started/netfx/cmdline
-	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${fw}
+	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${fw} -c "Debug" # Always run unit tests in Debug mode to allow access to internal members
 
-.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs format install-tools install-release-tools install lint lint-scripts prep-release release restore scan setup-win setup-unix test test-fw
+## fs-compat-test - Run the F# compatibility tests for a specific framework
+## @parameters:
+## fw= - The framework to build for.
+fs-compat-test:
+	dotnet test EasyVCR.Compatibility.FSharp/EasyVCR.Compatibility.FSharp.fsproj -f ${fw} -restore
+
+## vb-compat-test - Run the VB compatibility tests for a specific framework
+## @parameters:
+## fw= - The framework to build for.
+vb-compat-test:
+	dotnet test EasyVCR.Compatibility.VB/EasyVCR.Compatibility.VB.vbproj -f ${fw} -restore
+
+.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs install-tools install lint lint-fix lint-scripts publish release restore scan setup-win setup-unix test test-fw fs-compat-test vb-compat-test

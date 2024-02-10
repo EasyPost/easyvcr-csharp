@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyVCR", "EasyVCR\EasyVCR.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyVCR.Tests", "EasyVCR.Tests\EasyVCR.Tests.csproj", "{6DE2872F-98ED-4AE1-8674-F33A36AC2012}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EasyVCR.Tests.FSharp", "EasyVCR.Tests.FSharp\EasyVCR.Tests.FSharp.fsproj", "{163D6AB6-D5CF-4D77-A2D0-BDF329D99DE4}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EasyVCR.Compatibility.FSharp", "EasyVCR.Compatibility.FSharp\EasyVCR.Compatibility.FSharp.fsproj", "{163D6AB6-D5CF-4D77-A2D0-BDF329D99DE4}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "EasyVCR.Tests.VB", "EasyVCR.Tests.VB\EasyVCR.Tests.VB.vbproj", "{B78C8E42-AECD-441A-936C-C0F8F1006E2A}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "EasyVCR.Compatibility.VB", "EasyVCR.Compatibility.VB\EasyVCR.Compatibility.VB.vbproj", "{B78C8E42-AECD-441A-936C-C0F8F1006E2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
