@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.11.0 (2024-06-06)
+
+- Add missing .NET 8.0 DLLs to the NuGet package
+
 ## v0.10.0 (2024-02-09)
 
 - Add .NET 8.0 support
