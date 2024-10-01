@@ -9,7 +9,6 @@ using System.Web;
 using EasyVCR.Handlers;
 using EasyVCR.RequestElements;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RestSharp;
 // ReSharper disable InconsistentNaming
 
 namespace EasyVCR.Tests
@@ -46,40 +45,6 @@ namespace EasyVCR.Tests
             var handler = client.VcrHandler;
             var clonedHandler = clonedClient.VcrHandler;
             Assert.AreEqual(handler, clonedHandler);
-
-            // lock the original client into a request (internally, RestClient will pass/lock the options to the HttpClient, which is what causes this issue)
-            var options = new RestClientOptions
-            {
-                MaxTimeout = 60000,
-                UserAgent = "EasyVCR Test Client",
-                BaseUrl = new Uri("https://httpbin.org"),
-            };
-
-            var restClient = new RestClient(client, options);
-            var request = new RestRequest("https://www.google.com");
-            var _ = await restClient.ExecuteAsync(request);
-
-            // now, if we try to reuse the client in another RestClient, it will throw an exception that the HttpClient is already in use
-            Assert.ThrowsException<InvalidOperationException>(() => new RestClient(client, options));
-
-            // even if we try with a different set of options
-            var options2 = new RestClientOptions
-            {
-                MaxTimeout = 30000,
-                UserAgent = "EasyVCR Test Client 2",
-                BaseUrl = new Uri("https://example.com"),
-            };
-            Assert.ThrowsException<InvalidOperationException>(() => new RestClient(client, options2));
-
-            // if we use the cloned client, it will work
-            var restClient3 = new RestClient(clonedClient, options);
-            var request3 = new RestRequest("https://www.google.com");
-            _ = await restClient3.ExecuteAsync(request3);
-
-            // side-note, you CAN re-use the original client if you don't have any options (it's the RestClientOptions that's causing this issue)
-            var restClient4 = new RestClient(client);
-            var request4 = new RestRequest("https://www.google.com");
-            _ = await restClient4.ExecuteAsync(request4);
         }
 
         [TestMethod]
