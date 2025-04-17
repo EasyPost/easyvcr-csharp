@@ -3,7 +3,7 @@
     <metadata>
         <id>EasyVCR</id>
         <title>EasyVCR</title>
-        <version>0.9.0</version>
+        <version>0.11.0</version>
         <authors>EasyPost</authors>
         <owners>EasyPost</owners>
         <projectUrl>https://github.com/EasyPost/easyvcr-csharp</projectUrl>
@@ -55,6 +55,10 @@
         <file src="lib\net6.0\EasyVCR.XML" target="lib\net6.0" />
         <file src="lib\net7.0\EasyVCR.dll" target="lib\net7.0" />
         <file src="lib\net7.0\EasyVCR.XML" target="lib\net7.0" />
+        <file src="lib\net8.0\EasyVCR.dll" target="lib\net8.0" />
+        <file src="lib\net8.0\EasyVCR.XML" target="lib\net8.0" />
+        <file src="lib\net9.0\EasyVCR.dll" target="lib\net9.0" />
+        <file src="lib\net9.0\EasyVCR.XML" target="lib\net9.0" />
         <file src="README.md" target="docs\" />
         <file src="icon.png" target="images\" />
     </files>

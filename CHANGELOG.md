@@ -14,6 +14,17 @@
   - Header censoring: Use `KeyCensorElement`
 - [BREAKING CHANGE] `CensorHeadersByKeys`, `CensorBodyElementsByKeys`, `CensorQueryParametersByKeys` and `CensorPathElementsByPatterns` removed
   - Use `CensorHeaders`, `CensorBodyElements`, `CensorQueryParameters` and `CensorPathElements` instead
+- Add .NET 9.0 support
+
+## v0.11.0 (2024-06-06)
+
+- Add missing .NET 8.0 DLLs to the NuGet package
+
+## v0.10.0 (2024-02-09)
+
+- Add .NET 8.0 support
+- `AdvancedSettings` uses `MatchRules.Default` instead of a new instance of `MatchRules` if not provided during construction
+- Fix `NullReferenceException` when trying to match by body with a null body (`refit` compatibility)
 
 ## v0.9.0 (2023-05-17)
 

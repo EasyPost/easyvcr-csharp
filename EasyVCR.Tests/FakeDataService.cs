@@ -11,13 +11,12 @@ namespace EasyVCR.Tests
     {
         #region JSON Properties
 
-        [JsonProperty("ip")]
-        internal string? IPAddress { get; set; }
+        [JsonProperty("ip")] internal string? IPAddress { get; set; }
 
         #endregion
     }
 
-    public class FakeDataService
+    internal class FakeDataService
     {
         private readonly EasyVCRHttpClient? _client;
         private readonly VCR? _vcr;
@@ -34,12 +33,12 @@ namespace EasyVCR.Tests
             }
         }
 
-        public FakeDataService(VCR vcr)
+        internal FakeDataService(VCR vcr)
         {
             _vcr = vcr;
         }
 
-        public FakeDataService(EasyVCRHttpClient client)
+        internal FakeDataService(EasyVCRHttpClient client)
         {
             _client = client;
         }
@@ -50,7 +49,8 @@ namespace EasyVCR.Tests
 
         public static string HtmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor";
 
-        public static string RawDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/refs/heads/master/LICENSE.txt";
+        public static string RawDataUrl =>
+            "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/refs/heads/master/LICENSE.txt";
 
         public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {
