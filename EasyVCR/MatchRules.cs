@@ -58,7 +58,11 @@ namespace EasyVCR
             By((received, recorded) =>
             {
                 var receivedUri = new Uri(received.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
+                if (receivedUri.EndsWith("/")) // Need to strip any trailing slashes
+                    receivedUri = receivedUri.Substring(0, receivedUri.Length - 1);
                 var recordedUri = new Uri(recorded.Uri ?? string.Empty).GetLeftPart(UriPartial.Path);
+                if (recordedUri.EndsWith("/")) // Need to strip any trailing slashes
+                    recordedUri = recordedUri.Substring(0, recordedUri.Length - 1);
                 return receivedUri.Equals(recordedUri, StringComparison.InvariantCultureIgnoreCase);
             });
             return this;

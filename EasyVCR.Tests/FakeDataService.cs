@@ -50,7 +50,7 @@ namespace EasyVCR.Tests
 
         public static string HtmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor";
 
-        public static string RawDataUrl => "https://raw.githubusercontent.com/nwithan8/UGAArchive/main/README.md";
+        public static string RawDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/refs/heads/master/LICENSE.txt";
 
         public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {

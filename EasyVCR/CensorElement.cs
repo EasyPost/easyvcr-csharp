@@ -61,7 +61,7 @@ namespace EasyVCR
         internal override bool Matches(string value, string? key = null)
         {
             // we only care about the value here
-            return CaseSensitive ? Value.Equals(value) : Value.Equals(value, StringComparison.OrdinalIgnoreCase);
+            return CaseSensitive ? value.Contains(Value) : value.ToLower().Contains(Value.ToLower());
         }
 
         /// <summary>
@@ -73,7 +73,9 @@ namespace EasyVCR
         /// <returns>The value with the replacement inserted if it matches this censor element, otherwise the value as-is.</returns>
         internal string MatchAndReplaceAsNeeded(string value, string replacement)
         {
-            return Matches(value) ? replacement : value;
+            // if the passed-in value contains the Value to censor, replace the Value substring with the replacement
+            // otherwise, return the original value
+            return !Matches(value) ? value : value.Replace(Value, replacement);
         }
     }
 

@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>EasyVCR.Compatibility.FSharp</RootNamespace>
-        <TargetFramework>net8.0</TargetFramework>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <TargetFramework>net9.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 

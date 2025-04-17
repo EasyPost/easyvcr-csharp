@@ -361,7 +361,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
-            const string pattern = "<head>.*</head>";
+            const string pattern = "<head.*</head>";
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -370,6 +370,7 @@ namespace EasyVCR.Tests
                         // censor the pattern
                         new RegexCensorElement(pattern, false),
                     }),
+                MatchRules = new MatchRules().ByMethod().ByBaseUrl() // Reddit is adding some random query params that we need to ignore to get a match
             };
 
             // record cassette with advanced settings first
@@ -400,7 +401,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
-            const string textToCensor = "# UGAArchive\nArchives of projects I did as a student at The University of Georgia\n";
+            const string textToCensor = "free of charge, to any person obtaining";
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -446,7 +447,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
-            const string pattern = "^# UGAArchive";
+            const string pattern = "\\bCopyright \\(c\\)";
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(

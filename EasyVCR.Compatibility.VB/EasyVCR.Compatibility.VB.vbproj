@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>EasyVCR.Compatibility.VB</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RootNamespace>EasyVCR.Tests.VB</RootNamespace>
+    <TargetFramework>net9.0</TargetFramework>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
