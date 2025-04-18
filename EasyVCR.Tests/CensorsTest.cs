@@ -361,7 +361,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
-            const string pattern = "<head.*</head>";
+            const string pattern = "<body.*>";
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -384,6 +384,7 @@ namespace EasyVCR.Tests
             var textData = await fakeDataService.GetHtmlData();
 
             Assert.IsNotNull(textData);
+            Console.WriteLine(textData);
 
             // censored pattern should no longer exist, and censor string should exist
             Assert.IsFalse(Regex.IsMatch(textData, pattern));
