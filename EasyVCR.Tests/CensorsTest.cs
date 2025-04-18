@@ -216,7 +216,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -258,7 +258,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -302,7 +302,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -360,7 +360,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             const string pattern = "<head.*</head>";
             var advancedSettings = new AdvancedSettings
             {
@@ -400,7 +400,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             const string textToCensor = "free of charge, to any person obtaining";
             var advancedSettings = new AdvancedSettings
             {
@@ -446,7 +446,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             const string pattern = "\\bCopyright \\(c\\)";
             var advancedSettings = new AdvancedSettings
             {
@@ -485,7 +485,7 @@ namespace EasyVCR.Tests
             cassette.Erase(); // Erase cassette before recording
 
             // set up advanced settings
-            var censorString = new Guid().ToString(); // generate random string, high chance of not being in original data
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
