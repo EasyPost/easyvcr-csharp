@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FRAMEWORK="net7.0"
+FRAMEWORK="net9.0"
 
 # Navigate to the test folder
 TEST_FOLDER="EasyVCR.Tests"
