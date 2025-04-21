@@ -43,14 +43,22 @@ namespace EasyVCR.Tests
         {
             var bodyElementsToIgnoreDuringMatch = new List<CensorElement>
             {
-                new CensorElement("name", true),
-                new CensorElement("phone", false)
+                new KeyCensorElement("name", true),
+                new KeyCensorElement("phone", false),
+            };
+            var headerCensors = new List<KeyCensorElement>
+            {
+                new("X-My-Header", true),
+            };
+            var queryParameterCensors = new List<KeyCensorElement>
+            {
+                new("api_key", false),
             };
             var advancedSettings = new AdvancedSettings
             {
                 MatchRules = new MatchRules().ByBody(bodyElementsToIgnoreDuringMatch).ByHeader("X-My-Header"), // Match recorded requests by body and a specific header
-                Censors = new Censors("redacted").CensorHeadersByKeys(new List<string> { "Header-To-Hide" }).CensorQueryParametersByKeys(new List<string> { "api_key" }), // Redact a specific header and query parameter 
-                ManualDelay = 1000 // Simulate a delay of 1 second
+                Censors = new Censors("redacted").CensorHeaders(headerCensors).CensorQueryParameters(queryParameterCensors), // Redact a specific header and query parameter 
+                ManualDelay = 1000, // Simulate a delay of 1 second
             };
             var order = new CassetteOrder.None(); // elements of each request in a cassette will not be ordered any particular way
             var vcr = new VCR(advancedSettings);

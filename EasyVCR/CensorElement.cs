@@ -3,23 +3,27 @@ using System.Text.RegularExpressions;
 
 namespace EasyVCR
 {
-    public class CensorElement
+    /// <summary>
+    ///     The base class for censor elements.
+    /// </summary>
+    public abstract class CensorElement
     {
         /// <summary>
         ///     Whether the name is case-sensitive.
         /// </summary>
         protected bool CaseSensitive { get; }
+
         /// <summary>
-        ///     Name of the element to censor.
+        ///     Value to look for.
         /// </summary>
         protected string Value { get; }
 
         /// <summary>
         ///     Constructor for a new censor element.
         /// </summary>
-        /// <param name="value">Name of the element to censor.</param>
-        /// <param name="caseSensitive">Whether the name is case-sensitive.</param>
-        public CensorElement(string value, bool caseSensitive)
+        /// <param name="value">Value to censor.</param>
+        /// <param name="caseSensitive">Whether the value is case-sensitive.</param>
+        protected CensorElement(string value, bool caseSensitive)
         {
             Value = value;
             CaseSensitive = caseSensitive;
@@ -28,14 +32,83 @@ namespace EasyVCR
         /// <summary>
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
-        /// <param name="key">The name to check.</param>
+        /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal virtual bool Matches(string key)
+        internal abstract bool Matches(string value, string? key = null);
+    }
+
+    /// <summary>
+    ///     A censor element, used to define a raw value that should be censored.
+    /// </summary>
+    public class TextCensorElement : CensorElement
+    {
+        /// <summary>
+        ///     Constructor for a new text censor element.
+        /// </summary>
+        /// <param name="value">The raw text value of the element to censor.</param>
+        /// <param name="caseSensitive">Whether the value is case-sensitive.</param>
+        public TextCensorElement(string value, bool caseSensitive) : base(value, caseSensitive)
         {
+        }
+
+        /// <summary>
+        ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
+        /// <returns>True if the element matches, false otherwise.</returns>
+        internal override bool Matches(string value, string? key = null)
+        {
+            // we only care about the value here
+            return CaseSensitive ? value.Contains(Value) : value.ToLower().Contains(Value.ToLower());
+        }
+
+        /// <summary>
+        ///     Replace the provided value with the provided replacement if it matches this censor element.
+        ///     Otherwise, return the value as-is.
+        /// </summary>
+        /// <param name="value">Value to replace.</param>
+        /// <param name="replacement">Replacement for the value.</param>
+        /// <returns>The value with the replacement inserted if it matches this censor element, otherwise the value as-is.</returns>
+        internal string MatchAndReplaceAsNeeded(string value, string replacement)
+        {
+            // if the passed-in value contains the Value to censor, replace the Value substring with the replacement
+            // otherwise, return the original value
+            return !Matches(value) ? value : value.Replace(Value, replacement);
+        }
+    }
+
+    /// <summary>
+    ///     A censor element, used to define a key-value pair that should be censored.
+    /// </summary>
+    public class KeyCensorElement : CensorElement
+    {
+        /// <summary>
+        ///     Constructor for a new key censor element.
+        /// </summary>
+        /// <param name="key">Key of which to censor the corresponding value.</param>
+        /// <param name="caseSensitive">Whether the key is case-sensitive.</param>
+        public KeyCensorElement(string key, bool caseSensitive) : base(key, caseSensitive)
+        {
+        }
+
+        /// <summary>
+        ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
+        /// <returns>True if the element matches, false otherwise.</returns>
+        internal override bool Matches(string value, string? key = null)
+        {
+            // we only care about the key here
             return CaseSensitive ? Value.Equals(key) : Value.Equals(key, StringComparison.OrdinalIgnoreCase);
         }
     }
 
+    /// <summary>
+    ///     A censor element, used to define a regex pattern that should be censored.
+    /// </summary>
     public class RegexCensorElement : CensorElement
     {
         /// <summary>
@@ -75,9 +148,11 @@ namespace EasyVCR
         ///     Checks whether the provided element matches this censor element, accounting for case sensitivity.
         /// </summary>
         /// <param name="value">The value to check.</param>
+        /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value)
+        internal override bool Matches(string value, string? key = null)
         {
+            // we only care about the value here
             var options = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Singleline;
             if (!CaseSensitive)
             {

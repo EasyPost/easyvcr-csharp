@@ -11,16 +11,14 @@ namespace EasyVCR.Tests
     {
         #region JSON Properties
 
-        [JsonProperty("ip")]
-        internal string? IPAddress { get; set; }
+        [JsonProperty("ip")] internal string? IPAddress { get; set; }
 
         #endregion
     }
 
-    public abstract class FakeDataService
+    internal class FakeDataService
     {
         private readonly EasyVCRHttpClient? _client;
-        private readonly string? _format;
         private readonly VCR? _vcr;
 
         public EasyVCRHttpClient Client
@@ -35,44 +33,70 @@ namespace EasyVCR.Tests
             }
         }
 
-        protected FakeDataService(string format, VCR vcr)
+        internal FakeDataService(VCR vcr)
         {
-            _format = format;
             _vcr = vcr;
         }
 
-        protected FakeDataService(string format, EasyVCRHttpClient client)
+        internal FakeDataService(EasyVCRHttpClient client)
         {
-            _format = format;
             _client = client;
         }
 
-        public async Task<IPAddressData?> GetIPAddressData()
+        public static string JsonDataUrl => "https://www.reddit.com/r/ProgrammerHumor.json";
+
+        public static string XmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor.rss";
+
+        public static string HtmlDataUrl => "https://www.reddit.com/r/ProgrammerHumor";
+
+        public static string RawDataUrl =>
+            "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/refs/heads/master/LICENSE.txt";
+
+        public async Task<HttpResponseMessage> GetJsonDataRawResponse()
         {
-            var response = await GetIPAddressDataRawResponse();
-            return Convert(await response.Content.ReadAsStringAsync());
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
+            return await Client.GetAsync(JsonDataUrl);
         }
 
-        public async Task<HttpResponseMessage> GetIPAddressDataRawResponse()
+        public async Task<string?> GetJsonData()
         {
-            return await Client.GetAsync(GetPreparedIPAddressDataUrl(_format));
+            var response = await GetJsonDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public static string GetPreparedIPAddressDataUrl(string? format)
+        public async Task<HttpResponseMessage> GetXmlDataRawResponse()
         {
-            return $"{GetIPAddressDataUrl()}?format={format}";
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
+            return await Client.GetAsync(XmlDataUrl);
         }
 
-        protected abstract IPAddressData Convert(string responseBody);
-
-        public static string GetIPAddressDataUrl()
+        public async Task<string?> GetXmlData()
         {
-            return "https://api.ipify.org/";
+            var response = await GetXmlDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public static string GetPostManPostEchoServiceUrl()
+        public async Task<HttpResponseMessage> GetHtmlDataRawResponse()
         {
-            return "https://httpbin.org/post";
+            Client.DefaultRequestHeaders.Add("User-Agent", "EasyVCR"); // reddit requires a user agent
+            return await Client.GetAsync(HtmlDataUrl);
+        }
+
+        public async Task<string?> GetHtmlData()
+        {
+            var response = await GetHtmlDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<HttpResponseMessage> GetRawDataRawResponse()
+        {
+            return await Client.GetAsync(RawDataUrl);
+        }
+
+        public async Task<string?> GetRawData()
+        {
+            var response = await GetRawDataRawResponse();
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }
