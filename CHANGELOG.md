@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Next Release
+## v0.12.0 (2025-04-21)
 
 - Add support for censoring XML, HTML and plain text bodies
 - [BREAKING CHANGE] `CensorElement` now abstract base class, cannot be used directly
