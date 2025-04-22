@@ -9,7 +9,6 @@ using System.Web;
 using EasyVCR.Handlers;
 using EasyVCR.RequestElements;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RestSharp;
 
 // ReSharper disable InconsistentNaming
 

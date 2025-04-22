@@ -2,18 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request: ~
   workflow_dispatch: ~
 
 jobs:
   lint:
-    runs-on: windows-2022
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x.x
 
@@ -26,10 +26,10 @@ jobs:
   Security_Code_Scan:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x.x
 
@@ -40,12 +40,12 @@ jobs:
         run: make scan
 
   Coverage_Requirements:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x.x
 
@@ -57,9 +57,14 @@ jobs:
 
   Upload_Coverage_Report:
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x.x
 
       - name: Set up dotnet tools and dependencies
         run: make install
@@ -75,58 +80,56 @@ jobs:
 
   NET_Tests:
     # derived from https://dev.to/felipetofoli/github-actions-for-net-full-framework-build-and-test-299h
-    runs-on: windows-2022
-    env:
-      EASYPOST_TEST_API_KEY: "123"
-      EASYPOST_PROD_API_KEY: "123"
+    runs-on: windows-latest
     strategy:
       matrix:
-        name: [ 'net462', 'netstandard2.0', 'netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0' ]
+        name: ['net462', 'netstandard2.0', 'netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0']
         include:
           - name: net462
             framework: net462
+            dotnet-version: null
           - name: netstandard2.0
             # can't run tests on .NET Standard, it's just a bridge between .NET Framework and .NET.
             # So we'll target .NET Framework 4.6.2
             # More notes at the bottom of this file
             framework: net462
+            dotnet-version: null
           - name: netcoreapp3.1
             framework: netcoreapp3.1
+            dotnet-version: 3.1.x
           - name: net5.0
             framework: net5.0
+            dotnet-version: 5.x.x
           - name: net6.0
             framework: net6.0
+            dotnet-version: 6.x.x
           - name: net7.0
             framework: net7.0
+            dotnet-version: 7.x.x
           - name: net8.0
             framework: net8.0
+            dotnet-version: 8.x.x
           - name: net9.0
             framework: net9.0
+            dotnet-version: 9.x.x
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          # Some versions of .NET Core and .NET 5 are deprecated and removed from GitHub Actions, we need to manually install them
-          dotnet-version: |
-            3.1.x
-            5.x.x
-            6.x.x
-            7.x.x
-            8.x.x
-            9.x.x
+          dotnet-version: ${{ matrix.dotnet-version}}
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1.2
+        uses: microsoft/setup-msbuild@v2
 
       - name: Setup Nuget
-        uses: NuGet/setup-nuget@v1.1.1
+        uses: NuGet/setup-nuget@v2
 
       - name: Load NuGet package cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ matrix.framework }}-${{ hashFiles('**/packages.lock.json') }}
@@ -145,25 +148,25 @@ jobs:
         run: make test-fw fw=${{ matrix.framework }}
 
   FSharp_Compatibility:
-    runs-on: windows-2022
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x.x
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1.2
+        uses: microsoft/setup-msbuild@v2
 
       - name: Setup Nuget
-        uses: NuGet/setup-nuget@v1.1.1
+        uses: NuGet/setup-nuget@v2
 
       - name: Setup VSTest
-        uses: darenm/Setup-VSTest@v1.2
+        uses: darenm/Setup-VSTest@v1.3
 
       - name: Restore NuGet Packages
         run: make restore
@@ -174,29 +177,28 @@ jobs:
 
         # Build the test project
       - name: Build Solution
-        run: make fs-compat-test fw=net8.0 # Always run compatibility tests on the latest framework
-        
+        run: make fs-compat-test
+
   Visual_Basic_Compatibility:
-    runs-on: windows-2022
+    runs-on: windows-latest
     steps:
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x.x
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.1.2
+        uses: microsoft/setup-msbuild@v2
 
       - name: Setup Nuget
-        uses: NuGet/setup-nuget@v1.1.1
+        uses: NuGet/setup-nuget@v2
 
       - name: Setup VSTest
-        uses: darenm/Setup-VSTest@v1.2
+        uses: darenm/Setup-VSTest@v1.3
 
       - name: Restore NuGet Packages
         run: make restore
@@ -207,8 +209,7 @@ jobs:
 
         # Build the test project
       - name: Build Solution
-        run: make vb-compat-test fw=net8.0 # Always run compatibility tests on the latest framework
-
+        run: make vb-compat-test
 # .NET Standard notes:
 # - NET Standard 2.0 is compatible with minimum .NET Framework 4.6.1: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
 # - NET Framework 4.6.1 is EOL after April 26, 2022, due to its security concerns (was affected by the SHA-1 crack): https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework
