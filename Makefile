@@ -1,3 +1,5 @@
+FW ?= net9.0
+
 ## help - Display help about make targets for this Makefile
 help:
 	@cat Makefile | grep '^## ' --color=never | cut -c4- | sed -e "`printf 's/ - /\t- /;'`" | column -s "`printf '\t'`" -t
@@ -12,9 +14,9 @@ build:
 
 ## build-fw - Build the project in Debug mode for a specific framework
 # @parameters:
-# fw= - The framework to build for.
+# FW= - The framework to build for.
 build-fw:
-	dotnet build EasyVCR/EasyVCR.csproj -c "Debug" -t:Rebuild -restore -f ${fw} -p:EnableNETAnalyzers=false
+	dotnet build EasyVCR/EasyVCR.csproj -c "Debug" -t:Rebuild -restore -f ${FW} -p:EnableNETAnalyzers=false
 
 ## build-prod - Build the project in Release mode
 build-prod:
@@ -101,21 +103,21 @@ test:
 
 ## test-fw - Run the unit tests for a specific framework
 # @parameters:
-# fw= - The framework to build for.
+# FW= - The framework to build for.
 test-fw:
     # Note, running .NET Framework tests on a non-Windows machine may cause issues: https://xunit.net/docs/getting-started/netfx/cmdline
-	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${fw} -c "Debug" # Always run unit tests in Debug mode to allow access to internal members
+	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${FW} -c "Debug" # Always run unit tests in Debug mode to allow access to internal members
 
 ## fs-compat-test - Run the F# compatibility tests for a specific framework
 ## @parameters:
-## fw= - The framework to build for.
+## FW= - The framework to build for.
 fs-compat-test:
-	dotnet test EasyVCR.Compatibility.FSharp/EasyVCR.Compatibility.FSharp.fsproj -f ${fw} -restore
+	dotnet test EasyVCR.Compatibility.FSharp/EasyVCR.Compatibility.FSharp.fsproj -f ${FW} -restore
 
 ## vb-compat-test - Run the VB compatibility tests for a specific framework
 ## @parameters:
-## fw= - The framework to build for.
+## FW= - The framework to build for.
 vb-compat-test:
-	dotnet test EasyVCR.Compatibility.VB/EasyVCR.Compatibility.VB.vbproj -f ${fw} -restore
+	dotnet test EasyVCR.Compatibility.VB/EasyVCR.Compatibility.VB.vbproj -f ${FW} -restore
 
 .PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs install-tools install lint lint-fix lint-scripts publish release restore scan setup-win setup-unix test test-fw fs-compat-test vb-compat-test

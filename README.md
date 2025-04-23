@@ -11,7 +11,7 @@ connectivity to the HTTP endpoints you need to interact with.
 
 ## How to use EasyVCR
 
-#### Step 1.
+#### Step 1
 
 Run your test suite locally against a real HTTP endpoint in recording mode
 
@@ -27,7 +27,7 @@ var recordingHttpClient = HttpClients.NewHttpClient(cassette, Mode.Record);
 // Use this EasyVcrHttpClient in any class making HTTP calls
 // Note: EasyVcrHttpClient implements HttpClient, so it can be used anywhere a HttpClient is expected
 // For example, RestSharp v107+ supports custom HTTP clients
-RestClient restClient = new RestClient(recordingHttpClient, new RestClientOptions()));
+RestClient restClient = new RestClient(recordingHttpClient, new RestClientOptions());
 
 // Or make HTTP calls directly
 var response = await recordingHttpClient.GetAsync("https://api.example.com/v1/users");
@@ -35,7 +35,7 @@ var response = await recordingHttpClient.GetAsync("https://api.example.com/v1/us
 
 Real HTTP calls will be made and recorded to the cassette file.
 
-#### Step 2.
+#### Step 2
 
 Switch to replay mode:
 
@@ -68,6 +68,7 @@ file.
 Censor sensitive data in the request and response, such as API keys and auth tokens.
 
 Can censor:
+
 - Request and response headers (via key name)
 - Request and response bodies (via key name) (JSON only)
 - Request query parameters (via key name)
