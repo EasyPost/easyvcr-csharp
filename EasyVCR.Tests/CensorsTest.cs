@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
@@ -308,7 +309,7 @@ namespace EasyVCR.Tests
                 Censors = new Censors(censorString).CensorBodyElements(
                     new List<CensorElement>
                     {
-                        // censor any value that looks like an date stamp
+                        // censor any value that looks like a date stamp
                         new RegexCensorElement(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", false),
                     }),
             };
@@ -496,7 +497,7 @@ namespace EasyVCR.Tests
                         new TextCensorElement("r/ProgrammerHumor", false),
                         // censor the value of the "title" key
                         new KeyCensorElement("title", false), 
-                        // censor any value that looks like an date stamp
+                        // censor any value that looks like a date stamp
                         new RegexCensorElement(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", false),
                     }),
             };
@@ -538,6 +539,104 @@ namespace EasyVCR.Tests
             {
                 Assert.AreEqual(censorString, node.InnerText);
             }
+        }
+
+        [TestMethod]
+        public async Task TestNonStringCensorKeyElements()
+        {
+            var cassette = TestUtils.GetCassette("test_non_string_censor_elements");
+            cassette.Erase(); // Erase cassette before recording
+            
+            const string censorString = "censored-by-test";
+            const int intToCensor = 123456;
+            var dateToCensor = new DateTime(2020, 1, 1, 12, 0, 0);
+            var booleanToCensor = true;
+            var bodyObject = new
+            {
+                number = intToCensor,
+                date = dateToCensor,
+                boolean = booleanToCensor,
+            };
+            var body = JsonSerializer.Serialize(bodyObject);
+            const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
+
+            var bodyCensors = new List<KeyCensorElement>
+            {
+                new KeyCensorElement("number", false),
+                new KeyCensorElement("date", false),
+                new KeyCensorElement("boolean", false),
+            };
+            var censors = new Censors(censorString).CensorBodyElements(bodyCensors);
+
+            var result = censors.ApplyBodyParametersCensors(body, contentType);
+
+            Assert.AreEqual("{\"number\":\"censored-by-test\",\"date\":\"censored-by-test\",\"boolean\":\"censored-by-test\"}", result);
+        }
+
+        [TestMethod]
+        public async Task TestNonStringCensorTextElements()
+        {
+            var cassette = TestUtils.GetCassette("test_non_string_censor_text_elements");
+            cassette.Erase(); // Erase cassette before recording
+
+            const string censorString = "censored-by-test";
+            const int intToCensor = 123456;
+            var dateToCensor = new DateTime(2020, 1, 1, 12, 0, 0);
+            var booleanToCensor = true;
+            var bodyObject = new
+            {
+                number = intToCensor,
+                date = dateToCensor,
+                boolean = booleanToCensor,
+            };
+            var body = JsonSerializer.Serialize(bodyObject);
+            const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
+
+            var bodyCensors = new List<TextCensorElement>
+            {
+                new TextCensorElement(intToCensor, false),
+                new TextCensorElement(dateToCensor, false),
+                new TextCensorElement(booleanToCensor, false),
+            };
+            var censors = new Censors(censorString).CensorBodyElements(bodyCensors);
+
+            var result = censors.ApplyBodyParametersCensors(body, contentType);
+
+            Assert.AreEqual(
+                "{\"number\":\"censored-by-test\",\"date\":\"censored-by-test\",\"boolean\":\"censored-by-test\"}",
+                result);
+        }
+
+        [TestMethod]
+        public async Task TestNonStringCensorRegexElements()
+        {
+            var cassette = TestUtils.GetCassette("test_non_string_censor_regex_elements");
+            cassette.Erase(); // Erase cassette before recording
+
+            const string censorString = "censored-by-test";
+            const int intToCensor = 123456;
+            var booleanToCensor = true;
+            var bodyObject = new
+            {
+                number = intToCensor,
+                boolean = booleanToCensor,
+            };
+            var body = JsonSerializer.Serialize(bodyObject);
+            const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
+
+            var bodyCensors = new List<RegexCensorElement>
+            {
+                new RegexCensorElement(@"\b123456\b", false),
+                // Date-to-string serialization is inconsistent, so excluding from test
+                new RegexCensorElement(@"\btrue\b", false),
+            };
+            var censors = new Censors(censorString).CensorBodyElements(bodyCensors);
+
+            var result = censors.ApplyBodyParametersCensors(body, contentType);
+
+            Assert.AreEqual(
+                "{\"number\":\"censored-by-test\",\"boolean\":\"censored-by-test\"}",
+                result);
         }
     }
 }
