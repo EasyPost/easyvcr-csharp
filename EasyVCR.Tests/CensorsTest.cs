@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using EasyVCR.InternalUtilities.JSON;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EasyVCR.Tests
@@ -557,7 +557,7 @@ namespace EasyVCR.Tests
                 date = dateToCensor,
                 boolean = booleanToCensor,
             };
-            var body = JsonSerializer.Serialize(bodyObject);
+            var body = Serialization.ConvertObjectToJson(bodyObject);
             const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
 
             var bodyCensors = new List<KeyCensorElement>
@@ -589,7 +589,7 @@ namespace EasyVCR.Tests
                 date = dateToCensor,
                 boolean = booleanToCensor,
             };
-            var body = JsonSerializer.Serialize(bodyObject);
+            var body = Serialization.ConvertObjectToJson(bodyObject);
             const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
 
             var bodyCensors = new List<TextCensorElement>
@@ -621,7 +621,7 @@ namespace EasyVCR.Tests
                 number = intToCensor,
                 boolean = booleanToCensor,
             };
-            var body = JsonSerializer.Serialize(bodyObject);
+            var body = Serialization.ConvertObjectToJson(bodyObject);
             const InternalUtilities.ContentType contentType = InternalUtilities.ContentType.Json;
 
             var bodyCensors = new List<RegexCensorElement>
