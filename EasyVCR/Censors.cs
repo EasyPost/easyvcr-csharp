@@ -541,13 +541,13 @@ namespace EasyVCR
         /// <returns>True if the JSON value should be censored, false otherwise.</returns>
         private static bool ElementShouldBeCensored(object? foundValue, string foundKey, IReadOnlyCollection<CensorElement> elementsToCensor)
         {
-            if (!(foundValue is string))
+            if (foundValue == null)
             {
-                // short circuit if the value is not a string
+                // short circuit if the value is null
                 return false;
             }
 
-            return elementsToCensor.Count != 0 && elementsToCensor.Any(element => element.Matches(value: (string)foundValue, key: foundKey));
+            return elementsToCensor.Count != 0 && elementsToCensor.Any(element => element.Matches(value: foundValue, key: foundKey));
         }
 
         /// <summary>
