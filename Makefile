@@ -38,11 +38,6 @@ coverage-check:
 docs:
 	dotnet tool run docfx docs/docfx.json
 
-## init-examples-submodule - Initialize the examples submodule
-init-examples-submodule:
-	git submodule init
-	git submodule update
-
 ## install-tools - Install required dotnet tools
 install-tools:
 	dotnet new tool-manifest || exit 0
@@ -50,12 +45,8 @@ install-tools:
 	dotnet tool install --local dotnet-format || exit 0
 	dotnet tool install --local docfx --version 2.60.2 || exit 0
 
-## install-styleguide - Import style guide (Unix only)
-install-styleguide: | update-examples-submodule
-	sh examples/symlink_directory_files.sh examples/style_guides/csharp .
-
 ## install - Install requirements
-install: | install-tools init-examples-submodule
+install: | install-tools
 
 ## lint - Lints the solution (EasyVCR + Tests + F#/VB compatibilities) (check IDE and SA rule violations)
 ## @parameters:
@@ -116,11 +107,6 @@ test:
 unit-test:
 	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${FW} -c "Debug"
 
-## update-examples-submodule - Update the examples submodule
-update-examples-submodule:
-	git submodule init
-	git submodule update --remote
-
 ## fs-compat-test - Run the F# compatibility tests for a specific framework
 ## @parameters:
 ## FW= - The framework to build for.
@@ -139,4 +125,4 @@ vb-compat-test:
 netstandard-compat-test:
 	dotnet test EasyVCR.Compatibility.NetStandard/EasyVCR.Compatibility.NetStandard.csproj -f ${FW} -restore
 
-.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs format init-examples-submodule install-styleguide install-tools install lint lint-scripts release restore scan setup-win setup-unix test update-examples-submodule unit-test fs-compat-test vb-compat-test netstandard-compat-test
+.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs format install-tools install lint lint-scripts release restore scan setup-win setup-unix test unit-test fs-compat-test vb-compat-test netstandard-compat-test
