@@ -18,7 +18,7 @@ jobs:
           dotnet-version: 10.x.x
 
       - name: Set up dotnet tools
-        run: make install install-styleguide
+        run: make install-tools
 
       - name: Check style with dotnet-format
         run: make lint
@@ -34,7 +34,7 @@ jobs:
           dotnet-version: 10.x.x
 
       - name: Set up dotnet tools
-        run: make install install-styleguide
+        run: make install-tools
 
       - name: Restore NuGet Packages
         run: make restore
