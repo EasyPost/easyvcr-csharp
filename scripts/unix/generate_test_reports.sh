@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FRAMEWORK="net9.0"
+FRAMEWORK="net10.0"
 
 # Navigate to the test folder
 TEST_FOLDER="EasyVCR.Tests"
@@ -16,7 +16,7 @@ rm -rf "$RESULTS_FOLDER"
 dotnet test --collect:"XPlat Code Coverage" -f $FRAMEWORK
 
 # install reportgenerator if not already installed
-dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.10 || true # exit 0 will kill the script, not what we want
+dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.4.4 || true # exit 0 will kill the script, not what we want
 
 # check reportgenerator is available
 set -- dotnet reportgenerator
