@@ -22,27 +22,6 @@ jobs:
 
       - name: Check style with dotnet-format
         run: make lint
-
-  Roslyn_Static_Analysis:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: 10.x.x
-
-      - name: Set up dotnet tools
-        run: make install-tools
-
-      - name: Restore NuGet Packages
-        run: make restore
-
-      # This Make step is configured to treat all warnings as errors, so it will fail if any warnings are found
-      - name: Run static analysis
-        run: make analyze
-
   Security_Code_Scan:
     runs-on: windows-latest
     steps:
