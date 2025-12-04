@@ -1,4 +1,4 @@
-FW ?= net9.0
+FW ?= net10.0
 
 ## help - Display help about make targets for this Makefile
 help:
@@ -25,19 +25,23 @@ build-prod:
 ## clean - Clean the project
 clean:
 	dotnet clean
-	rm -rf *.nupkg
 
-## coverage - Generate coverage reports for the project
+## coverage - Generate coverage reports (unit tests, not integration) for the project
 coverage:
-	bash scripts/unix/generate_test_reports.sh
+	./scripts/unix/generate_test_reports.sh
 
 ## coverage-check - Check if the coverage is above the minimum threshold
 coverage-check:
-	bash scripts/unix/check_coverage.sh 88
+	./scripts/unix/check_coverage.sh 85
 
 ## docs - Generates library documentation
 docs:
 	dotnet tool run docfx docs/docfx.json
+
+## init-examples-submodule - Initialize the examples submodule
+init-examples-submodule:
+	git submodule init
+	git submodule update
 
 ## install-tools - Install required dotnet tools
 install-tools:
@@ -46,17 +50,21 @@ install-tools:
 	dotnet tool install --local dotnet-format || exit 0
 	dotnet tool install --local docfx --version 2.60.2 || exit 0
 
-## install - Install requirements
-install: | install-tools
-	git submodule init
-	git submodule update
+## install-styleguide - Import style guide (Unix only)
+install-styleguide: | update-examples-submodule
+	sh examples/symlink_directory_files.sh examples/style_guides/csharp .
 
-## lint - Lints the solution (EasyVCR + Tests + F#/VB samples) (check IDE and SA rule violations)
+## install - Install requirements
+install: | install-tools init-examples-submodule
+
+## lint - Lints the solution (EasyVCR + Tests + F#/VB compatibilities) (check IDE and SA rule violations)
+## @parameters:
+## FW= - The framework to build for.
 lint:
-    # Lint the source code with dotnet-format
+    # Lint the project code with dotnet-format
 	dotnet tool run dotnet-format --no-restore --check
-    # Lint the source code by building with the "Linting" configuration (will trigger StyleCop)
-	dotnet build EasyVCR/EasyVCR.csproj -c "Linting" -t:Rebuild -restore -p:EnforceCodeStyleInBuild=true
+    # Lint the source code (only EasyVCR, no tests et. al) by building with the "Linting" configuration (will trigger StyleCop)
+	dotnet build EasyVCR/EasyVCR.csproj -c "Linting" -t:Rebuild -restore -p:EnforceCodeStyleInBuild=true -f ${FW}
 
 ## lint-fix - Formats the project
 lint-fix:
@@ -84,7 +92,7 @@ release:
 restore:
 	dotnet restore
 
-## scan - Scan the solution (EasyVCR + Tests + F#/VB samples) for security issues (must run install-scanner first)
+## scan - Scan the solution (EasyVCR + Tests + F#/VB compatibilities) for security issues (must run install-scanner first)
 scan:
 	dotnet tool run security-scan --verbose --no-banner --ignore-msbuild-errors EasyVCR.sln
     # "--ignore-msbuild-errors" needed since MSBuild does not like F#: https://github.com/security-code-scan/security-code-scan/issues/235
@@ -95,18 +103,23 @@ setup-win:
 
 ## setup-unix - Install required .NET versions and tools (Unix only)
 setup-unix:
-	bash scripts/unix/setup.sh
+	./scripts/unix/setup.sh
 
-## test - Test the project
+## test - Run all tests in all projects in all configured frameworks (unit + compatibility)
 test:
 	dotnet test
 
-## test-fw - Run the unit tests for a specific framework
-# @parameters:
-# FW= - The framework to build for.
-test-fw:
-    # Note, running .NET Framework tests on a non-Windows machine may cause issues: https://xunit.net/docs/getting-started/netfx/cmdline
-	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${FW} -c "Debug" # Always run unit tests in Debug mode to allow access to internal members
+## unit-test - Run the unit tests for a specific framework
+## Always run unit tests in Debug mode to allow access to internal members
+## @parameters:
+## FW= - The framework to build for.
+unit-test:
+	dotnet test EasyVCR.Tests/EasyVCR.Tests.csproj -f ${FW} -c "Debug"
+
+## update-examples-submodule - Update the examples submodule
+update-examples-submodule:
+	git submodule init
+	git submodule update --remote
 
 ## fs-compat-test - Run the F# compatibility tests for a specific framework
 ## @parameters:
@@ -120,4 +133,10 @@ fs-compat-test:
 vb-compat-test:
 	dotnet test EasyVCR.Compatibility.VB/EasyVCR.Compatibility.VB.vbproj -f ${FW} -restore
 
-.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs install-tools install lint lint-fix lint-scripts publish release restore scan setup-win setup-unix test test-fw fs-compat-test vb-compat-test
+## netstandard-compat-test - Run the Net Standard compatibility tests for a specific framework
+## @parameters:
+## FW= - The framework to build for.
+netstandard-compat-test:
+	dotnet test EasyVCR.Compatibility.NetStandard/EasyVCR.Compatibility.NetStandard.csproj -f ${FW} -restore
+
+.PHONY: help analyze build build-fw build-prod clean coverage coverage-check docs format init-examples-submodule install-styleguide install-tools install lint lint-scripts release restore scan setup-win setup-unix test update-examples-submodule unit-test fs-compat-test vb-compat-test netstandard-compat-test

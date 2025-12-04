@@ -11,7 +11,7 @@ connectivity to the HTTP endpoints you need to interact with.
 
 ## How to use EasyVCR
 
-#### Step 1
+### Step 1
 
 Run your test suite locally against a real HTTP endpoint in recording mode
 
@@ -35,7 +35,7 @@ var response = await recordingHttpClient.GetAsync("https://api.example.com/v1/us
 
 Real HTTP calls will be made and recorded to the cassette file.
 
-#### Step 2
+### Step 2
 
 Switch to replay mode:
 
@@ -254,6 +254,6 @@ var response = await httpClient.GetAsync("https://google.com");
 vcr.Eject();
 ```
 
-#### Credit
+## Credit
 
 - [Scotch by Martin Leech](https://github.com/mleech/scotch), whose core functionality on which this is based.
