@@ -223,8 +223,8 @@ namespace EasyVCR.Tests
                 Censors = new Censors(censorString).CensorBodyElements(
                     new List<CensorElement>
                     {
-                        // censor the word "r/ProgrammerHumor"
-                        new TextCensorElement("r/ProgrammerHumor", false),
+                        // censor the word "my-label"
+                        new TextCensorElement("my-label", false),
                     }),
             };
 
@@ -242,11 +242,14 @@ namespace EasyVCR.Tests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
 
-            // word "r/ProgrammerHumor" should be censored
-            // for testing purposes, we know this is the "label" property of the "category" node under "feed"
-            var categoryNode = xmlDocument.FirstChild?.FirstChild;
-            Assert.IsNotNull(categoryNode);
-            Assert.AreEqual(censorString, categoryNode.Attributes["label"].Value);
+            // word "my-label" should be censored
+            // for testing purposes, we know this exists as the "label" property of the "heading" node
+            var nodes = xmlDocument.SelectNodes("//heading");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.Attributes["label"].Value);
+            }
         }
 
         /// <summary>
@@ -265,8 +268,8 @@ namespace EasyVCR.Tests
                 Censors = new Censors(censorString).CensorBodyElements(
                     new List<CensorElement>
                     {
-                        // censor the value of the "title" key
-                        new KeyCensorElement("title", false),
+                        // censor the value of the "heading" key
+                        new KeyCensorElement("heading", false),
                     }),
             };
 
@@ -284,8 +287,8 @@ namespace EasyVCR.Tests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
 
-            // whole value of "title" key should be censored
-            var nodes = xmlDocument.SelectNodes("//title");
+            // whole value of "heading" node should be censored
+            var nodes = xmlDocument.SelectNodes("//heading");
             Assert.IsNotNull(nodes);
             foreach (XmlNode node in nodes)
             {
@@ -328,9 +331,9 @@ namespace EasyVCR.Tests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
 
-            // all values that look like urls should be censored
-            // for testing purposes, we know this is stored in the "uri" nodes
-            var nodes = xmlDocument.SelectNodes("//uri");
+            // all values that look like date stamps should be censored
+            // for testing purposes, we know this is stored in the "date" node
+            var nodes = xmlDocument.SelectNodes("//date");
             Assert.IsNotNull(nodes);
             foreach (XmlNode node in nodes)
             {
@@ -362,7 +365,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
-            const string pattern = "<body.*>";
+            const string pattern = "<body.*>"; // censor the <body> tag
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -371,7 +374,7 @@ namespace EasyVCR.Tests
                         // censor the pattern
                         new RegexCensorElement(pattern, false),
                     }),
-                MatchRules = new MatchRules().ByMethod().ByBaseUrl() // Reddit is adding some random query params that we need to ignore to get a match
+                MatchRules = new MatchRules().ByMethod().ByBaseUrl()
             };
 
             // record cassette with advanced settings first
@@ -493,10 +496,10 @@ namespace EasyVCR.Tests
                 Censors = new Censors(censorString).CensorBodyElements(
                     new List<CensorElement>
                     {
-                        // censor the word "r/ProgrammerHumor"
-                        new TextCensorElement("r/ProgrammerHumor", false),
-                        // censor the value of the "title" key
-                        new KeyCensorElement("title", false), 
+                        // censor the word "label"
+                        new TextCensorElement("label", false),
+                        // censor the value of the "heading" key
+                        new KeyCensorElement("heading", false), 
                         // censor any value that looks like a date stamp
                         new RegexCensorElement(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", false),
                     }),
@@ -517,23 +520,26 @@ namespace EasyVCR.Tests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xmlData);
 
-            // word "r/ProgrammerHumor" should be censored
-            // for testing purposes, we know this is the "label" property of the "category" node under "feed"
-            var categoryNode = xmlDocument.FirstChild?.FirstChild;
-            Assert.IsNotNull(categoryNode);
-            Assert.AreEqual(censorString, categoryNode.Attributes["label"].Value);
+            // word "my-label" should be censored
+            // for testing purposes, we know this exists as the "label" property of the "heading" node
+            var nodes = xmlDocument.SelectNodes("//heading");
+            Assert.IsNotNull(nodes);
+            foreach (XmlNode node in nodes)
+            {
+                Assert.AreEqual(censorString, node.Attributes["label"].Value);
+            }
 
-            // whole value of "title" key should be censored
-            var nodes = xmlDocument.SelectNodes("//title");
+            // whole value of "heading" node should be censored
+            nodes = xmlDocument.SelectNodes("//heading");
             Assert.IsNotNull(nodes);
             foreach (XmlNode node in nodes)
             {
                 Assert.AreEqual(censorString, node.InnerText);
             }
 
-            // all values that look like urls should be censored
-            // for testing purposes, we know this is stored in the "uri" nodes
-            nodes = xmlDocument.SelectNodes("//uri");
+            // all values that look like date stamps should be censored
+            // for testing purposes, we know this is stored in the "date" node
+            nodes = xmlDocument.SelectNodes("//date");
             Assert.IsNotNull(nodes);
             foreach (XmlNode node in nodes)
             {
