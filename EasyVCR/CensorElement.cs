@@ -16,14 +16,14 @@ namespace EasyVCR
         /// <summary>
         ///     Value to look for.
         /// </summary>
-        protected string Value { get; }
+        protected object Value { get; }
 
         /// <summary>
         ///     Constructor for a new censor element.
         /// </summary>
         /// <param name="value">Value to censor.</param>
         /// <param name="caseSensitive">Whether the value is case-sensitive.</param>
-        protected CensorElement(string value, bool caseSensitive)
+        protected CensorElement(object value, bool caseSensitive)
         {
             Value = value;
             CaseSensitive = caseSensitive;
@@ -35,7 +35,7 @@ namespace EasyVCR
         /// <param name="value">The value to check.</param>
         /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal abstract bool Matches(string value, string? key = null);
+        internal abstract bool Matches(object value, string? key = null);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ namespace EasyVCR
         /// </summary>
         /// <param name="value">The raw text value of the element to censor.</param>
         /// <param name="caseSensitive">Whether the value is case-sensitive.</param>
-        public TextCensorElement(string value, bool caseSensitive) : base(value, caseSensitive)
+        public TextCensorElement(object value, bool caseSensitive) : base(value, caseSensitive)
         {
         }
 
@@ -58,10 +58,12 @@ namespace EasyVCR
         /// <param name="value">The value to check.</param>
         /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value, string? key = null)
+        internal override bool Matches(object value, string? key = null)
         {
             // we only care about the value here
-            return CaseSensitive ? value.Contains(Value) : value.ToLower().Contains(Value.ToLower());
+            var inputValueString = value?.ToString() ?? string.Empty;
+            var compareValueString = Value?.ToString() ?? string.Empty;
+            return CaseSensitive ? inputValueString.Contains(compareValueString) : inputValueString.ToLower().Contains(compareValueString.ToLower());
         }
 
         /// <summary>
@@ -71,11 +73,13 @@ namespace EasyVCR
         /// <param name="value">Value to replace.</param>
         /// <param name="replacement">Replacement for the value.</param>
         /// <returns>The value with the replacement inserted if it matches this censor element, otherwise the value as-is.</returns>
-        internal string MatchAndReplaceAsNeeded(string value, string replacement)
+        internal string MatchAndReplaceAsNeeded(object value, string replacement)
         {
             // if the passed-in value contains the Value to censor, replace the Value substring with the replacement
             // otherwise, return the original value
-            return !Matches(value) ? value : value.Replace(Value, replacement);
+            var inputValueString = value?.ToString() ?? string.Empty;
+            var compareValueString = Value?.ToString() ?? string.Empty;
+            return !Matches(value!) ? inputValueString : inputValueString.Replace(compareValueString, replacement);
         }
     }
 
@@ -99,10 +103,11 @@ namespace EasyVCR
         /// <param name="value">The value to check.</param>
         /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value, string? key = null)
+        internal override bool Matches(object value, string? key = null)
         {
             // we only care about the key here
-            return CaseSensitive ? Value.Equals(key) : Value.Equals(key, StringComparison.OrdinalIgnoreCase);
+            var compareKeyString = (string)Value;
+            return CaseSensitive ? compareKeyString.Equals(key) : compareKeyString.Equals(key, StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -127,7 +132,7 @@ namespace EasyVCR
         /// <param name="value">Value to apply the replacement to.</param>
         /// <param name="replacement">Replacement for a detected matching section.</param>
         /// <returns>The value with the replacement inserted, or the original value if no match was found.</returns>
-        internal string MatchAndReplaceAsNeeded(string value, string replacement)
+        internal string MatchAndReplaceAsNeeded(object value, string replacement)
         {
             var options = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Singleline;
             if (!CaseSensitive)
@@ -135,9 +140,11 @@ namespace EasyVCR
                 options |= RegexOptions.IgnoreCase;
             }
 
+            var inputValueString = value?.ToString() ?? string.Empty;
+            var compareValueString = Value?.ToString() ?? string.Empty;
             return Regex.Replace(
-                value,
-                Value,
+                inputValueString,
+                compareValueString,
                 replacement,
                 options,
                 TimeSpan.FromMilliseconds(250)
@@ -150,7 +157,7 @@ namespace EasyVCR
         /// <param name="value">The value to check.</param>
         /// <param name="key">The key to check.</param>
         /// <returns>True if the element matches, false otherwise.</returns>
-        internal override bool Matches(string value, string? key = null)
+        internal override bool Matches(object value, string? key = null)
         {
             // we only care about the value here
             var options = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture | RegexOptions.Singleline;
@@ -161,9 +168,11 @@ namespace EasyVCR
 
             try
             {
+                var inputValueString = value?.ToString() ?? string.Empty;
+                var compareValueString = Value?.ToString() ?? string.Empty;
                 return Regex.IsMatch(
-                    value,
-                    Value,
+                    inputValueString,
+                    compareValueString,
                     options,
                     TimeSpan.FromMilliseconds(250)
                     );
