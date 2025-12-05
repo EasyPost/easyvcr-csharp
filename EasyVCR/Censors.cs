@@ -353,7 +353,7 @@ namespace EasyVCR
             try
             {
                 var jsonDictionary = JsonSerialization.ConvertJsonToObject<Dictionary<string, object>>(data);
-                var censoredJsonDictionary = ApplyJsonXmlDataCensors(jsonDictionary, censorText, elementsToCensors);
+                var censoredJsonDictionary = ApplyJsonXmlDataCensors(jsonDictionary, censorText, elementsToCensors, ContentType.Json);
                 return JsonSerialization.ConvertObjectToJson(censoredJsonDictionary);
             }
             catch (Exception)
@@ -362,7 +362,7 @@ namespace EasyVCR
                 try
                 {
                     var jsonList = JsonSerialization.ConvertJsonToObject<List<object>>(data);
-                    var censoredJsonList = ApplyJsonXmlDataCensors(jsonList, censorText, elementsToCensors);
+                    var censoredJsonList = ApplyJsonXmlDataCensors(jsonList, censorText, elementsToCensors, ContentType.Json);
                     return JsonSerialization.ConvertObjectToJson(censoredJsonList);
                 }
                 catch
@@ -385,7 +385,7 @@ namespace EasyVCR
             try
             {
                 var xmlDictionary = XmlSerialization.ConvertXmlToObject<Dictionary<string, object>>(data);
-                var censoredXmlDictionary = ApplyJsonXmlDataCensors(xmlDictionary, censorText, elementsToCensors);
+                var censoredXmlDictionary = ApplyJsonXmlDataCensors(xmlDictionary, censorText, elementsToCensors, ContentType.Xml);
                 return XmlSerialization.ConvertObjectToXml(censoredXmlDictionary);
             }
             catch (Exception)
@@ -394,7 +394,7 @@ namespace EasyVCR
                 try
                 {
                     var xmlList = XmlSerialization.ConvertXmlToObject<List<object>>(data);
-                    var censoredXmlList = ApplyJsonXmlDataCensors(xmlList, censorText, elementsToCensors);
+                    var censoredXmlList = ApplyJsonXmlDataCensors(xmlList, censorText, elementsToCensors, ContentType.Xml);
                     return XmlSerialization.ConvertObjectToXml(censoredXmlList);
                 }
                 catch
@@ -411,8 +411,9 @@ namespace EasyVCR
         /// <param name="list">List of elements to apply censors to.</param>
         /// <param name="censorText">Test to use to replace censored elements.</param>
         /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <param name="contentType">Content type of the data being censored. Needed to handle JSON and XML slightly differently.</param>
         /// <returns>A censored list of elements.</returns>
-        private static List<object> ApplyJsonXmlDataCensors(List<object> list, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
+        private static List<object> ApplyJsonXmlDataCensors(List<object> list, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors, ContentType contentType)
         {
             if (list.Count == 0)
                 // short circuit if there are no body parameters
@@ -431,7 +432,7 @@ namespace EasyVCR
                     }
                     else
                     {
-                        var censoredEntryDict = ApplyJsonXmlDataCensors(entryDict, censorText, elementsToCensors);
+                        var censoredEntryDict = ApplyJsonXmlDataCensors(entryDict, censorText, elementsToCensors, contentType);
                         censoredList.Add(censoredEntryDict);
                     }
                 }
@@ -445,7 +446,7 @@ namespace EasyVCR
                     }
                     else
                     {
-                        var censoredEntryList = ApplyJsonXmlDataCensors(entryList, censorText, elementsToCensors);
+                        var censoredEntryList = ApplyJsonXmlDataCensors(entryList, censorText, elementsToCensors, contentType);
                         censoredList.Add(censoredEntryList);
                     }
                 }
@@ -465,8 +466,9 @@ namespace EasyVCR
         /// <param name="dictionary">Dictionary of elements to apply censors to.</param>
         /// <param name="censorText">Test to use to replace censored elements.</param>
         /// <param name="elementsToCensors">List of elements to censor.</param>
+        /// <param name="contentType">Content type of the data being censored. Needed to handle JSON and XML slightly differently.</param>
         /// <returns>A censored dictionary of elements.</returns>
-        private static Dictionary<string, object> ApplyJsonXmlDataCensors(Dictionary<string, object> dictionary, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors)
+        private static Dictionary<string, object> ApplyJsonXmlDataCensors(Dictionary<string, object> dictionary, string censorText, IReadOnlyCollection<CensorElement> elementsToCensors, ContentType contentType)
         {
             if (dictionary.Count == 0)
                 // short circuit if there is no data to censor
@@ -486,13 +488,13 @@ namespace EasyVCR
 
                     if (Utilities.IsJsonDictionary(value))
                     {
-                        // replace with empty dictionary
-                        censoredBodyDictionary.Add(elem.Key, new Dictionary<string, object>());
+                        // replace with empty dictionary or censor text based on content type
+                         censoredBodyDictionary.Add(elem.Key, contentType == ContentType.Json ? new Dictionary<string, object>() : censorText);
                     }
                     else if (Utilities.IsJsonArray(value))
                     {
-                        // replace with empty array
-                        censoredBodyDictionary.Add(elem.Key, new List<object>());
+                        // replace with empty array or censor text based on content type
+                        censoredBodyDictionary.Add(elem.Key, contentType == ContentType.Json ? new List<object>() : censorText);
                     }
                     else
                     {
@@ -511,7 +513,7 @@ namespace EasyVCR
                         if (valueDict != null)
                         {
                             // change the value if can be parsed as a dictionary (otherwise, skip censoring)
-                            value = ApplyJsonXmlDataCensors(valueDict, censorText, elementsToCensors);
+                            value = ApplyJsonXmlDataCensors(valueDict, censorText, elementsToCensors, contentType);
                         }
                     }
 
@@ -521,7 +523,7 @@ namespace EasyVCR
                         var valueList = ((JArray)dictionary[elem.Key]).ToObject<List<object>>();
                         if (valueList != null)
                         {
-                            value = ApplyJsonXmlDataCensors(valueList, censorText, elementsToCensors);
+                            value = ApplyJsonXmlDataCensors(valueList, censorText, elementsToCensors, contentType);
                         }
                     }
 

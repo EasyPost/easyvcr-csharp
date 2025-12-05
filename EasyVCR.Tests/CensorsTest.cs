@@ -340,14 +340,41 @@ namespace EasyVCR.Tests
                 Assert.AreEqual(censorString, node.InnerText);
             }
         }
-
-        [Ignore("Hard to test")]
+        
         [TestMethod]
         public async Task TestTextCensorOnHtml()
         {
-            // TextCensorHTML censors the whole text in the HTML body
-            // Would need an HTML page with a small body to test this
-            Assert.Fail();
+            var cassette = TestUtils.GetCassette("test_text_censor_on_html");
+            cassette.Erase(); // Erase cassette before recording
+
+            // set up advanced settings
+            var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
+            const string textToCensor = "This is some text";
+            var advancedSettings = new AdvancedSettings
+            {
+                Censors = new Censors(censorString).CensorBodyElements(
+                    new List<CensorElement>
+                    {
+                        // censor the text
+                        new TextCensorElement(textToCensor, false),
+                    }),
+            };
+
+            // record cassette with advanced settings first
+            var client = HttpClients.NewHttpClient(cassette, Mode.Record, advancedSettings);
+            var fakeDataService = new FakeDataService(client);
+            var _ = await fakeDataService.GetHtmlDataRawResponse();
+
+            // now replay cassette
+            client = HttpClients.NewHttpClient(cassette, Mode.Replay, advancedSettings);
+            fakeDataService = new FakeDataService(client);
+            var textData = await fakeDataService.GetHtmlData();
+
+            Assert.IsNotNull(textData);
+
+            // censored word should no longer exist, and censor string should exist
+            Assert.IsFalse(textData.Contains(textToCensor));
+            Assert.IsTrue(textData.Contains(censorString));
         }
 
         [Ignore("Can't use KeyCensorElement on HTML bodies")]
@@ -365,7 +392,7 @@ namespace EasyVCR.Tests
 
             // set up advanced settings
             var censorString = Guid.NewGuid().ToString(); // generate random string, high chance of not being in original data
-            const string pattern = "<body.*>"; // censor the <body> tag
+            const string pattern = "</body>"; // censor the closing body tag
             var advancedSettings = new AdvancedSettings
             {
                 Censors = new Censors(censorString).CensorBodyElements(
@@ -388,7 +415,6 @@ namespace EasyVCR.Tests
             var textData = await fakeDataService.GetHtmlData();
 
             Assert.IsNotNull(textData);
-            Console.WriteLine(textData);
 
             // censored pattern should no longer exist, and censor string should exist
             Assert.IsFalse(Regex.IsMatch(textData, pattern));

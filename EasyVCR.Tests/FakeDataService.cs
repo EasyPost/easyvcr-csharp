@@ -45,7 +45,7 @@ namespace EasyVCR.Tests
 
         public static string JsonDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/master/sample_data/sample_json.json";
 
-        public static string XmlDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/master/sample_data/sample_xml.xml";
+        public static string XmlDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/master/sample_data/sample_xml.rss";
 
         public static string HtmlDataUrl => "https://raw.githubusercontent.com/EasyPost/easyvcr-csharp/master/sample_data/sample_html.html";
 
