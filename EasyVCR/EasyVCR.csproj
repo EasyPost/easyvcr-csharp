@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net5.0;net6.0;net7.0;net8.0;net9.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0;net9.0;net10.0;</TargetFrameworks>
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
         <RootNamespace>EasyVCR</RootNamespace>
@@ -9,7 +9,7 @@
         <Configurations>Release;Debug</Configurations>
         <Platforms>AnyCPU</Platforms>
         <PackageId>EasyVCR</PackageId>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>latest</LangVersion>
         <ImplicitUsings>disable</ImplicitUsings>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
@@ -39,7 +39,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <SignAssembly>true</SignAssembly>
         <DelaySign>true</DelaySign>

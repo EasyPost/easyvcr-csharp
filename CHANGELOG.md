@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Next Release
+
+- Drops support for `netcoreapp3.1` and `net5.0`
+- Adds support for `net10.0`
+
 ## v0.12.0 (2025-04-21)
 
 - Add support for censoring XML, HTML and plain text bodies

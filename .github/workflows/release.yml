@@ -3,7 +3,7 @@ name: Release
 on:
   release:
     types: [published]
-  workflow_dispatch:
+  workflow_dispatch: ~
 
 jobs:
   publish:
@@ -11,18 +11,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
-            3.1.x
-            5.x.x
             6.x.x
             7.x.x
             8.x.x
             9.x.x
+            10.x.x
 
       - name: Setup Nuget
         uses: NuGet/setup-nuget@v2
@@ -66,15 +65,13 @@ jobs:
 
       - name: Build and Sign NuGet package
         run: |
-          call scripts\win\build_release_nuget.bat EasyVCR EasyPostNETStrongNameSigning.snk "${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}" Release
+          call scripts\win\build_release_nuget.bat EasyVCR EasyPostNETStrongNameSigning.snk "${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }}" "${{ secrets.SM_CODE_SIGNING_CERT_SHA256_HASH }}" Release
         shell: cmd
 
       - name: Publish to NuGet
         run: make publish key=${{ secrets.NUGET_API_KEY }}
 
-      # If triggered by a release, upload the NuGet package to the release
       - name: Upload NuGet package to release
-        if: github.event_name == 'release'
         uses: AButler/upload-release-assets@v3.0.1
         with:
           files: '*.nupkg'

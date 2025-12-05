@@ -4,53 +4,28 @@
 # User-specific files
 *.suo
 *.user
-*.userosscache
 *.sln.docstates
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
+.env
 
 # Build results
 [Dd]ebug/
-[Dd]ebugPublic/
 [Rr]elease/
-[Rr]eleases/
 x64/
-x86/
 build/
-test/
-bld/
 [Bb]in/
 [Oo]bj/
+packages/
+[Ll]ib/
 
-# Visual Studio 2015 cache/options directory
-.vs/
-# Uncomment if you have tasks that create the project's static files in wwwroot
-#wwwroot/
-
-# Rider stuff
-.idea/
+# Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
+!packages/*/build/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-# NUNIT
-*.VisualState.xml
-TestResult.xml
-
-# Build Results of an ATL Project
-[Dd]ebugPS/
-[Rr]eleasePS/
-dlldata.c
-
-# DNX
-project.lock.json
-artifacts/
-
 *_i.c
 *_p.c
-*_i.h
 *.ilk
 *.meta
 *.obj
@@ -70,11 +45,8 @@ artifacts/
 *.vssscc
 .builds
 *.pidb
-*.svclog
+*.log
 *.scc
-
-# Chutzpah Test files
-_Chutzpah*
 
 # Visual C++ cache files
 ipch/
@@ -83,15 +55,24 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+.vs
 
 # Visual Studio profiler
 *.psess
 *.vsp
 *.vspx
-*.sap
 
-# TFS 2012 Local Workspace
-$tf/
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/packages/repositories.config
+# NuGet v3's project.json files produces more ignoreable files
+*.nuget.props
+*.nuget.targets
 
 # Guidance Automation Toolkit
 *.gpState
@@ -99,10 +80,10 @@ $tf/
 # ReSharper is a .NET coding add-in
 _ReSharper*/
 *.[Rr]e[Ss]harper
-*.DotSettings.user
 
-# JustCode is a .NET coding add-in
-.JustCode
+# JetBrains Rider
+.idea/
+*.sln.iml
 
 # TeamCity is a build add-in
 _TeamCity*
@@ -110,17 +91,12 @@ _TeamCity*
 # DotCover is a Code Coverage Tool
 *.dotCover
 
+# ReportGenerator is a Code Coverage Tool
+coveragereport
+
 # NCrunch
-_NCrunch_*
+*.ncrunch*
 .*crunch*.local.xml
-nCrunchTemp_*
-
-# MightyMoose
-*.mm.*
-AutoTest.Net/
-
-# Web workbench (sass)
-.sass-cache/
 
 # Installshield output folder
 [Ee]xpress/
@@ -139,109 +115,74 @@ DocProject/Help/html
 publish/
 
 # Publish Web Output
-*.[Pp]ublish.xml
-*.azurePubxml
-# TODO: Comment the next line if you want to checkin your web deploy settings 
-# but database connection strings (with potential passwords) will be unencrypted
-*.pubxml
-*.publishproj
+*.Publish.xml
 
-# NuGet Packages
-*.nupkg
-# The packages folder can be ignored because of Package Restore
-**/packages/*
-# except build/, which is used as an MSBuild target.
-!**/packages/build/
-# Uncomment if necessary however generally it will be regenerated when needed
-#!**/packages/repositories.config
+# NuGet Packages Directory
+## TODO: If you have NuGet Package Restore enabled, uncomment the next line
+#packages/
 
 # Windows Azure Build Output
-csx/
+csx
 *.build.csdef
 
 # Windows Store app package directory
 AppPackages/
 
-# Visual Studio cache files
-# files ending in .cache can be ignored
-*.[Cc]ache
-# but keep track of directories ending in .cache
-!*.[Cc]ache/
-
 # Others
+sql/
+*.Cache
 ClientBin/
 [Ss]tyle[Cc]op.*
 ~$*
 *~
 *.dbmdl
-*.dbproj.schemaview
+*.[Pp]ublish.xml
 *.pfx
-*.snk
 *.publishsettings
-node_modules/
-orleans.codegen.cs
 
 # RIA/Silverlight projects
 Generated_Code/
 
-# Backup & report files from converting an old project file
-# to a newer Visual Studio version. Backup files are not needed,
-# because we have git ;-)
+# Backup & report files from converting an old project file to a newer
+# Visual Studio version. Backup files are not needed, because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
 UpgradeLog*.XML
 UpgradeLog*.htm
 
 # SQL Server files
-*.mdf
-*.ldf
+App_Data/*.mdf
+App_Data/*.ldf
 
-# Business Intelligence projects
-*.rdl.data
-*.bim.layout
-*.bim_*.settings
 
-# Microsoft Fakes
-FakesAssemblies/
+#LightSwitch generated files
+GeneratedArtifacts/
+_Pvt_Extensions/
+ModelManifest.xml
 
-# Node.js Tools for Visual Studio
-.ntvs_analysis.dat
+# =========================
+# Windows detritus
+# =========================
 
-# Visual Studio 6 build log
-*.plg
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
 
-# Visual Studio 6 workspace options file
-*.opt
+# Folder config file
+Desktop.ini
 
-# Visual Studio LightSwitch build output
-**/*.HTMLClient/GeneratedArtifacts
-**/*.DesktopClient/GeneratedArtifacts
-**/*.DesktopClient/ModelManifest.xml
-**/*.Server/GeneratedArtifacts
-**/*.Server/ModelManifest.xml
-_Pvt_Extensions
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
 
-# Paket dependency manager
-.paket/paket.exe
-paket-files/
-packages/
-
-# FAKE - F# Make
-.fake/
-
-# Visual Studio Code
-.vscode/
-
-# output of paket pack
-nuget/
-
-# output of build
-/lib/*
-**/bin/*
-**/obj/*
-
-# macOS Finder preferences
+# Mac desktop service store files
 .DS_Store
+
+# Dotnet tools
+.config/dotnet-tools.json
+
+# Downloaded style guides
+/layout_rules.xml
+/.editorconfig
 
 # Don't include cassettes
 **/cassettes/*

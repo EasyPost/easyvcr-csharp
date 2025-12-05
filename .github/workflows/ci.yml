@@ -10,30 +10,29 @@ jobs:
   lint:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
 
       - name: Set up dotnet tools
         run: make install-tools
 
       - name: Check style with dotnet-format
         run: make lint
-
   Security_Code_Scan:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           # v6 is needed for the tool to run
           dotnet-version: |
-            9.x.x
+            10.x.x
             6.x.x
 
       - name: Set up dotnet tools and dependencies
@@ -45,12 +44,12 @@ jobs:
   Coverage_Requirements:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
 
       - name: Set up dotnet tools and dependencies
         run: make install
@@ -62,12 +61,12 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
 
       - name: Set up dotnet tools and dependencies
         run: make install
@@ -86,44 +85,38 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        name: ['net462', 'netstandard2.0', 'netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0']
+        name: ['Net60', 'Net70', 'Net80', 'Net90', 'Net100']
         include:
-          - name: net462
-            framework: net462
-            dotnet-version: null
-          - name: netstandard2.0
-            # can't run tests on .NET Standard, it's just a bridge between .NET Framework and .NET.
-            # So we'll target .NET Framework 4.6.2
-            # More notes at the bottom of this file
-            framework: net462
-            dotnet-version: null
-          - name: netcoreapp3.1
-            framework: netcoreapp3.1
-            dotnet-version: 3.1.x
-          - name: net5.0
-            framework: net5.0
-            dotnet-version: 5.x.x
-          - name: net6.0
+          - name: Net60
             framework: net6.0
             dotnet-version: 6.x.x
-          - name: net7.0
+          - name: Net70
             framework: net7.0
             dotnet-version: 7.x.x
-          - name: net8.0
+          - name: Net80
             framework: net8.0
             dotnet-version: 8.x.x
-          - name: net9.0
+          - name: Net90
             framework: net9.0
             dotnet-version: 9.x.x
+          - name: Net100
+            framework: net10.0
+            dotnet-version: 10.x.x
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ matrix.dotnet-version}}
+          dotnet-version: |
+            10.x.x
+            ${{ matrix.dotnet-version }}
+
+      - name: Specify .NET SDK version to use since GitHub runners have multiple installed
+        run: |
+          echo '{"sdk":{"version": "${{ matrix.dotnet-version }}"}}' > ./global.json
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -148,19 +141,71 @@ jobs:
 
         # Run the unit tests in a specific framework (verify that the library works in that framework)
       - name: Run Tests
-        run: make test-fw fw=${{ matrix.framework }}
+        run: make unit-test FW=${{ matrix.framework }}
 
-  FSharp_Compatibility:
-    runs-on: windows-latest
+  # .NET Standard notes:
+  # - NET Standard 2.0 is compatible with minimum .NET Framework 4.6.1: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
+  # - GitHub's Windows 2022 runner only supports minimum .NET Framework 4.7.2 anyway: https://github.com/actions/virtual-environments/issues/5055#issuecomment-1040757930
+  # - .NET Standard is not a framework, but a set of shared APIs between the old .NET Framework and new .NET/.NET Core
+  # - `EasyVCR` targets .NET Standard 2.0, meaning it is compatible with specific versions of both .NET and .NET Framework: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
+  # - When you want to actually run code, however, you can't run it in .NET Standard. You have to run it in either .NET or .NET Framework: https://stackoverflow.com/a/48885500/13343799
+  # - So, while `EasyVCR` targets .NET Standard 2.0, `EasyVCR.Compatibility.NetStandard`, the code we're actually executing, targets .NET Framework 4.7.2
+  # - By extension, this is ensuring we are testing that the `EasyVCR` source code can run in a .NET Framework environment
+
+  NetStandard_Compatibility_Tests:
+    # Need windows-2022 for .NET Framework 4.7.2 support
+    runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
+        id: setupid
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
+
+      - name: Specify .NET SDK version to use since GitHub runners have multiple installed
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setupid.outputs.dotnet-version }}"}}' > ./global.json
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup Nuget
+        uses: NuGet/setup-nuget@v2
+
+      - name: Setup VSTest
+        uses: darenm/Setup-VSTest@v1.3
+
+        # Pull in fixtures submodule
+      - name: Set up dotnet tools and dependencies
+        run: make install
+
+      - name: Restore NuGet Packages
+        run: make restore build
+
+        # Run the compatibility tests
+      - name: Run Tests
+        run: make netstandard-compat-test FW=net472
+
+  FSharp_Compatibility_Tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        id: setupid
+        with:
+          dotnet-version: 10.x.x
+
+      - name: Specify .NET SDK version to use since GitHub runners have multiple installed
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setupid.outputs.dotnet-version }}"}}' > ./global.json
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -178,21 +223,26 @@ jobs:
       - name: Set up dotnet tools and dependencies
         run: make install
 
-        # Build the test project
-      - name: Build Solution
+        # Run the compatibility tests
+      - name: Run Tests
         run: make fs-compat-test
 
-  Visual_Basic_Compatibility:
+  Visual_Basic_Compatibility_Test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
+        id: setupid
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
+
+      - name: Specify .NET SDK version to use since GitHub runners have multiple installed
+        run: |
+          echo '{"sdk":{"version": "${{ steps.setupid.outputs.dotnet-version }}"}}' > ./global.json
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -210,15 +260,6 @@ jobs:
       - name: Set up dotnet tools and dependencies
         run: make install
 
-        # Build the test project
-      - name: Build Solution
+        # Run the compatibility tests
+      - name: Run Tests
         run: make vb-compat-test
-# .NET Standard notes:
-# - NET Standard 2.0 is compatible with minimum .NET Framework 4.6.1: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
-# - NET Framework 4.6.1 is EOL after April 26, 2022, due to its security concerns (was affected by the SHA-1 crack): https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-framework
-# - GitHub's Windows 2022 runner only supports minimum .NET Framework 4.6.2 anyway: https://github.com/actions/virtual-environments/issues/5055#issuecomment-1040757930
-# - .NET Standard is not a framework, but a set of shared APIs between the old .NET Framework and new .NET/.NET Core
-# - `EasyVCR` targets .NET Standard 2.0, meaning it is compatible with specific versions of both .NET and .NET Framework: https://docs.microsoft.com/en-us/dotnet/standard/net-standard?tabs=net-standard-2-0
-# - When you want to actually run code, however, you can't run it in .NET Standard. You have to run it in either .NET or .NET Framework: https://stackoverflow.com/a/48885500/13343799
-# - So, while `EasyVCR` targets .NET Standard 2.0, `EasyVCR.Tests`, the code we're actually executing, targets .NET Framework 4.6.2
-# - By extension, this is ensuring we are testing that the `EasyVCR` source code can run in a .NET Framework environment
