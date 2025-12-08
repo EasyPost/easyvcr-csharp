@@ -22,15 +22,16 @@ namespace EasyVCR.InternalUtilities
                 return ContentType.Json;
             }
 
-            if (IsXml(content))
-            {
-                return ContentType.Xml;
-            }
-
-            // ReSharper disable once ConvertIfStatementToReturnStatement
+            // Need to check HTML first, as HTML is also valid XML
             if (IsHtml(content))
             {
                 return ContentType.Html;
+            }
+
+            // ReSharper disable once ConvertIfStatementToReturnStatement
+            if (IsXml(content))
+            {
+                return ContentType.Xml;
             }
 
             return ContentType.Text;
