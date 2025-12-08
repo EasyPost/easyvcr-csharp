@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## Next Release
+## v0.13.0 (2025-12-08)
 
 - Drops support for `netcoreapp3.1` and `net5.0`
 - Adds support for `net10.0`
+- Allow non-string values for censor elements (compare string-string via conversions) (closes #76)
 
 ## v0.12.0 (2025-04-21)
 
