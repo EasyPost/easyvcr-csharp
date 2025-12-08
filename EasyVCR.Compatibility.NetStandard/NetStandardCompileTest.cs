@@ -3,7 +3,7 @@
 using EasyVCR;
 using Xunit;
 
-namespace EasyVCR.Compatibility.FSharp
+namespace EasyVCR.Compatibility.NetStandard
 {
     public class NetStandardCompileTest
     {
