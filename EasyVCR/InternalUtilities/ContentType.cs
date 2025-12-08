@@ -21,7 +21,7 @@ namespace EasyVCR.InternalUtilities
             {
                 return ContentType.Json;
             }
-            
+
             // Need to check HTML first, as HTML is also valid XML
             if (IsHtml(content))
             {

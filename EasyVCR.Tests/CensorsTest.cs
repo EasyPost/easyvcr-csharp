@@ -340,7 +340,7 @@ namespace EasyVCR.Tests
                 Assert.AreEqual(censorString, node.InnerText);
             }
         }
-        
+
         [TestMethod]
         public async Task TestTextCensorOnHtml()
         {
@@ -578,7 +578,7 @@ namespace EasyVCR.Tests
         {
             var cassette = TestUtils.GetCassette("test_non_string_censor_elements");
             cassette.Erase(); // Erase cassette before recording
-            
+
             const string censorString = "censored-by-test";
             const int intToCensor = 123456;
             var dateToCensor = new DateTime(2020, 1, 1, 12, 0, 0);

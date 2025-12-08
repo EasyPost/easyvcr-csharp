@@ -489,7 +489,7 @@ namespace EasyVCR
                     if (Utilities.IsJsonDictionary(value))
                     {
                         // replace with empty dictionary or censor text based on content type
-                         censoredBodyDictionary.Add(elem.Key, contentType == ContentType.Json ? new Dictionary<string, object>() : censorText);
+                        censoredBodyDictionary.Add(elem.Key, contentType == ContentType.Json ? new Dictionary<string, object>() : censorText);
                     }
                     else if (Utilities.IsJsonArray(value))
                     {
