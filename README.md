@@ -61,7 +61,7 @@ file.
 
 ## Features
 
-`EasyVCR` comes with a number of features, many of which can be customized via the `AdvancedOptions` class.
+`EasyVCR` comes with a number of features, many of which can be customized via the `AdvancedSettings` class.
 
 ### Censoring
 
@@ -94,7 +94,7 @@ var censors = new Censors().CensorHeaders(headerCensors)
                            .CensorBodyElements(bodyCensors)
                            .CensorPathElements(pathCensors);
 
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     Censors = censors
 };
@@ -115,7 +115,7 @@ to the millisecond.
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     SimulateDelay = true, // Simulate a delay of the original request duration when replaying (overrides ManualDelay)
     ManualDelay = 1000 // Simulate a delay of 1000 milliseconds when replaying
@@ -134,7 +134,7 @@ Set expiration dates for recorded requests, and decide what to do with expired r
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     ValidTimeFrame = new TimeFrame() {  // Any matching request is considered expired if it was recorded more than 30 days ago
         Days = 30,
@@ -155,7 +155,7 @@ Customize how a recorded request is determined to be a match to the current requ
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     MatchRules = new MatchRules().ByBody().ByHeader("X-My-Header"), // Match recorded requests by body and a specific header
 };
@@ -191,7 +191,7 @@ Have EasyVCR integrate with your custom logger to log warnings and errors.
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     Logger = new MyCustomLogger(), // Have EasyVCR use your custom logger when making log entries
 };
@@ -209,7 +209,7 @@ Useful if `HttpClient` suffers breaking changes in future .NET versions.
 using EasyVCR;
 
 var cassette = new Cassette("path/to/cassettes", "my_cassette");
-var advancedOptions = new AdvancedOptions()
+var advancedSettings = new AdvancedSettings()
 {
     InteractionConverter = new MyInteractionConverter(), // use a custom interaction converter by implementing IInteractionConverter
 };
