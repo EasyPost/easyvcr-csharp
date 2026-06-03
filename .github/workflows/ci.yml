@@ -11,7 +11,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x.x
@@ -25,7 +27,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         with:
           # v6 is needed for the tool to run
@@ -43,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x.x
@@ -59,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.x.x
@@ -101,7 +105,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
@@ -153,7 +159,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         id: setupid
         with:
@@ -189,7 +197,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         id: setupid
         with:
@@ -225,7 +235,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: extractions/setup-just@v3
+      - uses: EasyPost/ep-actions/.github/actions/setup/just@main
+        with:
+          os: windows
       - uses: actions/setup-dotnet@v5
         id: setupid
         with:
